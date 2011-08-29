@@ -1,0 +1,108 @@
+#ifndef __base_resmanager_h_
+#define __base_resmanager_h_
+
+#include "mutex.h"
+#include "log.h"
+
+namespace base
+{
+    /*
+    class Res
+    {
+        friend class ResManager;
+    public:
+        Res(){};
+        virtual ~Res(){};
+    private:
+        unsigned int m_nResID;
+        Res * m_Next;
+    };
+    */
+    template< class T, unsigned int nMaxResNum >
+        class ResManager
+        {
+        public:
+            static const unsigned int s_nMinMaxResNum = 1;
+        public:
+            ResManager()
+            {
+                m_nMaxResNum = nMaxResNum>1?nMaxResNum:1;
+                m_pFreeRes = NULL;
+                m_aRes = new T[m_nMaxResNum];
+                for (unsigned int i=0; i<m_nMaxResNum; i++)
+                {
+                    m_aRes[i].m_Next = m_pFreeRes;
+                    m_aRes[i].m_nResID = i;
+                    m_pFreeRes = &m_aRes[i];
+                }
+                m_nFreeResNum = 0;
+            }
+
+            virtual ~ResManager()
+            {
+                m_pFreeRes = NULL;
+                delete [] m_aRes;
+                m_aRes = NULL;
+                m_nFreeResNum = 0;
+            }
+
+            T * GetFreeRes()
+            {
+                Mutex::ScopedLock lock(m_MutexForFreeResQueue);
+                T * pFreeRes = m_pFreeRes;
+                if (pFreeRes != NULL)
+                {
+                    m_pFreeRes = m_pFreeRes->m_Next;
+                    --m_nFreeResNum;
+
+                    // sign as working
+                    pFreeRes.m_Next = pFreeRes;
+                }
+                return pFreeRes;
+            }
+            T * GetRes(unsigned int nResID)
+            {
+                if (nResID >= m_nMaxResNum)
+                {
+                    WriteLog(LEVEL_WARNING, "MaxResID(%d) is less than ResID(%d).\n", m_nMaxResNum-1, nResID);
+                    return NULL;
+                }
+                return m_aRes[nResID];
+            }
+
+            bool ReleaseRes(unsigned int nResID)
+            {
+                T * p = GetRes(nResID);
+                if (p == NULL)
+                {
+                    return false;
+                }
+                else
+                {
+                    ReleaseRes(*p);
+                }
+            }
+            bool ReleaseRes(T & rFreeRes)
+            {
+                if (rFreeRes.m_Next == &rFreeRes)
+                {
+                    // it is a free res
+                    WriteLog(LEVEL_WARNING, "This Res has been released. ResID=%d.\n", rFreeRes.m_nResID);
+                    return false;
+                }
+                Mutex::ScopedLock lock(m_MutexForFreeResQueue);
+                rFreeRes.m_Next = m_pFreeRes;
+                m_pFreeRes = &rFreeRes;
+                ++m_nFreeResNum;
+                return true;
+            }
+
+        private:
+            const unsigned int m_nMaxResNum;
+            unsigned int m_nFreeResNum;
+            T * m_aRes;
+            T * m_pFreeRes;
+            Mutex m_MutexForFreeResQueue;
+        };
+}
+#endif // __base_resmanager_h_

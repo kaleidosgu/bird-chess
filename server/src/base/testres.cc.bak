@@ -1,0 +1,16 @@
+
+#include "resmanager.h"
+using namespace base;
+class TestRes //: public Res
+{
+public:
+    TestRes();
+    virtual ~TestRes();
+};
+
+int main()
+{
+    ResManager<TestRes,5> a;
+    return 0;
+}
+
