@@ -1,0 +1,514 @@
+#include "socketmgr.h"
+#include "recvdataelement.h"
+#include "systemmsg.h"
+#include "../base/log.h"
+#include <sys/epoll.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <errno.h>
+
+const unsigned int cMAX_SPARE_FD = 32;
+
+const int cLISTEN_QUEUE_SIZE = 16;
+
+const unsigned int cRECV_QUEUE_SIZE = 65536;
+
+#ifndef EPOLLRDHUP
+#define EPOLLRDHUP              0x2000
+#endif //EPOLLRDHUP
+
+
+using namespace net;
+
+extern bool SetNonBlocking(int nFd);
+
+void SetFileLimit(unsigned int nMaxClient)
+{
+    struct rlimit rlim;
+    getrlimit(RLIMIT_NOFILE, &rlim);
+    unsigned int nSoftLimit = rlim.rlim_cur;
+    if (nMaxClient > rlim.rlim_max - cMAX_SPARE_FD)
+    {
+        WriteLog(LEVEL_WARNING, "Hard Limit is less than MaxClient. Hard Limit = %d.\n", rlim.rlim_max);
+        rlim.rlim_max = nMaxClient + cMAX_SPARE_FD;
+    }
+    if (nMaxClient > rlim.rlim_cur - cMAX_SPARE_FD)
+    {
+        WriteLog(LEVEL_INFO, "Soft Limit is less than MaxClient. Soft Limit = %d.\n", rlim.rlim_cur);
+        rlim.rlim_cur = nMaxClient + cMAX_SPARE_FD;
+    }
+    if (setrlimit(RLIMIT_NOFILE, &rlim) != 0)
+    {
+        WriteLog(LEVEL_WARNING, "Set Limit Failed. errno = %d.\n", errno);
+        nMaxClient = nSoftLimit - cMAX_SPARE_FD;
+    }
+
+}
+
+CSocketMgr::CSocketMgr()
+{
+    m_bInitSuccess = false;
+    m_nPort = 0;
+    m_nListenerFd = -1;
+    m_nMaxClient = 0;
+    m_nCurClient = 0;
+    m_bGetMsgThreadSafety = false;
+    m_bRunning = false;
+}
+
+CSocketMgr::~CSocketMgr()
+{
+    Stop();
+    if (m_nListenerFd != -1)
+    {
+        close(m_nListenerFd);
+        m_nListenerFd = -1;
+    }
+}
+
+bool CSocketMgr::_AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot)
+{
+    int nTmpFd = nFd;
+    struct epoll_event ev;
+    ev.events = nEvents;
+    if (pSocketSlot != NULL)
+    {
+        ev.data.ptr = pSocketSlot;
+        nTmpFd = pSocketSlot->GetFd();
+    }
+    else
+    {
+        ev.data.fd = nFd;
+    }
+    if (epoll_ctl(m_nEpollFd, EPOLL_CTL_ADD, nTmpFd, &ev) < 0)
+    {
+        WriteLog(LEVEL_ERROR, "epoll add event failed: fd=%d.\n", nTmpFd);
+        return false;
+    }
+    return true;
+}
+
+bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
+{
+    if (pSocketSlot == NULL)
+    {
+        WriteLog(LEVEL_ERROR, "epoll set modification failed. pSocketSlot == NULL.\n");
+        return false;
+    }
+    struct epoll_event ev;
+    ev.events = nEvents;
+    ev.data.ptr = pSocketSlot;
+    if (epoll_ctl(m_nEpollFd, EPOLL_CTL_MOD, pSocketSlot->GetFd(), &ev) < 0)
+    {
+        WriteLog(LEVEL_ERROR, "epoll set modification failed: fd=%d.\n", pSocketSlot->GetFd());
+        return false;
+    }
+    return true;
+}
+
+bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bGetMsgThreadSafety)
+{
+    if (nPort == 0)
+    {
+        return false;
+    }
+    if (nMaxClient == 0)
+    {
+        return false;
+    }
+    m_bGetMsgThreadSafety = bGetMsgThreadSafety;
+    m_nPort = nPort;
+    m_nMaxClient = nMaxClient;
+
+    // Set MaxClient is large than 32
+    if (m_nMaxClient < 32)
+    {
+        m_nMaxClient = 32;
+    }
+
+    if (_InitServer())
+    {
+        m_bInitSuccess = true;
+        return true;
+    }
+    else
+    {
+        WriteLog(LEVEL_ERROR, "Init Socket Server Failed.\n");
+        return false;
+    }
+}
+
+bool CSocketMgr::_InitServer()
+{
+    /*
+    if (m_nPort == 0 || m_nMaxClient == 0)
+    {
+        WriteLog(LEVEL_ERROR, "You have not init the socketmgr.\n");
+        return false;
+    }
+    */
+
+    m_RecvQueue.Init(cRECV_QUEUE_SIZE);
+    m_RecvArray.Init(cRECV_QUEUE_SIZE);
+    m_SocketSlotMgr.Init(m_nMaxClient, &m_RecvQueue);
+
+    SetFileLimit(m_nMaxClient);
+
+    // create epoll
+    m_nEpollFd = epoll_create(m_nMaxClient);
+
+    //socket
+    struct sockaddr_in saServer;
+    if (m_nListenerFd != -1)
+    {
+        close(m_nListenerFd);
+        m_nListenerFd = -1;
+    }
+    m_nListenerFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (m_nListenerFd < 0)
+    {
+        WriteLog(LEVEL_ERROR, "Socket Failed.\n");
+        return false;
+    }
+
+    // set non blocking
+    SetNonBlocking(m_nListenerFd);
+
+    // set reuse address
+    int optval = 1;
+    setsockopt(m_nListenerFd, SOL_SOCKET, SO_REUSEADDR, (void *)&optval, sizeof(optval));
+
+    saServer.sin_family = AF_INET;
+    saServer.sin_addr.s_addr = INADDR_ANY;
+    saServer.sin_port = htons(m_nPort);
+
+    // add listener fd to epoll
+    if (!_AddEvent(m_nListenerFd, EPOLLIN | EPOLLET | EPOLLRDHUP, NULL))
+    {
+        WriteLog(LEVEL_ERROR, "Add Listener FD to Epoll Failed. FD=%d.\n", m_nListenerFd);
+        return false;
+    }
+
+    //bind
+    int nRes = bind(m_nListenerFd, (sockaddr*)&saServer, sizeof(saServer));
+    if (nRes != 0)
+    {
+        WriteLog(LEVEL_ERROR, "Bind to Port Failed. Port = %d.\n", m_nPort);
+        return false;
+    }
+
+    //listen
+    nRes = listen(m_nListenerFd, cLISTEN_QUEUE_SIZE);
+    if (nRes != 0)
+    {
+        WriteLog(LEVEL_ERROR, "Listen On Port Failed. Port = %d.\n", m_nPort);
+        return false;
+    }
+    return true;
+}
+
+void CSocketMgr::Process()
+{
+    if (!m_bInitSuccess)
+    {
+        WriteLog(LEVEL_ERROR, "You have not init the socketmgr or init the socketmgr failed.\n");
+        return;
+    }
+
+    m_bRunning = true;
+
+    int nfds = 0;
+    struct epoll_event * events = new epoll_event[m_nMaxClient];
+    while (m_bRunning)
+    {
+        nfds = epoll_wait(m_nEpollFd, events, m_nMaxClient, 1000);
+        for(int i = 0; i < nfds; ++i)
+        {
+            if(events[i].data.fd == m_nListenerFd)
+            {
+                if (!_AcceptConnection())
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                _ProcessEpollEvent(events[i]);
+            }
+        }
+    }
+    WriteLog("Process Complete.\n");
+}
+
+bool CSocketMgr::_AcceptConnection()
+{
+    struct sockaddr_in saClient;
+    socklen_t nSaLen = sizeof(saClient);
+
+    // accept connection
+    int nConnectFd = accept(m_nListenerFd, (struct sockaddr *)&saClient, (socklen_t*)&nSaLen);
+    if (nConnectFd < 0)
+    {
+        WriteLog(LEVEL_WARNING, "accept what? what's wrong? fd = %d.\n", nConnectFd);
+        return false;
+    }
+    else
+    {
+        WriteLog(LEVEL_DEBUG, "connection accept from %s.\n", inet_ntoa(saClient.sin_addr));
+    }
+
+    // Be denied ?
+
+
+    // Get Free Slot
+    CSocketSlot * pFreeSlot = m_SocketSlotMgr.GetFreeSlot();
+    if (pFreeSlot == NULL)
+    {
+        WriteLog(LEVEL_WARNING, "Server Full.\n");
+        close(nConnectFd);
+        return false;
+    }
+    pFreeSlot->OnAccept(nConnectFd, saClient);
+
+    // add new fd to epoll
+    if (!_AddEvent(nConnectFd, EPOLLIN | EPOLLRDHUP | EPOLLET, pFreeSlot))
+    {
+        WriteLog(LEVEL_ERROR, "epoll add event failed. fd=%d.\n", nConnectFd);
+        m_SocketSlotMgr.ReleaseSlot(*pFreeSlot);
+        return false;
+    }
+    return true;
+}
+
+bool CSocketMgr::_ProcessEpollEvent(struct epoll_event & rEv)
+{
+    CSocketSlot * pSocketSlot = (CSocketSlot *)(rEv.data.ptr);
+    if (pSocketSlot == NULL)
+    {
+        WriteLog(LEVEL_ERROR, "Cant' Find The CSocketSlot. fd=%d\n", rEv.data.fd);
+        return false;
+    }
+
+    if (rEv.events & EPOLLERR)
+    {
+        //WriteLog(LEVEL_DEBUG, "Received EPOLLERR event. Slot=%d\n", pSocketSlot->GetSlotIndex());
+        _Close(*pSocketSlot);
+        return true;
+    }
+    if (rEv.events & EPOLLHUP)
+    {
+        //WriteLog(LEVEL_DEBUG, "Received EPOLLHUP event. Slot=%d\n", pSocketSlot->GetSlotIndex());
+        _Close(*pSocketSlot);
+        return true;
+    }
+    if (rEv.events & EPOLLRDHUP)
+    {
+        //WriteLog(LEVEL_DEBUG, "Received EPOLLRDHUP event. Slot=%d\n", pSocketSlot->GetSlotIndex());
+        _Close(*pSocketSlot);
+        return true;
+    }
+    if (rEv.events & EPOLLIN)
+    {
+        //WriteLog(LEVEL_DEBUG, "Received EPOLLIN event. Slot=%d\n", pSocketSlot->GetSlotIndex());
+        if (!_RecvData(*pSocketSlot))
+        {
+            WriteLog(LEVEL_DEBUG, "Receive Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
+            _Close(*pSocketSlot);
+            return true;
+        }
+        if (pSocketSlot->GetState() == SocketState_Broken)
+        {
+            WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
+            _Close(*pSocketSlot);
+            return true;
+        }
+        else if (pSocketSlot->GetState() != SocketState_Accepting && pSocketSlot->GetState() != SocketState_Normal)
+        {
+            WriteLog(LEVEL_WARNING, "What's wrong with the State. State = %d, Slot=%d\n", pSocketSlot->GetState(), pSocketSlot->GetSlotIndex());
+        }
+    }
+    if (rEv.events & EPOLLOUT)
+    {
+        //WriteLog(LEVEL_DEBUG, "Received EPOLLOUT event. Slot=%d\n", pSocketSlot->GetSlotIndex());
+        if (pSocketSlot->GetState() == SocketState_Disconnecting)
+        {
+            WriteLog(LEVEL_DEBUG, "The socket's state is disconnecting. Slot=%d\n", pSocketSlot->GetSlotIndex());
+            _Close(*pSocketSlot);
+            return true;
+        }
+
+        if (_SendData(*pSocketSlot))
+        {
+            _ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, pSocketSlot);
+        }
+        if (pSocketSlot->GetState() == SocketState_Broken)
+        {
+            WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
+            _Close(*pSocketSlot);
+            return true;
+        }
+    }
+    return true;
+}
+
+bool CSocketMgr::SendMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
+{
+    CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
+    if (pSocketSlot == NULL)
+    {
+        WriteLog(LEVEL_ERROR, "Can't Find SocketSlot By Slot Index. nSlotIndex=%d.", nSlotIndex);
+        return false;
+    }
+    else
+    {
+        bool bRemainData = false;
+        bool bResult = pSocketSlot->SendMsg(rMsg, bRemainData);
+
+        // Remain some Data to be sent later
+        if (bRemainData)
+        {
+            _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+        }
+        return bResult;
+    }
+}
+
+bool CSocketMgr::_RecvData(CSocketSlot & rSocketSlot)
+{
+    return rSocketSlot.RecvData();
+}
+
+bool CSocketMgr::_SendData(CSocketSlot & rSocketSlot)
+{
+    return rSocketSlot.SendData();
+}
+
+void CSocketMgr::_Close(CSocketSlot & rSocketSlot)
+{
+    struct epoll_event ev;
+    if (epoll_ctl(m_nEpollFd, EPOLL_CTL_DEL, rSocketSlot.GetFd(), &ev) < 0)
+    {
+        WriteLog(LEVEL_WARNING, "epoll delete failed: fd=%d.\n", rSocketSlot.GetFd());
+    }
+
+    if (!rSocketSlot.Close())
+    {
+        // the Disconnect msg can't put to the recvqueue
+        m_SocketSlotMgr.ReleaseSlot(rSocketSlot);
+    }
+}
+
+bool CSocketMgr::BroadcastMsg(MSG_BASE & rMsg)
+{
+    for (unsigned int i=0; i<m_nMaxClient; ++i)
+    {
+        SendMsg(rMsg, i);
+    }
+    return true;
+}
+
+bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
+{
+    pMsg = NULL;
+    if (m_bGetMsgThreadSafety)
+    {
+        m_MutextForGetMsg.Lock();
+    }
+    while (true)
+    {
+        if (m_RecvArray.IsEmpty())
+        {
+            m_RecvQueue.MoveRecvDataElementToArray(m_RecvArray);
+        }
+        CRecvDataElement * pRecvData = m_RecvArray.GetRecvDataElement();
+        if (pRecvData != NULL)
+        {
+            pMsg = pRecvData->GetMsg();
+            nSlotIndex = pRecvData->GetSlotIndex();
+            if (pMsg != NULL)
+            {
+                _Pretreat(pMsg, nSlotIndex);
+                if (pMsg != NULL)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                WriteLog(LEVEL_ERROR, "GetMsg Error. Get an empty CRecvDataElement.  SlotIndex = %d.\n", nSlotIndex);
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+    if (m_bGetMsgThreadSafety)
+    {
+        m_MutextForGetMsg.Unlock();
+    }
+    return pMsg != NULL;
+}
+
+void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
+{
+    switch (pMsg->nMsg)
+    {
+        case MSGID_SYSTEM_ConnectSuccess:
+            {
+                CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
+                if (pSocketSlot != NULL)
+                {
+                    pSocketSlot->SetStateConnected();
+                }
+                else
+                {
+                    WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. SlotIndex = %d.\n", pSocketSlot->GetSlotIndex());
+                }
+            }
+            break;
+        case MSGID_SYSTEM_Disconnect:
+            {
+                m_SocketSlotMgr.ReleaseSlot(nSlotIndex);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void CSocketMgr::DisconnectClient(unsigned int nSlotIndex, int nDisconnectReason)
+{
+    CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
+    if (pSocketSlot != NULL)
+    {
+        if (pSocketSlot->GetState() == SocketState_Normal)
+        {
+            pSocketSlot->Disconnect(nDisconnectReason);
+            _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+        }
+    }
+    else
+    {
+        WriteLog(LEVEL_ERROR, "CSocketMgr::DisconnectClient. Can't find the slot. SlotIndex = %d.\n", pSocketSlot->GetSlotIndex());
+    }
+}
+
+void CSocketMgr::DisconnectAllClient(int nDisconnectReason)
+{
+    for (unsigned int i=0; i<m_nMaxClient; ++i)
+    {
+        DisconnectClient(i, nDisconnectReason);
+    }
+}
+
+void CSocketMgr::Stop()
+{
+    m_bRunning = false;
+}
+
