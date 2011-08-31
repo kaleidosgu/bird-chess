@@ -25,6 +25,8 @@
 #include "ActHeroPig.h"
 #include "GEState.h"
 #include "UILoginGame.h"
+#include "hgedevice/HGEDevice.h"
+#include "wndlib/WndBase.h"
 #pragma   comment(lib,   "ws2_32.lib ")
 using namespace std;
 
@@ -37,7 +39,9 @@ int G_nCombo = 0;
 int G_nKillBird = 0;
 int G_bgPrintType = ENUM_BG_NORMAL;
 bool G_bDebug = false;
-HGE *hge=0;
+HGE* hge= 0;
+CWndBase* m_pWnd = 0;
+HGEDevice* m_pHgeDevice = 0;
 HTEXTURE	tex, bgtex;
 hgeSprite	*bgspr1,*bgspr2,*bgspr3,*bgspr4,*bgspr5; //5²ã±³¾°,Å£°É
 hgeSprite	*SprMouse,*SprBirdDead,*SprBirdDead2;//*SprBullet *spr 
@@ -387,7 +391,7 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 	}
 
 	//Âß¼­
-	float dt=hge->Timer_GetDelta();
+	float dt=m_pHgeDevice->hge->Timer_GetDelta();
 	gui->Update(dt);
 	g_UILoginGame->Update(dt);
 	G_fTotalTime += dt;
@@ -412,17 +416,17 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 	}
 
 	float MouseX,MouseY;
-	hge->Input_GetMousePos(&MouseX,&MouseY);
-	if (hge->Input_GetKeyState(HGEK_J)) 	
+	m_pHgeDevice->hge->Input_GetMousePos(&MouseX,&MouseY);
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_J)) 	
 	{
-		hge->Input_SetMousePos(MouseX-400*dt,MouseY);
+		m_pHgeDevice->hge->Input_SetMousePos(MouseX-400*dt,MouseY);
 	}
-	if (hge->Input_GetKeyState(HGEK_L)) 
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_L)) 
 	{
-		hge->Input_SetMousePos(MouseX+400*dt,MouseY);
+		m_pHgeDevice->hge->Input_SetMousePos(MouseX+400*dt,MouseY);
 	}
-	if (hge->Input_GetKeyState(HGEK_I)) hge->Input_SetMousePos(MouseX,MouseY-400*dt);
-	if (hge->Input_GetKeyState(HGEK_K)) hge->Input_SetMousePos(MouseX,MouseY+400*dt);
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_I)) m_pHgeDevice->hge->Input_SetMousePos(MouseX,MouseY-400*dt);
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_K)) m_pHgeDevice->hge->Input_SetMousePos(MouseX,MouseY+400*dt);
 	MouseY += G_LogicY; 
 	MouseX += G_LogicX; 
 	MainPlayer->SetMousePosition(MouseX,MouseY);
@@ -469,7 +473,7 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 		MainPlayer->SetOrderX(G_LogicX);
 	}
 	static float fButtleCD = 0.0;
-	switch(hge->Input_GetKey())
+	switch(m_pHgeDevice->hge->Input_GetKey())
 	{
 		//case HGEK_UP:		if(nObjects<MAX_OBJECTS) nObjects+=100; break;
 		//case HGEK_DOWN:		if(nObjects>MIN_OBJECTS) nObjects-=100; break;
@@ -569,19 +573,19 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 		case HGEK_ESCAPE:	return true;
 	}
 
-	if(hge->Input_KeyDown(HGEK_N)||hge->Input_KeyDown(HGEK_LBUTTON)||hge->Input_KeyDown(HGEK_Q))
+	if(m_pHgeDevice->hge->Input_KeyDown(HGEK_N)||m_pHgeDevice->hge->Input_KeyDown(HGEK_LBUTTON)||m_pHgeDevice->hge->Input_KeyDown(HGEK_Q))
 	{
 		G_bMouseDown = true;
 	}
 
-	if(hge->Input_KeyUp(HGEK_N)||hge->Input_KeyUp(HGEK_LBUTTON)  )
+	if(m_pHgeDevice->hge->Input_KeyUp(HGEK_N)||m_pHgeDevice->hge->Input_KeyUp(HGEK_LBUTTON)  )
 	{
 		G_bMouseDown = false;
 	}
 	//ÈËÎïÒÆ¶¯Çý¶¯
 
 	static LastKeyState lastKey ;
-	if(hge->Input_KeyDown(HGEK_A)) 
+	if(m_pHgeDevice->hge->Input_KeyDown(HGEK_A)) 
 	{
 		if(lastKey.IsRun(HGEK_A,G_fTotalTime))
 		{
@@ -594,12 +598,12 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 			((ActHeroPig*)MainPlayer)->Response(State);
 		}		
 	}
-	if(hge->Input_KeyUp(HGEK_A))
+	if(m_pHgeDevice->hge->Input_KeyUp(HGEK_A))
 	{
 		CGEEvent State(EventID_StopWalk,DirectionID_StopLeft);
 		((ActHeroPig*)MainPlayer)->Response(State);		
 	}
-	if(hge->Input_KeyDown(HGEK_D)) 
+	if(m_pHgeDevice->hge->Input_KeyDown(HGEK_D)) 
 	{
 		if(lastKey.IsRun(HGEK_D,G_fTotalTime))
 		{
@@ -612,14 +616,14 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 			((ActHeroPig*)MainPlayer)->Response(State);
 		}		
 	}
-	if(hge->Input_KeyUp(HGEK_D))
+	if(m_pHgeDevice->hge->Input_KeyUp(HGEK_D))
 	{
 		CGEEvent State(EventID_StopWalk,DirectionID_StopRight);
 		((ActHeroPig*)MainPlayer)->Response(State);		
 	}
 
 
-	if(hge->Input_KeyDown(HGEK_W)) 
+	if(m_pHgeDevice->hge->Input_KeyDown(HGEK_W)) 
 	{
 		if(lastKey.IsRun(HGEK_W,G_fTotalTime))
 		{
@@ -632,13 +636,13 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 			((ActHeroPig*)MainPlayer)->Response(State);
 		}		
 	}
-	if(hge->Input_KeyUp(HGEK_W))
+	if(m_pHgeDevice->hge->Input_KeyUp(HGEK_W))
 	{
 		CGEEvent State(EventID_StopWalk,DirectionID_StopUp);
 		((ActHeroPig*)MainPlayer)->Response(State);		
 	}
 
-	if(hge->Input_KeyDown(HGEK_S)) 
+	if(m_pHgeDevice->hge->Input_KeyDown(HGEK_S)) 
 	{
 		if(lastKey.IsRun(HGEK_S,G_fTotalTime))
 		{
@@ -651,29 +655,29 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 			((ActHeroPig*)MainPlayer)->Response(State);
 		}		
 	}
-	if(hge->Input_KeyUp(HGEK_S))
+	if(m_pHgeDevice->hge->Input_KeyUp(HGEK_S))
 	{
 		CGEEvent State(EventID_StopWalk,DirectionID_StopDown);
 		((ActHeroPig*)MainPlayer)->Response(State);		
 	}
 
-	if(hge->Input_KeyDown(HGEK_SPACE)) 
+	if(m_pHgeDevice->hge->Input_KeyDown(HGEK_SPACE)) 
 	{
 		CGEEvent State(EventID_StartJump);
 		((ActHeroPig*)MainPlayer)->Response(State);
 	}
 
-	//if (hge->Input_GetKeyState(HGEK_A)) MainPlayer->ChangeSpeed(-dt,0);
-	// 	if (hge->Input_GetKeyState(HGEK_D)) MainPlayer->ChangeSpeed(dt,0);// dx+=MainPlayAddSpeed*dt;
-	// 	if (hge->Input_GetKeyState(HGEK_W)) MainPlayer->ChangeSpeed(0,-dt);//dy-=MainPlayAddSpeed*dt;
-	// 	if (hge->Input_GetKeyState(HGEK_S)) MainPlayer->ChangeSpeed(0,dt);//dy+=MainPlayAddSpeed*dt;
+	//if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_A)) MainPlayer->ChangeSpeed(-dt,0);
+	// 	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_D)) MainPlayer->ChangeSpeed(dt,0);// dx+=MainPlayAddSpeed*dt;
+	// 	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_W)) MainPlayer->ChangeSpeed(0,-dt);//dy-=MainPlayAddSpeed*dt;
+	// 	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_S)) MainPlayer->ChangeSpeed(0,dt);//dy+=MainPlayAddSpeed*dt;
 
 
 	//ÐÂµÄÒÆ¶¯ Ã»ÏëºÃ.....
-	/*if (hge->Input_GetKeyState(HGEK_A)) MainPlayer->
-	if (hge->Input_GetKeyState(HGEK_D)) 
-	if (hge->Input_GetKeyState(HGEK_W)) 
-	if (hge->Input_GetKeyState(HGEK_S)) */	
+	/*if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_A)) MainPlayer->
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_D)) 
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_W)) 
+	if (m_pHgeDevice->hge->Input_GetKeyState(HGEK_S)) */	
 	MainPlayer->Update(dt);
 
 
@@ -895,7 +899,7 @@ bool RenderFunc()
 {
 
 	// Render the scene
-	hge->Gfx_BeginScene();
+	m_pHgeDevice->hge->Gfx_BeginScene();
 	bgspr1->Render(-G_bgLocateX-G_LogicX*.5,-G_LogicY*.5);
 	bgspr1->Render(-G_bgLocateX-G_LogicX*.5+3840,-G_LogicY*.5);
 	for(int i=0;i<60;i++)
@@ -968,7 +972,23 @@ bool RenderFunc()
 	}
 
 
-	hge->Gfx_EndScene();
+	SColor sc(255,255,255,0);
+	int x1 = 0;
+	int y1 = 0;
+	int x2 = 100;
+	int y2 = 0;
+	unsigned int cr = sc.color ;
+// 	for( int i = 0; i < 15; i ++ )
+// 	{
+// 		y1 = i;
+// 		y2 = i;
+// 		m_pHgeDevice->RenderLine(x1,y1,x2,y2,cr);
+// 	}
+
+	m_pWnd->OnDraw();
+	m_pWnd->DrawBox();
+
+	m_pHgeDevice->hge->Gfx_EndScene();
 
 	return false;
 }
@@ -985,9 +1005,9 @@ void LoadResource()
 {
 	initCreateBirdLua();
 
-	//bgtex=hge->Texture_Load("res/Pic/Bigbg1.png");
-	bgtex=hge->Texture_Load("res/Pic/bg1.png");
-	tex=hge->Texture_Load("res/Pic/EntityPic.png");
+	//bgtex=m_pHgeDevice->hge->Texture_Load("res/Pic/Bigbg1.png");
+	bgtex=m_pHgeDevice->hge->Texture_Load("res/Pic/bg1.png");
+	tex=m_pHgeDevice->hge->Texture_Load("res/Pic/EntityPic.png");
 	fnt=new hgeFont("res/FontPsi/fontScore.fnt");
 	fnt->SetScale(0.5);
 	fnt_WinOrLost = new hgeFont("res/FontPsi/fontScore.fnt");
@@ -1014,7 +1034,7 @@ void LoadResource()
 	BirdDead->TrackBoundingBox(true);
 
 	//ÉùÒô
-	SoundSystem::init(hge);
+	SoundSystem::init(m_pHgeDevice->hge);
 	SoundSystem::Instance().PlayMusic(1); //formusic
 
 	//±³¾°
@@ -1052,39 +1072,44 @@ void FreeResource()
 	delete bgspr1,bgspr2,bgspr3,bgspr4,bgspr5;
 	delete SprMouse;
 	delete SprBirdDead,SprBirdDead2,BirdDead,BirdDead2;
-	hge->Texture_Free(tex);
-	hge->Texture_Free(bgtex);
+	m_pHgeDevice->hge->Texture_Free(tex);
+	m_pHgeDevice->hge->Texture_Free(bgtex);
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	hge = hgeCreate(HGE_VERSION);
+	m_pWnd = new CWndBase;
+	m_pWnd->Create(0,0,100,100,0,0);
+	m_pHgeDevice = new HGEDevice;
+	CWndBase::SetDevice( m_pHgeDevice );
+	m_pHgeDevice->hge = hgeCreate(HGE_VERSION);
+	hge = m_pHgeDevice->hge;
 	// Set desired system states and initialize HGE
-	hge->System_SetState(HGE_LOGFILE, "SuperPig.log");
-	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
-	hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
-	hge->System_SetState(HGE_TITLE, "SuperPig");
-	hge->System_SetState(HGE_FPS, GAME_FPS);
-	hge->System_SetState(HGE_USESOUND, true);
-	hge->System_SetState(HGE_WINDOWED, true);
-	hge->System_SetState(HGE_SCREENWIDTH, 1024);
-	hge->System_SetState(HGE_SCREENHEIGHT, 768);
-	hge->System_SetState(HGE_SCREENBPP, 32);
-	hge->System_SetState(HGE_SHOWSPLASH,false); 
-	//hge->System_SetState(HGE_ZBUFFER,true); 
+	m_pHgeDevice->hge->System_SetState(HGE_LOGFILE, "SuperPig.log");
+	m_pHgeDevice->hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
+	m_pHgeDevice->hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
+	m_pHgeDevice->hge->System_SetState(HGE_TITLE, "SuperPig");
+	m_pHgeDevice->hge->System_SetState(HGE_FPS, GAME_FPS);
+	m_pHgeDevice->hge->System_SetState(HGE_USESOUND, true);
+	m_pHgeDevice->hge->System_SetState(HGE_WINDOWED, true);
+	m_pHgeDevice->hge->System_SetState(HGE_SCREENWIDTH, 1024);
+	m_pHgeDevice->hge->System_SetState(HGE_SCREENHEIGHT, 768);
+	m_pHgeDevice->hge->System_SetState(HGE_SCREENBPP, 32);
+	m_pHgeDevice->hge->System_SetState(HGE_SHOWSPLASH,false); 
+	//m_pHgeDevice->hge->System_SetState(HGE_ZBUFFER,true); 
 
-	if(hge->System_Initiate())
+	if(m_pHgeDevice->hge->System_Initiate())
 	{
 
 		LoadResource();
 		g_CSM.Init();
-		g_CSM.Connect("172.18.10.62",8888);
-		hge->System_Start();
+		//g_CSM.Connect("172.18.10.62",8888);
+		m_pHgeDevice->hge->System_Start();
 		FreeResource();
 	}
 
 	// Clean up and shutdown
-	hge->System_Shutdown();
-	hge->Release();
+	m_pHgeDevice->hge->System_Shutdown();
+	m_pHgeDevice->hge->Release();
 	return 0;
 }
