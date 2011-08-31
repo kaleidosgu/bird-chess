@@ -7,7 +7,7 @@ UIGround::UIGround()
 {
 	for(int i = 0 ;i < nMaxBirdCount ; ++i)
 	{
-		m_vecBird = new CBirdEntity()
+		//m_vecBird = new CBirdEntity();
 	}
 	
 }

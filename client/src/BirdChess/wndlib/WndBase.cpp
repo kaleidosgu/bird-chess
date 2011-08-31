@@ -3,7 +3,7 @@
 #include "../hgedevice/HGEDevice.h"
 HGEDevice* CWndBase::m_pDevice = NULL;
 CWndBase::CWndBase(void)
-:m_nDlgID( 0 ),m_bDrawBox(false),m_bVisible(true)
+:m_nDlgID( 0 ),m_bDrawBox(true),m_bVisible(true)
 {
 	SetRectEmpty(&m_rcRect);
 	SetRectEmpty(&m_rcClip);
@@ -116,4 +116,9 @@ bool CWndBase::GetWindowRect( LPRECT lpRect ) const
 void CWndBase::CheckAbsWnd()
 {
 	m_rcAbsWnd = m_rcRect;
+}
+
+void CWndBase::OnUpdate()
+{
+	
 }

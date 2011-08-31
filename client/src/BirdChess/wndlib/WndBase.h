@@ -8,11 +8,17 @@ public:
 	CWndBase(void);
 	virtual ~CWndBase(void);
 	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
-	CWndBase* SetParent( CWndBase* pParent );
-	int SetDlgID( int nId );
+
 	virtual void OnDraw();
 	virtual bool IsVisible();
 	virtual void DrawBox();
+
+	virtual void OnUpdate();
+
+
+
+	CWndBase* SetParent( CWndBase* pParent );
+	int SetDlgID( int nId );
 	static void SetDevice( HGEDevice* pDevice );
 	bool GetWindowRect( LPRECT lpRect ) const;
 protected:
