@@ -166,6 +166,7 @@
 				OutputFile=".\Debug/SuperPig.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="LIBCMTD.lib"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
 				ProgramDatabaseFile=".\Debug/SuperPig.pdb"
@@ -656,8 +657,40 @@
 			Name="Logic"
 			>
 		</Filter>
+		<Filter
+			Name="HGEDevice"
+			>
+		</Filter>
+		<Filter
+			Name="GraphicDefine"
+			>
+			<File
+				RelativePath=".\GraphicDefine\datadefine.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="WndLib"
+			>
+			<File
+				RelativePath=".\wndlib\WndBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\wndlib\WndBase.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
+			>
+		</File>
+		<File
+			RelativePath=".\hgedevice\HGEDevice.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\hgedevice\HGEDevice.h"
 			>
 		</File>
 		<File
