@@ -104,9 +104,9 @@ void Room::_SendAllPlayerInfoToPlayer(Player & rPlayer)
             msg.nPlayerID = pPlayer->GetPlayerID();
             strncpy(msg.szPlayerName, pPlayer->GetPlayerName().c_str(), cMAX_USERNAME_LEN - 1);
             msg.nScore = pPlayer->GetScore();
-        msg.nWin = pPlayer->GetWin();
-        msg.nDogfall = pPlayer->GetDogfall();
-        msg.nLose = pPlayer->GetLose();
+            msg.nWin = pPlayer->GetWin();
+            msg.nDogfall = pPlayer->GetDogfall();
+            msg.nLose = pPlayer->GetLose();
             rPlayer.SendMsg(msg);
         }
     }
