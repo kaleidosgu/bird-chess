@@ -54,6 +54,7 @@ private:
     RoomMgr m_RoomMgr;
     unsigned int m_nMaxClient;
     CardSlot * m_aCardSlot;
+    map < int, int > m_PlayerIDMapSlotIndex;
     map < long long, CardSlot *> m_TaskIDSlotMap;
 };
 

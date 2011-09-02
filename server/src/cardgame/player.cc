@@ -79,6 +79,7 @@ bool Player::LeaveRoom()
     }
     else
     {
+        WriteLog(LEVEL_DEBUG, "Player::LeaveRoom. PlayerID=%d, RoomID=%d.\n", m_nPlayerID, m_pRoom->GetRoomID());
         if (m_pRoom->PlayerLeave(*this))
         {
             m_pRoom = NULL;

@@ -19,9 +19,9 @@ public:
 
     void SendRoomInfo(CardSlot & rSlot);
 
-    const list< Room * > & GetRoomList();
+    void HeartBeat(unsigned int nIntervalMS);
 private:
-    list< Room * > m_RoomList;
+    map< int, Room * > m_IDMapRoom;
 };
 
 #endif // __cardgame_roommgr_h_

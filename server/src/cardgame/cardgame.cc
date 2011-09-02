@@ -155,31 +155,25 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                 Player * pPlayer = m_aCardSlot[nSlotIndex].m_pPlayer;
                 if (pPlayer)
                 {
-                    if (m_aCardSlot[nSlotIndex].m_State == CardSlot::State_InGame)
+                    pPlayer->LeaveRoom();
+                    MSG_CARDGAME_C2S_EnterRoom & rEnterRoomMsg = (MSG_CARDGAME_C2S_EnterRoom &)rMsg;
+                    Room * pRoom = m_RoomMgr.GetRoom(rEnterRoomMsg.nRoomID);
+                    if (pRoom)
                     {
-                        MSG_CARDGAME_C2S_EnterRoom & rEnterRoomMsg = (MSG_CARDGAME_C2S_EnterRoom &)rMsg;
-                        Room * pRoom = m_RoomMgr.GetRoom(rEnterRoomMsg.nRoomID);
-                        if (pRoom)
+                        enterRoomResultMsg.nResult = pPlayer->EnterRoom(pRoom);
+                        if (enterRoomResultMsg.nResult == MSG_CARDGAME_S2C_EnterRoomResult::Result_Success)
                         {
-                            enterRoomResultMsg.nResult = pPlayer->EnterRoom(pRoom);
-                            if (enterRoomResultMsg.nResult == MSG_CARDGAME_S2C_EnterRoomResult::Result_Success)
-                            {
-                                m_aCardSlot[nSlotIndex].m_State = CardSlot::State_InRoom;
-                            }
-                            else
-                            {
-                                WriteLog(LEVEL_DEBUG, "Enter the room failed. Reason(%d).\n");
-                            }
+                            m_aCardSlot[nSlotIndex].m_State = CardSlot::State_InRoom;
                         }
                         else
                         {
-                            enterRoomResultMsg.nResult = MSG_CARDGAME_S2C_EnterRoomResult::Result_RoomNotExist;
-                            WriteLog(LEVEL_DEBUG, "The room is not exsit.\n");
+                            WriteLog(LEVEL_DEBUG, "Enter the room failed. Reason(%d).\n", enterRoomResultMsg.nResult);
                         }
                     }
                     else
                     {
-                        enterRoomResultMsg.nResult = MSG_CARDGAME_S2C_EnterRoomResult::Result_PlayerIsNotInGame;
+                        enterRoomResultMsg.nResult = MSG_CARDGAME_S2C_EnterRoomResult::Result_RoomNotExist;
+                        WriteLog(LEVEL_DEBUG, "The room is not exsit.\n");
                     }
                 }
                 else
@@ -187,6 +181,17 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                     enterRoomResultMsg.nResult = MSG_CARDGAME_S2C_EnterRoomResult::Result_PlayerNotExist;
                 }
                 pPlayer->SendMsg(enterRoomResultMsg);
+            }
+            break;
+        case MSGID_CARDGAME_C2S_LeaveRoom:
+            {
+                Player * pPlayer = m_aCardSlot[nSlotIndex].m_pPlayer;
+                if (pPlayer)
+                {
+                    pPlayer->LeaveRoom();
+                    MSG_CARDGAME_S2C_LeaveRoomResult leaveRoomResultMsg;
+                    pPlayer->SendMsg(leaveRoomResultMsg);
+                }
             }
             break;
         case MSGID_SYSTEM_Disconnect:
@@ -211,6 +216,7 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                     if (pPlayer)
                     {
                         pPlayer->LeaveRoom();
+                        m_PlayerIDMapSlotIndex.erase(pPlayer->GetPlayerID());
                         WriteLog(LEVEL_DEBUG, "A Player (%d) Leave.\n", pPlayer->GetPlayerID());
                     }
                     delete m_aCardSlot[nSlotIndex].m_pPlayer;
@@ -234,6 +240,7 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
 void CCardGame::HeartBeat(unsigned int nIntervalMS)
 {
     //WriteLog("HeartBeat.\n");
+    m_RoomMgr.HeartBeat(nIntervalMS);
 }
 
 void CCardGame::_PlayerLogin(LoginDBQuery & rLoginDBQuery, CardSlot * pSlot)
@@ -243,6 +250,7 @@ void CCardGame::_PlayerLogin(LoginDBQuery & rLoginDBQuery, CardSlot * pSlot)
         // player info
         Player * pPlayer = new Player(*pSlot, rLoginDBQuery.m_nDBPlayerID, rLoginDBQuery.m_strDBPlayerName, rLoginDBQuery.m_nDBScore, rLoginDBQuery.m_nDBWin, rLoginDBQuery.m_nDBDogfall, rLoginDBQuery.m_nDBLose);
         pSlot->m_pPlayer = pPlayer;
+        m_PlayerIDMapSlotIndex[rLoginDBQuery.m_nDBPlayerID] = pSlot->m_nSlotIndex;
 
         WriteLog(LEVEL_DEBUG, "A new Player(%d, %s, %d) Login.\n", pPlayer->GetPlayerID(), pPlayer->GetPlayerName().c_str(), pPlayer->GetScore());
         MSG_CARDGAME_S2C_PlayerInfo playerInfoMsg;
@@ -300,10 +308,23 @@ void CCardGame::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                 {
                                     if (pLoginDBQuery->IsValidUser())
                                     {
-                                        MSG_CARDGAME_S2C_LoginResult loginResultMsg;
-                                        SendMsg(loginResultMsg, pSlot->m_nSlotIndex);
-                                        // the player login
-                                        _PlayerLogin(*pLoginDBQuery, it->second);
+                                        map< int, int>::iterator itPlayerID = m_PlayerIDMapSlotIndex.find(pLoginDBQuery->m_nDBPlayerID);
+                                        if (itPlayerID == m_PlayerIDMapSlotIndex.end())
+                                        {
+                                            MSG_CARDGAME_S2C_LoginResult loginResultMsg;
+                                            SendMsg(loginResultMsg, pSlot->m_nSlotIndex);
+                                            // the player login
+                                            _PlayerLogin(*pLoginDBQuery, it->second);
+                                        }
+                                        else
+                                        {
+                                            // need drop the client ?
+                                            // the player has been in game.
+                                            MSG_CARDGAME_S2C_LoginResult loginResultMsg;
+                                            loginResultMsg.nResult = MSG_CARDGAME_S2C_LoginResult::Result_Relogin;
+                                            SendMsg(loginResultMsg, pSlot->m_nSlotIndex);
+                                            WriteLog(LEVEL_DEBUG, "The player(%d) relogin the game.\n", pLoginDBQuery->m_nDBPlayerID);
+                                        }
                                     }
                                     else
                                     {

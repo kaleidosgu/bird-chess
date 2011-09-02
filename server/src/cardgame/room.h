@@ -20,6 +20,10 @@ public:
     {
         m_bIsValid = false;
     }
+    bool IsValid()
+    {
+        return m_bIsValid;
+    }
     int StartGame(Player & rPlayer);
     int UseCard(Player & rPlayer, const Card & rCard, CardType eCardType);
     const Card & GetANewCard();
