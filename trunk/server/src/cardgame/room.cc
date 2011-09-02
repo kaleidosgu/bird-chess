@@ -60,6 +60,7 @@ int Room::PlayerEnter(Player & rPlayer)
     }
     else
     {
+        WriteLog(LEVEL_DEBUG, "A player(%d) Enter the room(%d).\n", rPlayer.GetPlayerID(), m_nRoomID);
         // Broadcast
         MSG_CARDGAME_S2C_PlayerEnter msg;
         msg.nPlayerID = rPlayer.GetPlayerID();
@@ -127,10 +128,12 @@ void Room::_BroadCastMsg(MSG_BASE & rMsg)
 
 bool Room::PlayerLeave(Player & rPlayer)
 {
+    WriteLog(LEVEL_DEBUG, "Room::PlayerLeave. RoomID(%d).\n", m_nRoomID);
     // confirm the player is in the room
     map< int, Player * >::iterator it = m_PlayerMap.find(rPlayer.GetPlayerID());
     if (it == m_PlayerMap.end())
     {
+        WriteLog(LEVEL_DEBUG, "Room::PlayerLeave. Can't find the player(%d). RoomID(%d).\n", rPlayer.GetPlayerID(), m_nRoomID);
         return false;
     }
 

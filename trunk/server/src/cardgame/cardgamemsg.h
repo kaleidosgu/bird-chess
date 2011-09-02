@@ -17,6 +17,8 @@ enum
     MSGID_CARDGAME_S2C_CreateRoomResult,
     MSGID_CARDGAME_C2S_EnterRoom,
     MSGID_CARDGAME_S2C_EnterRoomResult,
+    MSGID_CARDGAME_C2S_LeaveRoom,
+    MSGID_CARDGAME_S2C_LeaveRoomResult,
     MSGID_CARDGAME_C2S_StartGame,
     MSGID_CARDGAME_S2C_StartGameFailed,
     MSGID_CARDGAME_C2S_UseCard,
@@ -51,7 +53,8 @@ struct MSG_CARDGAME_S2C_LoginResult : public MSG_BASE
     enum Result
     {
         Result_Success,
-        Result_Failed
+        Result_Relogin,
+        Result_Failed,
     };
     MSG_CARDGAME_S2C_LoginResult()
     {
@@ -160,7 +163,7 @@ struct MSG_CARDGAME_S2C_EnterRoomResult : public MSG_BASE
     {
         Result_Success,
         Result_PlayerNotExist,
-        Result_PlayerIsNotInGame,
+        //Result_PlayerIsNotInGame,
         Result_RoomNotExist,
         Result_RoomIsInvalid,
         Result_GameHasStarted,
@@ -171,6 +174,31 @@ struct MSG_CARDGAME_S2C_EnterRoomResult : public MSG_BASE
     {
         nMsg = MSGID_CARDGAME_S2C_EnterRoomResult;
         nSize = sizeof(MSG_CARDGAME_S2C_EnterRoomResult);
+        nResult = Result_Success;
+    }
+    int nResult;
+};
+
+struct MSG_CARDGAME_C2S_LeaveRoom : public MSG_BASE
+{
+    MSG_CARDGAME_C2S_LeaveRoom()
+    {
+        nMsg = MSGID_CARDGAME_C2S_LeaveRoom;
+        nSize = sizeof(MSG_CARDGAME_C2S_LeaveRoom);
+    }
+};
+
+struct MSG_CARDGAME_S2C_LeaveRoomResult : public MSG_BASE
+{
+    enum Result
+    {
+        Result_Success,
+        Result_Failed,
+    };
+    MSG_CARDGAME_S2C_LeaveRoomResult()
+    {
+        nMsg = MSGID_CARDGAME_S2C_LeaveRoomResult;
+        nSize = sizeof(MSG_CARDGAME_S2C_LeaveRoomResult);
         nResult = Result_Success;
     }
     int nResult;
