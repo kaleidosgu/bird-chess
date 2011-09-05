@@ -128,15 +128,18 @@ int Player::UseCard(unsigned int nCardPos, CardType eCardType)
         return MSG_CARDGAME_S2C_UseCardFailed::Reason_CardIsError;
     }
     int nRes = m_pRoom->UseCard(*this, rCard, eCardType);
-    const Card & rNewCard = m_pRoom->GetANewCard();
+    if (nRes == MSG_CARDGAME_S2C_UseCardFailed::Reason_Success)
+    {
+        const Card & rNewCard = m_pRoom->GetANewCard();
 
-    m_aCards[nCardPos] = rNewCard.m_nCardID;
-    MSG_CARDGAME_S2C_AddNewCard msg;
-    msg.nCardPos = nCardPos;
-    msg.nCardID = rNewCard.m_nCardID;
-    msg.nCardType = rNewCard.m_eCardType;
-    msg.nCardInstruction = rNewCard.m_eCardInstruction;
-    SendMsg(msg);
+        m_aCards[nCardPos] = rNewCard.m_nCardID;
+        MSG_CARDGAME_S2C_AddNewCard msg;
+        msg.nCardPos = nCardPos;
+        msg.nCardID = rNewCard.m_nCardID;
+        msg.nCardType = rNewCard.m_eCardType;
+        msg.nCardInstruction = rNewCard.m_eCardInstruction;
+        SendMsg(msg);
+    }
 
     return nRes;
 }
