@@ -435,7 +435,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
 
 const Card & Room::GetANewCard()
 {
-    const Card & rCard = g_CardList.m_aCard[m_nCurrentCardPos];
+    const Card & rCard = g_CardList.m_aCard[m_aCardListIndex[m_nCurrentCardPos]];
     m_nCurrentCardPos++;
     if (m_nCurrentCardPos >= cMAX_CARD_LIST_NUM)
     {
