@@ -51,7 +51,7 @@ private:
     map< int, Player * > m_PlayerMap;
     map< int, Player * >::iterator m_it;
 
-    Path m_Path[cMAX_PATH_LEN];
+    Path m_Path[cMAX_PATH_LEN + 1];
 
     // card type
     CardType m_aCardType[cMAX_USER_CARD_TYPE];

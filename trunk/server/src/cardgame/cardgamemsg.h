@@ -267,6 +267,7 @@ struct MSG_CARDGAME_S2C_UseCardFailed : public MSG_BASE
         Reason_PlayerRoomError,
         Reason_IsNotYourTurn,
         Reason_PathError,
+        Reason_GameNotStarted,
     };
     MSG_CARDGAME_S2C_UseCardFailed()
     {

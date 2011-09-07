@@ -6,7 +6,7 @@ const unsigned int cMAX_PASSWORD_LEN = 21;
 const unsigned int cMAX_PAGE_ROOM_NUM = 8;
 
 const unsigned int cMAX_PATH_LEN = 10;
-const unsigned int cMAX_CARD_LIST_NUM = 48;
+const unsigned int cMAX_CARD_LIST_NUM = 33;
 
 const unsigned int cMAX_USER_CARD_TYPE = 5;
 const unsigned int cMAX_PLAYER_NUM = 4;
