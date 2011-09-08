@@ -142,8 +142,10 @@ struct MSG_CARDGAME_S2C_CreateRoomResult : public MSG_BASE
         nMsg = MSGID_CARDGAME_S2C_CreateRoomResult;
         nSize = sizeof(MSG_CARDGAME_S2C_CreateRoomResult);
         nResult = Result_Success;
+        nRoomID = -1;
     }
     int nResult;
+    int nRoomID;
 };
 
 struct MSG_CARDGAME_C2S_EnterRoom : public MSG_BASE
@@ -175,8 +177,10 @@ struct MSG_CARDGAME_S2C_EnterRoomResult : public MSG_BASE
         nMsg = MSGID_CARDGAME_S2C_EnterRoomResult;
         nSize = sizeof(MSG_CARDGAME_S2C_EnterRoomResult);
         nResult = Result_Success;
+        nRoomID = -1;
     }
     int nResult;
+    int nRoomID;
 };
 
 struct MSG_CARDGAME_C2S_LeaveRoom : public MSG_BASE

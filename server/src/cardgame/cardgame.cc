@@ -122,6 +122,7 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                     {
                         Room * pRoom = m_RoomMgr.CreateRoom();
                         MSG_CARDGAME_S2C_CreateRoomResult createRoomResult;
+                        createRoomResult.nRoomID = pRoom->GetRoomID();
                         pPlayer->SendMsg(createRoomResult);
 
                         MSG_CARDGAME_S2C_EnterRoomResult enterRoomResultMsg;
@@ -129,6 +130,10 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                         pPlayer->SendMsg(enterRoomResultMsg);
                         if (enterRoomResultMsg.nResult == MSG_CARDGAME_S2C_EnterRoomResult::Result_Success)
                         {
+                            if (pRoom)
+                            {
+                                enterRoomResultMsg.nRoomID = pRoom->GetRoomID();
+                            }
                             m_aCardSlot[nSlotIndex].m_State = CardSlot::State_InRoom;
                         }
                         else
@@ -163,6 +168,7 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                         enterRoomResultMsg.nResult = pPlayer->EnterRoom(pRoom);
                         if (enterRoomResultMsg.nResult == MSG_CARDGAME_S2C_EnterRoomResult::Result_Success)
                         {
+                            enterRoomResultMsg.nRoomID = pRoom->GetRoomID();
                             m_aCardSlot[nSlotIndex].m_State = CardSlot::State_InRoom;
                         }
                         else
