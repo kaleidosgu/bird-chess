@@ -1,6 +1,8 @@
 #ifndef __base_loopqueue_h_
 #define __base_loopqueue_h_
 
+#include <stddef.h>
+
 namespace base
 {
     template<class T>
@@ -9,53 +11,68 @@ namespace base
         public:
             LoopQueue(unsigned int nMaxSize) : m_nMaxSize(nMaxSize)
             {
-                m_aData = new T()[nMaxSize];
-                m_pHead = m_aData;
-                m_pTail = m_aData;
+                m_aData = new T[m_nMaxSize];
+                m_pBegin = &m_aData[0];
+                m_pEnd = &m_aData[m_nMaxSize-1];
+                m_pHead = m_pBegin;
+                m_pTail = m_pBegin;
             }
             virtual ~LoopQueue()
             {
                 m_pHead = NULL;
                 m_pTail = NULL;
+                m_pBegin = NULL;
+                m_pEnd = NULL;
                 delete [] m_aData;
                 m_aData = NULL;
             }
-            T * GetElement()
+            bool GetElement(T & rElement)
             {
-                T * pElement = NULL;
                 if (m_pHead != m_pTail)
                 {
-                    pElement = m_pHead;
-                    ++m_pHead;
-                    if (m_pHead == m_RecvData + m_nMaxSize)
+                    rElement = *m_pHead;
+                    if (m_pHead == m_pEnd)
                     {
-                        m_pHead = m_RecvData;
+                        m_pHead = m_pBegin;
                     }
-                }
-                return pElement;
-            }
-            bool AddElement(T & rElement)
-            {
-                bool bSuccess = true;
-                T * ptr = m_pTail;
-                ++ptr;
-                if (ptr == m_RecvData + m_nMaxSize)
-                {
-                    ptr = m_RecvData;
-                }
-                if (ptr != m_pHead)
-                {
-                    *m_pTail = rElement;
-                    m_pTail = ptr;
+                    else
+                    {
+                        m_pHead++;
+                    }
+                    return true;
                 }
                 else
                 {
-                    bSuccess = false;
+                    return false;
                 }
-                return bSuccess;
+            }
+            bool AddElement(const T & rElement)
+            {
+                T * pTailNext = m_pTail;
+                if (pTailNext == m_pEnd)
+                {
+                    pTailNext = m_pBegin;
+                }
+                else
+                {
+                    pTailNext++;
+                }
+
+                if (pTailNext != m_pHead)
+                {
+                    *m_pTail = rElement;
+                    m_pTail = pTailNext;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         private:
             T * m_aData;
+            T * m_pBegin;
+            T * m_pEnd;
             T * m_pHead;
             T * m_pTail;
             const unsigned int m_nMaxSize;

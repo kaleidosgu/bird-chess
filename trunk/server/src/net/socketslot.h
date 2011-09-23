@@ -3,11 +3,13 @@
 
 #include "msgbasic.h"
 #include "../base/mutex.h"
+#include "../base/loopqueue.h"
 #include "senddataelement.h"
-#include "recvdataelementqueue.h"
+//#include "recvdataelementqueue.h"
+#include "recvdataelement.h"
 #include <netinet/in.h>
 
-const unsigned int cMAX_SEND_BUFF_PACKET_COUNT = 4096;
+const unsigned int cSEND_QUEUE_SIZE = 4096;
 
 using namespace base;
 namespace net
@@ -33,14 +35,14 @@ namespace net
         DisconnectReason_CreateMSG_BASE,
     };
 
-
     class CSocketSlotMgr;
     class CSocketSlot
     {
         friend class CSocketSlotMgr;
     public:
         void OnAccept(int nFd, const sockaddr_in &rSaClient);
-        bool SendMsg(MSG_BASE & rMsg, bool & rbRemainData);
+        bool SendMsg(MSG_BASE & rMsg);
+        //bool SendMsg(MSG_BASE & rMsg, bool & rbRemainData);
         bool SendData();
         bool RecvData();
         unsigned int GetSlotIndex() const;
@@ -50,6 +52,13 @@ namespace net
         void SetStateConnected();
         bool Close();
 
+        bool IsInSendQueue() const
+        {
+            return m_bIsInSendQueue;
+        }
+        void SetInSendQueue();
+        void SetNotInSendQueue();
+
         //For ClientSocketMgr
 
     protected:
@@ -57,11 +66,15 @@ namespace net
         ~CSocketSlot();
         void _Reset();
         void _SetSlotIndex(unsigned int nSlotIndex);
-        void _SetRecvQueue(CRecvDataElementQueue * pRecvQueue);
+        void _SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
 
-        bool _SendMsg(MSG_BASE & rMsg, bool & rbRemainData);
-        bool _SendMsgCache();
-        bool _SendMsgQueue();
+        //bool _SendMsg(MSG_BASE & rMsg, bool & rbRemainData);
+        bool _AddMsgToWSQ(MSG_BASE * pMsg);
+        void _DisposeSendQueue();
+        bool _SendBufferData();
+        bool _SendWSQ();
+        //bool _SendMsgCache();
+        //bool _SendMsgQueue();
         bool _SendElement(CSendDataElement *pOut, int nCount);
         bool _AddSendMsg(MSG_BASE & rMsg);
         void _ClearSendMsgQueue();
@@ -71,6 +84,10 @@ namespace net
         bool _SetState(SocketState eSrcState, SocketState eDesState);
         bool _SetState(SocketState eSrcState, SocketState eDesState, int nReason);
 
+        void * m_pEncryptFunc;
+        void * m_pDecryptFunc;
+        void * m_pCompressFunc;
+        void * m_pUncompressFunc;
         int m_nFd;
         unsigned short m_nPort;
         in_addr m_addr;
@@ -83,15 +100,37 @@ namespace net
         Mutex m_MutexForSend;
 
         // for recv
-        char m_Buffer[cMAX_PACKET_SIZE];
+        char m_Buffer[cMAX_PACKET_SIZE * 2];
+        char * m_pMidBuffer;
+        char * m_pBufferHead;
         unsigned short m_nBytesRemain;
-        CRecvDataElementQueue * m_pRecvQueue;
+        MSG_BASE * m_pWaitingMsg;
+        unsigned short m_nMsgDataSize;
+
+        LoopQueue< CRecvDataElement * > * m_pRecvQueue;
 
         // for send
-        bool m_bRemainData;
+        bool m_bIsInSendQueue;
+        Mutex m_MutexForIsInSendQueue;
+
+        // for application to send msg
+        LoopQueue< MSG_BASE * > m_SendQueue;
+
+        /*
+        // for network engine send msg
+        iovec m_aWaintingSendQueue[cSEND_QUEUE_SIZE];
+        iovec * m_pBeginWSQ;
+        iovec * m_pEndWSQ;
+        iovec * m_pHeadWSQ;
+        iovec * m_pTailWSQ;
+        */
+
+        // remain msg
+        //bool m_bRemainData;
         MSG_BASE * m_pMsgCache;
         int m_nSeek;
-        CSendDataElement m_aSendData[cMAX_SEND_BUFF_PACKET_COUNT];
+
+        CSendDataElement m_aSendData[cSEND_QUEUE_SIZE];
         CSendDataElement *m_pSendDataHead;
         CSendDataElement *m_pSendDataTail;
     };
@@ -102,7 +141,7 @@ namespace net
         CSocketSlotMgr();
         ~CSocketSlotMgr();
 
-        bool Init(unsigned int nMaxSlotNum, CRecvDataElementQueue *pRecvQueue);
+        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue);
         CSocketSlot * GetFreeSlot();
         bool ReleaseSlot(unsigned int nSlotIndex);
         bool ReleaseSlot(CSocketSlot & rSocketSlot);

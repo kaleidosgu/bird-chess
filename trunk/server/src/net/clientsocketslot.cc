@@ -25,7 +25,7 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
     _AddRecvMsg(connectSuccessMsg);
 }
 
-void CClientSocketSlot::SetRecvQueue(CRecvDataElementQueue * pRecvQueue)
+void CClientSocketSlot::SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue)
 {
     _SetRecvQueue(pRecvQueue);
 }

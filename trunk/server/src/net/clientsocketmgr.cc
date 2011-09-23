@@ -23,9 +23,10 @@ using namespace base;
 CClientSocketMgr::CClientSocketMgr()
 {
     m_bGetMsgThreadSafety = false;
-    m_RecvQueue.Init(cRECV_QUEUE_SIZE);
-    m_RecvArray.Init(cRECV_QUEUE_SIZE);
-    m_ClientSocketSlot.SetRecvQueue(&m_RecvQueue);
+    //m_RecvQueue.Init(cRECV_QUEUE_SIZE);
+    //m_RecvArray.Init(cRECV_QUEUE_SIZE);
+    m_pRecvQueue = new LoopQueue< CRecvDataElement * >(cRECV_QUEUE_SIZE);
+    m_ClientSocketSlot.SetRecvQueue(m_pRecvQueue);
 
     // create epoll
     m_nEpollFd = epoll_create(cMAX_EPOLL_QUEUE_FOR_CLIENT);
@@ -149,30 +150,28 @@ MSG_BASE * CClientSocketMgr::GetMsg()
     }
     while (true)
     {
-        if (m_RecvArray.IsEmpty())
+        CRecvDataElement * pRecvData = NULL;
+        if (!m_pRecvQueue->GetElement(pRecvData))
         {
-            m_RecvQueue.MoveRecvDataElementToArray(m_RecvArray);
+            break;
         }
-        CRecvDataElement * pRecvData = m_RecvArray.GetRecvDataElement();
-        if (pRecvData != NULL)
+        if (pRecvData == NULL)
         {
-            pMsg = pRecvData->GetMsg();
+            WriteLog(LEVEL_ERROR, "CClientSocketMgr::GetMsg. Get NULL RecvData. There is something wrong with the recv queue.\n");
+            continue;
+        }
+        pMsg = pRecvData->GetMsg();
+        if (pMsg != NULL)
+        {
+            _Pretreat(pMsg);
             if (pMsg != NULL)
             {
-                _Pretreat(pMsg);
-                if (pMsg != NULL)
-                {
-                    break;
-                }
-            }
-            else
-            {
-                WriteLog(LEVEL_ERROR, "GetMsg Error. Get an empty CRecvDataElement.\n");
+                break;
             }
         }
         else
         {
-            break;
+            WriteLog(LEVEL_ERROR, "CClientSocketMgr::GetMsg. The Msg of the RecvElement is NULL.\n");
         }
     }
     if (m_bGetMsgThreadSafety)
@@ -204,7 +203,8 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 bool CClientSocketMgr::SendMsg(MSG_BASE & rMsg)
 {
     bool bRemainData = false;
-    bool bResult = m_ClientSocketSlot.SendMsg(rMsg, bRemainData);
+    //bool bResult = m_ClientSocketSlot.SendMsg(rMsg, bRemainData);
+    bool bResult = m_ClientSocketSlot.SendMsg(rMsg);
 
     // Remain some Data to be sent later
     if (bRemainData)
