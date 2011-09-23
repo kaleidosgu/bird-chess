@@ -38,8 +38,9 @@ namespace net
         int m_nEpollFd;
         string m_strIP;
         unsigned short m_nPort;
-        CRecvDataElementArray m_RecvArray;
-        CRecvDataElementQueue m_RecvQueue;
+        //CRecvDataElementArray m_RecvArray;
+        //CRecvDataElementQueue m_RecvQueue;
+        LoopQueue< CRecvDataElement * > * m_pRecvQueue;
         CSocketSlotMgr m_SocketSlotMgr;
 
         bool m_bGetMsgThreadSafety;

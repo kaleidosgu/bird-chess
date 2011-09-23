@@ -2,12 +2,16 @@
 #define __net_socketmgr_h_
 
 #include "../base/thread.h"
+#include "../base/loopqueue.h"
 #include "socketslot.h"
-#include "recvdataelementqueue.h"
-#include "recvdataelementarray.h"
+#include "recvdataelement.h"
+//#include "recvdataelementqueue.h"
+//#include "recvdataelementarray.h"
 #include <sys/epoll.h>
+#include <vector>
 
 using namespace base;
+using namespace std;
 
 namespace net
 {
@@ -48,8 +52,17 @@ namespace net
         unsigned int m_nMaxClient;
         unsigned int m_nCurClient;
 
-        CRecvDataElementArray m_RecvArray;
-        CRecvDataElementQueue m_RecvQueue;
+        //CRecvDataElementArray m_RecvArray;
+        //CRecvDataElementQueue m_RecvQueue;
+
+        LoopQueue< CRecvDataElement * > * m_pRecvQueue;
+       
+        vector< CSocketSlot * > m_SendQueue1;
+        vector< CSocketSlot * > m_SendQueue2;
+        vector< CSocketSlot * > * m_pAddSendQueue;
+        vector< CSocketSlot * > * m_pDelSendQueue;
+        Mutex m_MutexForSendQueue;
+
         CSocketSlotMgr m_SocketSlotMgr;
 
         bool m_bGetMsgThreadSafety;

@@ -11,7 +11,8 @@ namespace net
         CClientSocketSlot();
         ~CClientSocketSlot();
         void OnConnect(int nFd, const sockaddr_in &rSaClient);
-        void SetRecvQueue(CRecvDataElementQueue * pRecvQueue);
+        //void SetRecvQueue(CRecvDataElementQueue * pRecvQueue);
+        void SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
         void Reset();
     };
 }

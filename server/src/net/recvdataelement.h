@@ -1,7 +1,6 @@
 #ifndef __net_recvdataelement_h_
 #define __net_recvdataelement_h_
 
-
 struct MSG_BASE;
 namespace net
 {
