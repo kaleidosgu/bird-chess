@@ -34,6 +34,7 @@ namespace net
         DisconnectReason_SendError,
         DisconnectReason_RemainDataError,
         DisconnectReason_CreateMSG_BASE,
+        DisconnectReason_AliveTimeOut,
     };
 
     class CSocketSlotMgr;
@@ -68,6 +69,17 @@ namespace net
         }
         void SetInSendQueue();
         void SetNotInSendQueue();
+
+        void SendAliveMsg();
+        void SetStateNotAlive();
+        time_t GetLatestAliveTime()
+        {
+            return m_tLatestAliveTime;
+        }
+        void UpdateLatestAliveTime()
+        {
+            m_tLatestAliveTime = time(NULL);
+        }
 
         //For ClientSocketMgr
 
@@ -135,6 +147,9 @@ namespace net
         CSendDataElement m_aSendData[cSEND_QUEUE_SIZE];
         CSendDataElement *m_pSendDataHead;
         CSendDataElement *m_pSendDataTail;
+
+        // check alive
+        time_t m_tLatestAliveTime;
     };
 
     class CSocketSlotMgr

@@ -193,6 +193,12 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
                 m_ClientSocketSlot.Reset();
             }
             break;
+        case MSGID_SYSTEM_CheckAlive:
+            {
+                MSG_SYSTEM_CheckAliveReply checkAliveReplyMsg;
+                SendMsg(checkAliveReplyMsg);
+            }
+            break;
         default:
             break;
     }

@@ -54,6 +54,7 @@ CSocketSlot::CSocketSlot() :
     m_pSendDataHead = m_aSendData;
     m_State = SocketState_Closed;
     m_pLastBuffer = &m_RecvBuffer[cMAX_RECV_BUFFER_SIZE - cMAX_PACKET_SIZE];
+    m_tLatestAliveTime = time(NULL);
     _Reset();
 }
 
@@ -90,6 +91,7 @@ void CSocketSlot::OnAccept(int nFd, const sockaddr_in &rSaClient)
         delete pConnectSuccessMsg;
         pConnectSuccessMsg = NULL;
     }
+    m_tLatestAliveTime = time(NULL);
 }
 
 
@@ -501,12 +503,14 @@ bool CSocketSlot::_SetState(SocketState eSrcState, SocketState eDesState)
 
     return bRes;
 } 
+
 bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
 {
     if (pMsg == NULL)
     {
         return false;
     }
+
     CRecvDataElement * pRecvDataElement = new CRecvDataElement();
     pRecvDataElement->SetData(pMsg, m_nSlotIndex);
     if (m_pRecvQueue->AddElement(pRecvDataElement))
@@ -652,6 +656,25 @@ bool CSocketSlot::RecvData()
     return bRes;
 }
 
+void CSocketSlot::SendAliveMsg()
+{
+    //if (m_State == SocketState_Normal || m_State == SocketState_Accepting)
+    {
+        MSG_SYSTEM_CheckAlive * pCheckAliveMsg = new MSG_SYSTEM_CheckAlive();
+        if (!m_SendQueue.AddElement(pCheckAliveMsg))
+        {
+            WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::_CheckAlive. The send queue is full.\n", m_nSlotIndex);
+            delete pCheckAliveMsg;
+            pCheckAliveMsg = NULL;
+        }
+    }
+}
+
+void CSocketSlot::SetStateNotAlive()
+{
+    _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Disconnecting, DisconnectReason_AliveTimeOut);
+}
+
 CSocketSlotMgr::CSocketSlotMgr()
 {
     m_nMaxSlotNum = 0;
@@ -761,4 +784,3 @@ bool CSocketSlotMgr::_FreeSlot(CSocketSlot & rSocketSlot)
     ++m_nFreeSlotNum;
     return true;
 }
-

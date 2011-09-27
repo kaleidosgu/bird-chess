@@ -20,7 +20,7 @@ namespace net
     public:
         CSocketMgr();
         ~CSocketMgr();
-        bool Init(unsigned short nPort, unsigned int nMaxClient, bool bGetMsgThreadSafety = false);
+        bool Init(unsigned short nPort, unsigned int nMaxClient, unsigned int nAliveCheckInterval = 5, unsigned int nAliveTimeOut = 30, bool bGetMsgThreadSafety = false);
 
         bool SendMsg(MSG_BASE & rMsg, unsigned int nSlotIndex);
         bool BroadcastMsg(MSG_BASE & rMsg);
@@ -41,6 +41,8 @@ namespace net
         bool _ProcessEpollEvent(struct epoll_event & rEv);
         void _Close(CSocketSlot & rSocketSlot);
         void _Pretreat(MSG_BASE * &pMsg, unsigned int &nSlotIndex);
+
+        void _CheckAlive();
 
         bool m_bInitSuccess;
         unsigned short m_nPort;
@@ -63,6 +65,9 @@ namespace net
         Mutex m_MutextForGetMsg;
 
         bool m_bRunning;
+        time_t m_tLastCheckTime;
+        unsigned int m_nAliveCheckInterval; // second
+        unsigned int m_nAliveTimeOut; //second
     };
 
 }
