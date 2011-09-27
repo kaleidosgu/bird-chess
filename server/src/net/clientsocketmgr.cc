@@ -23,8 +23,6 @@ using namespace base;
 CClientSocketMgr::CClientSocketMgr()
 {
     m_bGetMsgThreadSafety = false;
-    //m_RecvQueue.Init(cRECV_QUEUE_SIZE);
-    //m_RecvArray.Init(cRECV_QUEUE_SIZE);
     m_pRecvQueue = new LoopQueue< CRecvDataElement * >(cRECV_QUEUE_SIZE);
     m_ClientSocketSlot.SetRecvQueue(m_pRecvQueue);
 
@@ -187,12 +185,12 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
     {
         case MSGID_SYSTEM_ConnectSuccess:
             {
-                //m_ClientSocketSlot.SetStateConnected();
+                m_ClientSocketSlot.SetStateConnected();
             }
             break;
         case MSGID_SYSTEM_Disconnect:
             {
-                //m_ClientSocketSlot.Reset();
+                m_ClientSocketSlot.Reset();
             }
             break;
         default:
@@ -202,16 +200,7 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 
 bool CClientSocketMgr::SendMsg(MSG_BASE & rMsg)
 {
-    bool bRemainData = false;
-    //bool bResult = m_ClientSocketSlot.SendMsg(rMsg, bRemainData);
-    bool bResult = m_ClientSocketSlot.SendMsg(rMsg);
-
-    // Remain some Data to be sent later
-    if (bRemainData)
-    {
-        _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
-    }
-    return bResult;
+    return m_ClientSocketSlot.SendMsg(rMsg);
 }
 
 void CClientSocketMgr::Disconnect()
@@ -239,18 +228,42 @@ void CClientSocketMgr::Process()
 
     int nfds = 0;
     struct epoll_event * events = new epoll_event[cMAX_EPOLL_QUEUE_FOR_CLIENT];
+    bool bBusy = false;
     while (m_bRunning)
     {
-        nfds = epoll_wait(m_nEpollFd, events, cMAX_EPOLL_QUEUE_FOR_CLIENT, 1000);
+        bBusy = false;
+
+        // recv
+        nfds = epoll_wait(m_nEpollFd, events, cMAX_EPOLL_QUEUE_FOR_CLIENT, 0);
+        if (nfds > 0)
+        {
+            bBusy = true;
+        }
         for(int i = 0; i < nfds; ++i)
         {
             if(events[i].data.fd == m_nFd)
             {
                 _ProcessEpollEvent(events[i].events);
             }
-            else
+        }
+
+        // send
+        if (m_ClientSocketSlot.NeedSendData())
+        {
+            bBusy = true;
+            if (m_ClientSocketSlot.SendData())
             {
+                if (m_ClientSocketSlot.GetState() == SocketState_Accepting || m_ClientSocketSlot.GetState() == SocketState_Normal)
+                {
+                    _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+                }
             }
+        }
+
+        // if not busy, then sleep for a moment.
+        if (!bBusy)
+        {
+            usleep(1000);
         }
     }
     WriteLog("Process Complete.\n");
@@ -285,6 +298,7 @@ bool CClientSocketMgr::_ProcessEpollEvent(unsigned int nEvents)
             _Close();
             return true;
         }
+        /*
         if (m_ClientSocketSlot.GetState() == SocketState_Broken)
         {
             WriteLog(LEVEL_DEBUG, "Send Data Failed.\n");
@@ -295,6 +309,7 @@ bool CClientSocketMgr::_ProcessEpollEvent(unsigned int nEvents)
         {
             WriteLog(LEVEL_WARNING, "What's wrong with the State. State = %d.\n", m_ClientSocketSlot.GetState());
         }
+        */
     }
     if (nEvents & EPOLLOUT)
     {
@@ -311,11 +326,18 @@ bool CClientSocketMgr::_ProcessEpollEvent(unsigned int nEvents)
         {
             _ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
         }
-        if (m_ClientSocketSlot.GetState() == SocketState_Broken)
+        else
         {
-            WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", m_ClientSocketSlot.GetSlotIndex());
-            _Close();
-            return true;
+            // 1. system buffer is full
+            // 2. send error
+
+            // if send error, close
+            if (m_ClientSocketSlot.GetState() != SocketState_Normal)
+            {
+                WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", m_ClientSocketSlot.GetSlotIndex());
+                _Close();
+                return true;
+            }
         }
     }
     return true;
@@ -329,7 +351,9 @@ void CClientSocketMgr::_Close()
         WriteLog(LEVEL_WARNING, "epoll delete failed: fd=%d.\n", m_ClientSocketSlot.GetFd());
     }
 
-    m_ClientSocketSlot.Close();
-    m_ClientSocketSlot.Reset();
+    if (!m_ClientSocketSlot.Close())
+    {
+        m_ClientSocketSlot.Reset();
+    }
 }
 

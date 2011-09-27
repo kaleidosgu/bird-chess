@@ -39,8 +39,6 @@ namespace net
         bool _InitServer();
         bool _AcceptConnection();
         bool _ProcessEpollEvent(struct epoll_event & rEv);
-        bool _SendData(CSocketSlot & rSocketSlot);
-        bool _RecvData(CSocketSlot & rSocketSlot);
         void _Close(CSocketSlot & rSocketSlot);
         void _Pretreat(MSG_BASE * &pMsg, unsigned int &nSlotIndex);
 
@@ -50,10 +48,6 @@ namespace net
 
         int m_nEpollFd;
         unsigned int m_nMaxClient;
-        unsigned int m_nCurClient;
-
-        //CRecvDataElementArray m_RecvArray;
-        //CRecvDataElementQueue m_RecvQueue;
 
         LoopQueue< CRecvDataElement * > * m_pRecvQueue;
        

@@ -14,6 +14,7 @@ namespace net
         //void SetRecvQueue(CRecvDataElementQueue * pRecvQueue);
         void SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
         void Reset();
+        bool NeedSendData();
     };
 }
 

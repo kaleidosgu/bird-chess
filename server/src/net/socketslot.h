@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 
 const unsigned int cSEND_QUEUE_SIZE = 4096;
+const unsigned int cMAX_RECV_BUFFER_SIZE = cMAX_PACKET_SIZE * 2;
 
 using namespace base;
 namespace net
@@ -45,9 +46,18 @@ namespace net
         //bool SendMsg(MSG_BASE & rMsg, bool & rbRemainData);
         bool SendData();
         bool RecvData();
-        unsigned int GetSlotIndex() const;
-        int GetFd() const;
-        SocketState GetState() const;
+        unsigned int GetSlotIndex() const
+        {
+            return m_nSlotIndex;
+        }
+        int GetFd() const
+        {
+            return m_nFd;
+        }
+        SocketState GetState() const
+        {
+            return m_State;
+        }
         bool Disconnect(int nDisconnectReason);
         void SetStateConnected();
         bool Close();
@@ -67,20 +77,14 @@ namespace net
         void _Reset();
         void _SetSlotIndex(unsigned int nSlotIndex);
         void _SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
-
-        //bool _SendMsg(MSG_BASE & rMsg, bool & rbRemainData);
-        bool _AddMsgToWSQ(MSG_BASE * pMsg);
         void _DisposeSendQueue();
         bool _SendBufferData();
         bool _SendWSQ();
-        //bool _SendMsgCache();
-        //bool _SendMsgQueue();
         bool _SendElement(CSendDataElement *pOut, int nCount);
-        bool _AddSendMsg(MSG_BASE & rMsg);
         void _ClearSendMsgQueue();
-        bool _CopyMsgToRecvBuff(MSG_BASE & rMsg);
-        bool _AddRecvMsg(MSG_BASE & rMsg);
-        bool _DisposeMsgData();
+        bool _AddRecvMsg(MSG_BASE * pMsg);
+        bool _DisposeRecvMsg(MSG_BASE & rMsg);
+        bool _DisposeRecvBuffer();
         bool _SetState(SocketState eSrcState, SocketState eDesState);
         bool _SetState(SocketState eSrcState, SocketState eDesState, int nReason);
 
@@ -100,12 +104,10 @@ namespace net
         Mutex m_MutexForSend;
 
         // for recv
-        char m_Buffer[cMAX_PACKET_SIZE * 2];
-        char * m_pMidBuffer;
-        char * m_pBufferHead;
-        unsigned short m_nBytesRemain;
-        MSG_BASE * m_pWaitingMsg;
-        unsigned short m_nMsgDataSize;
+        char m_RecvBuffer[cMAX_RECV_BUFFER_SIZE];
+        char * m_pLastBuffer;
+        char * m_pRecvHead;
+        unsigned int m_nBytesRemain;
 
         LoopQueue< CRecvDataElement * > * m_pRecvQueue;
 
