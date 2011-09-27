@@ -56,7 +56,6 @@ CSocketMgr::CSocketMgr()
     m_nPort = 0;
     m_nListenerFd = -1;
     m_nMaxClient = 0;
-    m_nCurClient = 0;
     m_bGetMsgThreadSafety = false;
     m_bRunning = false;
     m_pAddSendQueue = &m_SendQueue1;
@@ -268,7 +267,20 @@ void CSocketMgr::Process()
                 if (pSocketSlot)
                 {
                     pSocketSlot->SetNotInSendQueue();
-                    pSocketSlot->SendData();
+                    if (!pSocketSlot->SendData())
+                    {
+                        // if the system buffer is full
+                        if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
+                        {
+                            _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                        }
+                    }
+                    /*
+                    // socket is borken
+                    else
+                    {
+                    }
+                     */
                 }
             }
             bBusy = true;
@@ -354,22 +366,24 @@ bool CSocketMgr::_ProcessEpollEvent(struct epoll_event & rEv)
     if (rEv.events & EPOLLIN)
     {
         //WriteLog(LEVEL_DEBUG, "Received EPOLLIN event. Slot=%d\n", pSocketSlot->GetSlotIndex());
-        if (!_RecvData(*pSocketSlot))
+        if (!pSocketSlot->RecvData())
         {
             WriteLog(LEVEL_DEBUG, "Receive Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
             _Close(*pSocketSlot);
             return true;
         }
-        if (pSocketSlot->GetState() == SocketState_Broken)
+        /*
+        if (pSocketSlot->GetState() != SocketState_Accepting && pSocketSlot->GetState() != SocketState_Normal)
         {
-            WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
+            WriteLog(LEVEL_DEBUG, "Receive Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
             _Close(*pSocketSlot);
             return true;
         }
-        else if (pSocketSlot->GetState() != SocketState_Accepting && pSocketSlot->GetState() != SocketState_Normal)
+        else if (pSocketSlot->GetState() == SocketState_Broken)
         {
             WriteLog(LEVEL_WARNING, "What's wrong with the State. State = %d, Slot=%d\n", pSocketSlot->GetState(), pSocketSlot->GetSlotIndex());
         }
+        */
     }
     if (rEv.events & EPOLLOUT)
     {
@@ -381,16 +395,24 @@ bool CSocketMgr::_ProcessEpollEvent(struct epoll_event & rEv)
             return true;
         }
 
-        if (_SendData(*pSocketSlot))
+        if (pSocketSlot->SendData())
         {
             _ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, pSocketSlot);
         }
-        if (pSocketSlot->GetState() == SocketState_Broken)
+        else
         {
-            WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
-            _Close(*pSocketSlot);
-            return true;
+            // 1. system buffer is full
+            // 2. send error
+
+            // if send error, close
+            if (pSocketSlot->GetState() != SocketState_Accepting && pSocketSlot->GetState() != SocketState_Normal)
+            {
+                WriteLog(LEVEL_DEBUG, "Send Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
+                _Close(*pSocketSlot);
+                return true;
+            }
         }
+
     }
     return true;
 }
@@ -446,16 +468,6 @@ return bResult;
 }
 }
  */
-
-bool CSocketMgr::_RecvData(CSocketSlot & rSocketSlot)
-{
-    return rSocketSlot.RecvData();
-}
-
-bool CSocketMgr::_SendData(CSocketSlot & rSocketSlot)
-{
-    return rSocketSlot.SendData();
-}
 
 void CSocketMgr::_Close(CSocketSlot & rSocketSlot)
 {
@@ -514,36 +526,6 @@ bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
         {
             WriteLog(LEVEL_ERROR, "CSocketMgr::GetMsg. The Msg of the RecvElement is NULL. SlotIndex = %d.\n", nSlotIndex);
         }
-
-        /*
-           if (m_RecvArray.IsEmpty())
-           {
-           m_RecvQueue.MoveRecvDataElementToArray(m_RecvArray);
-           }
-           CRecvDataElement * pRecvData = m_RecvArray.GetRecvDataElement();
-
-           if (pRecvData != NULL)
-           {
-           pMsg = pRecvData->GetMsg();
-           nSlotIndex = pRecvData->GetSlotIndex();
-           if (pMsg != NULL)
-           {
-           _Pretreat(pMsg, nSlotIndex);
-           if (pMsg != NULL)
-           {
-           break;
-           }
-           }
-           else
-           {
-           WriteLog(LEVEL_ERROR, "GetMsg Error. Get an empty CRecvDataElement.  SlotIndex = %d.\n", nSlotIndex);
-           }
-           }
-           else
-           {
-           break;
-           }
-         */
     }
     if (m_bGetMsgThreadSafety)
     {

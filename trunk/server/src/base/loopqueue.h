@@ -26,6 +26,10 @@ namespace base
                 delete [] m_aData;
                 m_aData = NULL;
             }
+            bool IsEmpty()
+            {
+                return (m_pHead == m_pTail);
+            }
             bool GetElement(T & rElement)
             {
                 if (m_pHead != m_pTail)

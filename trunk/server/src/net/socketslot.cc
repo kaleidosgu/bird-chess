@@ -53,7 +53,7 @@ CSocketSlot::CSocketSlot() :
     m_bIsInSendQueue = false;
     m_pSendDataHead = m_aSendData;
     m_State = SocketState_Closed;
-    m_pMidBuffer = &m_Buffer[cMAX_PACKET_SIZE];
+    m_pLastBuffer = &m_RecvBuffer[cMAX_RECV_BUFFER_SIZE - cMAX_PACKET_SIZE];
     _Reset();
 }
 
@@ -71,21 +71,6 @@ void CSocketSlot::_SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue)
     m_pRecvQueue = pRecvQueue;
 }
 
-unsigned int CSocketSlot::GetSlotIndex() const
-{
-    return m_nSlotIndex;
-}
-
-int CSocketSlot::GetFd() const
-{
-    return m_nFd;
-}
-
-SocketState CSocketSlot::GetState() const
-{
-    return m_State;
-}
-
 void CSocketSlot::OnAccept(int nFd, const sockaddr_in &rSaClient)
 {
     m_nFd = nFd;
@@ -98,41 +83,15 @@ void CSocketSlot::OnAccept(int nFd, const sockaddr_in &rSaClient)
     setsockopt(m_nFd, IPPROTO_TCP, TCP_NODELAY, (void *)&nOptVal, sizeof(int));
     _SetState(SocketState_Free, SocketState_Accepting);
 
-    MSG_SYSTEM_ConnectSuccess connectSuccessMsg;
-    _AddRecvMsg(connectSuccessMsg);
+    MSG_SYSTEM_ConnectSuccess * pConnectSuccessMsg = new MSG_SYSTEM_ConnectSuccess();
+    if (!_AddRecvMsg(pConnectSuccessMsg))
+    {
+        WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::OnAccept. Add Connect success msg failed.\n", m_nSlotIndex);
+        delete pConnectSuccessMsg;
+        pConnectSuccessMsg = NULL;
+    }
 }
 
-/*
-   bool CSocketSlot::_AddSendMsg(MSG_BASE & rMsg)
-   {
-   CSendDataElement *ptr = m_pSendDataTail;
-   ptr++;
-   if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
-   {
-   ptr = m_aSendData;
-   }
-   if (ptr != m_pSendDataHead)
-   {
-   MSG_BASE * pMsg = CreateDynamicLengthMsg(rMsg.nSize, (MSG_BASE *)0);
-   if (pMsg == NULL)
-   {
-   return false;
-   }
-   else
-   {
-   memcpy(pMsg, &rMsg, rMsg.nSize);
-   m_pSendDataTail->SetData(pMsg);
-   m_pSendDataTail = ptr;
-   return true;
-   }
-   }
-   else
-   {
-   WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_AddSendMsg. Send queue is full. State = %d.\n", m_nSlotIndex, m_State);
-   return false;
-   }
-   }
- */
 
 void CSocketSlot::_ClearSendMsgQueue()
 {
@@ -192,8 +151,18 @@ bool CSocketSlot::Close()
     WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::Close. State %d -> %d.\n", m_nSlotIndex, m_State, SocketState_Closed);
     m_State = SocketState_Closed;
     m_MutexForState.Unlock();
-    MSG_SYSTEM_Disconnect disconnectMsg;
-    return _AddRecvMsg(disconnectMsg);
+    MSG_SYSTEM_Disconnect * pDisconnectMsg = new MSG_SYSTEM_Disconnect();
+    if (_AddRecvMsg(pDisconnectMsg))
+    {
+        return true;
+    }
+    else
+    {
+        WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::Close. Add Disconnect Msg Failed.\n");
+        delete pDisconnectMsg;
+        pDisconnectMsg = NULL;
+        return false;
+    }
 }
 
 void CSocketSlot::SetInSendQueue()
@@ -231,122 +200,6 @@ bool CSocketSlot::SendMsg(MSG_BASE & rMsg)
         return false;
     }
 }
-/*
-   bool CSocketSlot::SendMsg(MSG_BASE & rMsg, bool & rbRemainData)
-   {
-   rbRemainData = false;
-   if (m_State != SocketState_Normal)
-   {
-   WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::SendMsg. The socket state is not normal. State = %d.\n", m_nSlotIndex, m_State);
-   return false;
-   }
-   else
-   {
-   return _SendMsg(rMsg, rbRemainData);
-   }
-   }
-
-   bool CSocketSlot::_SendMsg(MSG_BASE & rMsg, bool & rbRemainData)
-   {
-   if (m_State != SocketState_Normal && m_State != SocketState_Accepting)
-   {
-   WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendMsg. The socket state is not normal. State = %d.\n", m_nSlotIndex, m_State);
-   return false;
-   }
-
-   bool bRes = true;
-   Mutex::ScopedLock lock(m_MutexForSend);
-   if (m_bRemainData)
-   {
-   bRes = _AddSendMsg(rMsg);
-   }
-   else
-   {
-   ssize_t nLen = send(m_nFd, (const void *)&rMsg, rMsg.nSize, 0);
-
-// nLen<0 is same with nLen==0
-if (nLen < 0)
-{
-bRes = _AddSendMsg(rMsg);
-m_bRemainData = true;
-}
-else if (nLen == 0)
-{
-bRes = _AddSendMsg(rMsg);
-m_bRemainData = true;
-}
-else if (nLen == rMsg.nSize)
-{
-}
-else
-{
-MSG_BASE * pMsg = CreateDynamicLengthMsg(rMsg.nSize, (MSG_BASE *)0);
-if (pMsg == NULL)
-{
-Disconnect(DisconnectReason_CreateMSG_BASE);
-bRes = false;
-}
-else
-{
-memcpy(pMsg, &rMsg, rMsg.nSize);
-
-m_pMsgCache = pMsg;
-m_nSeek = nLen;
-m_bRemainData = true;
-}
-}
-}
-rbRemainData = m_bRemainData;
-return bRes;
-}
- */
-
-/*
-   bool CSocketSlot::_AddMsgToWSQ(MSG_BASE * pMsg)
-   {
-   iovec * pNextTailWSQ = m_pTailWSQ;
-   if (pNextTailWSQ == m_pEndWSQ)
-   {
-   pNextTailWSQ = m_pBeginWSQ;
-   }
-   else
-   {
-   pNextTailWSQ++;
-   }
-   if (pNextTailWSQ != m_pHeadWSQ)
-   {
- *m_pTailWSQ = rElement;
- m_pTailWSQ->iov_base = pNewMsg;
- m_pTailWSQ->iov_len = pNewMsg->nSize;
- m_pTailWSQ = pNextTailWSQ;
- return true;
- }
- else
- {
- return false;
- }
-
-
-
- CSendDataElement *ptr = m_pSendDataTail;
- ptr++;
- if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
- {
- ptr = m_aSendData;
- }
- if (ptr != m_pSendDataHead)
- {
- m_pSendDataTail->SetData(pMsg);
- m_pSendDataTail = ptr;
- return true;
- }
- else
- {
-//WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_AddSendMsg. Send queue is full. State = %d.\n", m_nSlotIndex, m_State);
-return false;
-}
-}
- */
 
 void CSocketSlot::_DisposeSendQueue()
 {
@@ -379,7 +232,7 @@ void CSocketSlot::_DisposeSendQueue()
             else
             {
                 // can't add
-                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendData. The waiting send queue is full .\n", m_nSlotIndex);
+                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeSendQueue. The waiting send queue is full .\n", m_nSlotIndex);
                 return;
             }
         }
@@ -416,7 +269,7 @@ void CSocketSlot::_DisposeSendQueue()
             else
             {
                 // can't add
-                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendData. The waiting send queue is full .\n", m_nSlotIndex);
+                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeSendQueue. The waiting send queue is full .\n", m_nSlotIndex);
                 return;
             }
         }
@@ -435,7 +288,7 @@ bool CSocketSlot::_SendBufferData()
 
     if ((m_pMsgCache != NULL && m_nSeek == 0) || (m_pMsgCache == NULL && m_nSeek != 0))
     {
-        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendData. There is something wrong with the remain data.\n", m_nSlotIndex);
+        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_SendBufferData. There is something wrong with the remain data.\n", m_nSlotIndex);
         _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RemainDataError);
         return false;
     }
@@ -526,119 +379,7 @@ bool CSocketSlot::SendData()
 
     // send waiting send queue
     return _SendWSQ();
-
-
-
-    /*
-       bool bRes = true;
-       Mutex::ScopedLock lock(m_MutexForSend);
-       if (!m_bRemainData)
-       {
-       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendData. There is no remain data.\n", m_nSlotIndex);
-       return true;
-       }
-       if (m_pMsgCache == NULL && m_nSeek == 0 && m_pSendDataHead == m_pSendDataTail)
-       {
-       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendData. There is something wrong with the remain data.\n", m_nSlotIndex);
-       _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RemainDataError);
-       }
-       else if ((m_pMsgCache != NULL && m_nSeek == 0) || (m_pMsgCache == NULL && m_nSeek != 0))
-       {
-       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::SendData. There is something wrong with the remain data.\n", m_nSlotIndex);
-       _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RemainDataError);
-       }
-       else
-       {
-       if (m_pMsgCache != NULL && m_nSeek != 0)
-       {
-       bRes = _SendMsgCache();
-       }
-
-    // the msg cache has been disposed
-    if (bRes)
-    {
-    m_nSeek = 0;
-
-    delete m_pMsgCache;
-    m_pMsgCache = NULL;
-    bRes = _SendMsgQueue();
-    }
-    if (bRes)
-    {
-    m_bRemainData = false;
-    }
-    }
-    return true;
-     */
 }
-/*
-   bool CSocketSlot::_SendMsgCache()
-   {
-   if (m_State != SocketState_Normal && m_State != SocketState_Accepting)
-   {
-   WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_SendMsgCache. The socket state is not normal. State = %d.\n", m_nSlotIndex, m_State);
-   return false;
-   }
-
-   bool bRes = false;
-   int nLen = send(m_nFd, ((const char *)m_pMsgCache) + m_nSeek, m_pMsgCache->nSize - m_nSeek, 0);
-   if (nLen < 0)
-   {
-   int nErr = errno;
-   if (nErr == EAGAIN)
-   {
-   }
-   else
-   {
-   _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_SendError);
-   }
-   }
-   else if (nLen == 0)
-   {
-// any problem, may be some one will deal with it
-}
-else if (nLen == m_pMsgCache->nSize - m_nSeek)
-{
-m_nSeek += nLen;
-bRes = true;
-}
-else
-{
-m_nSeek += nLen;
-}
-return bRes;
-}
-bool CSocketSlot::_SendMsgQueue()
-{
-if (m_State != SocketState_Normal && m_State != SocketState_Accepting)
-{
-WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_SendMsgQueue. The socket state is not normal. State = %d.\n", m_nSlotIndex, m_State);
-return false;
-}
-
-bool bRes = true;
-CSendDataElement * pTailPtr = m_pSendDataTail;
-int nCount = pTailPtr - m_pSendDataHead;
-if (nCount > 0)
-{
-bRes = _SendElement(m_pSendDataHead, nCount);
-}
-else if (nCount < 0)
-{
-nCount = m_aSendData + cSEND_QUEUE_SIZE - m_pSendDataHead;
-if (nCount > 0)
-{
-bRes = _SendElement(m_pSendDataHead, nCount);
-}
-nCount = pTailPtr - m_aSendData;
-if (nCount > 0 && bRes)
-{
-bRes = _SendElement(m_aSendData, nCount);
-}
-}
-return bRes;
-}
- */
 
 bool CSocketSlot::_SendElement(CSendDataElement *pOut, int nCount)
 {
@@ -720,8 +461,8 @@ void CSocketSlot::_Reset()
 
     //m_bRemainData = false;
 
-    memset(m_Buffer, 0, cMAX_PACKET_SIZE);
-    m_pBufferHead = m_Buffer;
+    memset(m_RecvBuffer, 0, cMAX_RECV_BUFFER_SIZE);
+    m_pRecvHead = m_RecvBuffer;
     m_nBytesRemain = 0;
 
     if (m_pMsgCache)
@@ -760,156 +501,105 @@ bool CSocketSlot::_SetState(SocketState eSrcState, SocketState eDesState)
 
     return bRes;
 } 
-bool CSocketSlot::_CopyMsgToRecvBuff(MSG_BASE & rMsg)
+bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
 {
+    if (pMsg == NULL)
+    {
+        return false;
+    }
     CRecvDataElement * pRecvDataElement = new CRecvDataElement();
-    pRecvDataElement->CopySaveData(rMsg, m_nSlotIndex);
+    pRecvDataElement->SetData(pMsg, m_nSlotIndex);
     if (m_pRecvQueue->AddElement(pRecvDataElement))
     {
         return true;
     }
     else
     {
-        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CopyMsgToRecvBuff. Receive queue is full. CurMsg=(%d, %d).\n", m_nSlotIndex, rMsg.nMsg, rMsg.nSize);
-        pRecvDataElement->DeleteData();
+        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_AddRecvMsg. Receive queue is full. CurMsg=(%d, %d).\n", m_nSlotIndex, pMsg->nMsg, pMsg->nSize);
         delete pRecvDataElement;
         pRecvDataElement = NULL;
         return false;
     }
-    /*
-       bool bSuccess = m_pRecvQueue->PutRecvDataElement(rMsg, m_nSlotIndex);
-       if (!bSuccess)
-       {
-       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CopyMsgToRecvBuff. Receive queue is full. CurMsg=(%d, %d).\n", m_nSlotIndex, rMsg.nMsg, rMsg.nSize);
-       }
-       return bSuccess;
-     */
 }
 
-bool CSocketSlot::_AddRecvMsg(MSG_BASE & rMsg)
+bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
 {
-    bool bDisposeFinish = true;
-    // do some thing
-
-    bDisposeFinish = _CopyMsgToRecvBuff(rMsg);
-    return bDisposeFinish;
+    bool bRes = true;
+    MSG_BASE * pMsg = NULL;
+    if (m_pDecryptFunc == NULL && m_pUncompressFunc == NULL)
+    {
+        pMsg = CreateDynamicLengthMsg(rMsg.nSize, (MSG_BASE *)0);
+        memcpy(pMsg, &rMsg, rMsg.nSize);
+        if (!_AddRecvMsg(pMsg))
+        {
+            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Add Recv msg failed.\n", m_nSlotIndex);
+            delete pMsg;
+            pMsg = NULL;
+            bRes = false;
+        }
+    }
+    else
+    {
+    }
+    return bRes;
 }
 
-bool CSocketSlot::_DisposeMsgData()
+bool CSocketSlot::_DisposeRecvBuffer()
 {
     /*
        if (m_State != SocketState_Normal && m_State != SocketState_Accepting)
        {
-       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData. The socket state is not normal. State = %d.\n", m_nSlotIndex, m_State);
+       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer. The socket state is not normal. State = %d.\n", m_nSlotIndex, m_State);
        return false;
        }
      */
 
-    if (m_pWaitingMsg != NULL)
-    {
-        /*
-        if (m_nMsgDataSize == m_pWaitingMsg->nSize)
-        {
-            _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RecvBuffOverflow);
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData. Receive buffee is full.\n", m_nSlotIndex);
-            return false;
-        }
-        */
-
-        int nMsgNeedSize = m_pWaitingMsg->nSize - m_nMsgDataSize;
-        if (m_nBytesRemain < nMsgNeedSize)
-        {
-            memcpy(((char *)m_pWaitingMsg) + m_nMsgDataSize, m_pBufferHead, m_nBytesRemain);
-            m_nMsgDataSize += m_nBytesRemain;
-            m_nBytesRemain = 0;
-            m_pBufferHead = m_Buffer;
-            return true;
-        }
-        else
-        {
-            memcpy(((char *)m_pWaitingMsg) + m_nMsgDataSize, m_pBufferHead, nMsgNeedSize);
-            m_nBytesRemain -= nMsgNeedSize;
-            m_pBufferHead += nMsgNeedSize;
-            if (!_AddRecvMsg(*m_pWaitingMsg))
-            {
-                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData. Recv queue is full.\n", m_nSlotIndex);
-                _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RecvBuffOverflow);
-                return false;
-
-                /*
-                m_nMsgDataSize = m_pWaitingMsg->nSize;
-                return true;
-                */
-            }
-
-            m_pWaitingMsg = NULL;
-            m_nMsgDataSize = 0;
-        }
-    }
-
     bool bRes = true;
     while (m_nBytesRemain >= sizeof(MSG_BASE))
     {
-        MSG_BASE *pMsg = (MSG_BASE *)m_pBufferHead;
+        MSG_BASE *pMsg = (MSG_BASE *)m_pRecvHead;
 
         // if Size is Larger than Max Size, Error
         if (pMsg->nSize > cMAX_PACKET_SIZE)
         {
             _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_ErrMsgSize);
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData ErrMsgSize: too large. Size(%d), MaxSize(%d).\n", m_nSlotIndex, pMsg->nSize, cMAX_PACKET_SIZE);
+            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer ErrMsgSize: too large. Size(%d), MaxSize(%d).\n", m_nSlotIndex, pMsg->nSize, cMAX_PACKET_SIZE);
             bRes = false;
             break;
         }
         else if (pMsg->nSize < sizeof(MSG_BASE))
         {
             _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_ErrMsgSize);
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData ErrMsgSize: too small. Size(%d), MinSize(%d).\n", m_nSlotIndex, pMsg->nSize, sizeof(MSG_BASE));
+            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer ErrMsgSize: too small. Size(%d), MinSize(%d).\n", m_nSlotIndex, pMsg->nSize, sizeof(MSG_BASE));
             bRes = false;
             break;
         }
 
         if (m_nBytesRemain < pMsg->nSize)
         {
-            if (m_pBufferHead > m_pMidBuffer)
-            {
-                m_pWaitingMsg = CreateDynamicLengthMsg(pMsg->nSize, (MSG_BASE *)0);
-                m_nMsgDataSize = 0;
-                memcpy(m_pWaitingMsg, m_pBufferHead, m_nBytesRemain);
-                m_pBufferHead = m_Buffer;
-                m_nBytesRemain = 0;
-            }
             break;
         }
 
-        if (_AddRecvMsg(*pMsg))
+        if (_DisposeRecvMsg(*pMsg))
         {
             m_nBytesRemain -= pMsg->nSize;
-            m_pBufferHead += pMsg->nSize;
+            m_pRecvHead += pMsg->nSize;
         }
         else
         {
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData. Recv queue is full.\n", m_nSlotIndex);
+            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer. Recv queue is full.\n", m_nSlotIndex);
             _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RecvBuffOverflow);
             bRes = false;
-            /*
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeMsgData. Recv queue is full.\n", m_nSlotIndex);
-            if (cMAX_PACKET_SIZE <= m_nBytesRemain)
-            {
-                _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RecvBuffOverflow);
-                WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::_DisposeMsgData. recv queue and recv buffer are full.\n", m_nSlotIndex);
-                bRes = false;
-            }
-            */
             break;
         }
     }
-    if (m_pBufferHead > m_pMidBuffer && m_nBytesRemain > 0 && m_nBytesRemain < sizeof(MSG_BASE) && m_pBufferHead != m_Buffer)
+    if (m_pRecvHead > m_pLastBuffer)
     {
-        for (unsigned short i=0; i<m_nBytesRemain; i++)
+        for (unsigned int i=0; i<m_nBytesRemain; i++)
         {
-            m_Buffer[i] = m_pBufferHead[i];
+            m_RecvBuffer[i] = m_pRecvHead[i];
         }
-        m_pBufferHead = m_Buffer;
+        m_pRecvHead = m_RecvBuffer;
     }
     return bRes;
 }
@@ -927,8 +617,7 @@ bool CSocketSlot::RecvData()
     int nLen = 0;
     while (true)
     {
-        //nLen = recv(m_nFd, m_Buffer + m_nBytesRemain, cMAX_PACKET_SIZE - m_nBytesRemain, 0);
-        nLen = recv(m_nFd, m_pBufferHead, cMAX_PACKET_SIZE, 0);
+        nLen = recv(m_nFd, m_pRecvHead + m_nBytesRemain, cMAX_PACKET_SIZE - m_nBytesRemain, 0);
         if (nLen <0)
         {
             int nErr = errno;
@@ -952,22 +641,11 @@ bool CSocketSlot::RecvData()
         else
         {
             m_nBytesRemain += nLen;
-            if (!_DisposeMsgData())
+            bRes = _DisposeRecvBuffer();
+            if (!bRes)
             {
-                bRes = false;
                 break;
             }
-
-            /*
-               if (m_nBytesRemain >= sizeof(MSG_BASE))
-               {
-               if (!_DisposeMsgData())
-               {
-               bRes = false;
-               break;
-               }
-               }
-             */
         }
 
     }

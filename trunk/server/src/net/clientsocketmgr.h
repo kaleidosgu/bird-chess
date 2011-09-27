@@ -1,11 +1,9 @@
 #ifndef __net_clientsocketmgr_h_
 #define __net_clientsocketmgr_h_
 
-#include "../base/thread.h"
 #include "msgbasic.h"
-#include "recvdataelementqueue.h"
-#include "recvdataelementarray.h"
 #include "clientsocketslot.h"
+#include "socketmgr.h"
 
 using namespace base;
 
