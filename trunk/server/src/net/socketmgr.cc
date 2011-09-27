@@ -60,6 +60,9 @@ CSocketMgr::CSocketMgr()
     m_bRunning = false;
     m_pAddSendQueue = &m_SendQueue1;
     m_pDelSendQueue = &m_SendQueue2;
+    m_nAliveCheckInterval = 0;
+    m_nAliveTimeOut = 30;
+    m_tLastCheckTime = time(NULL);
 }
 
 CSocketMgr::~CSocketMgr()
@@ -112,7 +115,7 @@ bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
     return true;
 }
 
-bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bGetMsgThreadSafety)
+bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, unsigned int nAliveCheckInterval, unsigned int nAliveTimeOut, bool bGetMsgThreadSafety)
 {
     if (nPort == 0)
     {
@@ -121,6 +124,12 @@ bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bGetMs
     if (nMaxClient == 0)
     {
         return false;
+    }
+    m_nAliveCheckInterval = nAliveCheckInterval;
+    m_nAliveTimeOut = nAliveTimeOut;
+    if (m_nAliveCheckInterval > 0 && m_nAliveTimeOut <= m_nAliveCheckInterval)
+    {
+        m_nAliveTimeOut = m_nAliveCheckInterval + 1;
     }
     m_bGetMsgThreadSafety = bGetMsgThreadSafety;
     m_nPort = nPort;
@@ -222,8 +231,10 @@ void CSocketMgr::Process()
         return;
     }
 
-    m_bRunning = true;
 
+    m_tLastCheckTime = time(NULL);
+
+    m_bRunning = true;
     int nfds = 0;
     struct epoll_event * events = new epoll_event[m_nMaxClient];
     bool bBusy = false;
@@ -493,6 +504,44 @@ bool CSocketMgr::BroadcastMsg(MSG_BASE & rMsg)
     return true;
 }
 
+void CSocketMgr::_CheckAlive()
+{
+    if (m_nAliveCheckInterval == 0)
+    {
+        return;
+    }
+    time_t tNow = time(NULL);
+    if (tNow - m_tLastCheckTime >= (int)m_nAliveCheckInterval)
+    {
+        CSocketSlot * pSocketSlot = NULL;
+        for (unsigned int i=0; i<m_nMaxClient; i++)
+        {
+            pSocketSlot = m_SocketSlotMgr.GetSocketSlot(i);
+            if (pSocketSlot)
+            {
+                if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
+                {
+                    if (tNow - pSocketSlot->GetLatestAliveTime() > (int)m_nAliveTimeOut)
+                    {
+                        pSocketSlot->SetStateNotAlive();
+                        _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                        pSocketSlot = NULL;
+                        continue;
+                    }
+                    pSocketSlot->SendAliveMsg();
+                }
+                pSocketSlot = NULL;
+            }
+        }
+        m_tLastCheckTime = tNow;
+    }
+    else if (tNow < m_tLastCheckTime)
+    {
+        WriteLog(LEVEL_WARNING, "CSocketMgr::_CheckAlive. The clock turn back(Now=%u, LastTime=%u).", (unsigned int)tNow, (unsigned int)m_tLastCheckTime);
+        m_tLastCheckTime = tNow;
+    }
+}
+
 bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
 {
     pMsg = NULL;
@@ -505,6 +554,7 @@ bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
         CRecvDataElement * pRecvData = NULL;
         if (!m_pRecvQueue->GetElement(pRecvData))
         {
+            _CheckAlive();
             break;
         }
         if (pRecvData == NULL)
@@ -547,13 +597,28 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
                 }
                 else
                 {
-                    WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. SlotIndex = %d.\n", pSocketSlot->GetSlotIndex());
+                    WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. MsgID=%d, SlotIndex = %d.\n", MSGID_SYSTEM_ConnectSuccess, pSocketSlot->GetSlotIndex());
                 }
             }
             break;
         case MSGID_SYSTEM_Disconnect:
             {
                 m_SocketSlotMgr.ReleaseSlot(nSlotIndex);
+            }
+            break;
+        case MSGID_SYSTEM_CheckAliveReply:
+            {
+                CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
+                if (pSocketSlot != NULL)
+                {
+                    pSocketSlot->UpdateLatestAliveTime();
+                }
+                else
+                {
+                    WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. MsgID=%d, SlotIndex = %d.\n", MSGID_SYSTEM_CheckAliveReply, pSocketSlot->GetSlotIndex());
+                }
+                delete pMsg;
+                pMsg = NULL;
             }
             break;
         default:
