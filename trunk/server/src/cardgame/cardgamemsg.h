@@ -33,6 +33,9 @@ enum
     MSGID_CARDGAME_S2C_UseCard,
     MSGID_CARDGAME_S2C_MoveCard,
     MSGID_CARDGAME_S2C_Win,
+    MSGID_CARDGAME_S2C_KickOffPlayer,
+
+    MSGID_CARDGAME_X2X_ChatContent,
 };
 
 struct MSG_CARDGAME_C2S_LoginRequest : public MSG_BASE
@@ -277,7 +280,7 @@ struct MSG_CARDGAME_S2C_UseCardFailed : public MSG_BASE
     {
         nMsg = MSGID_CARDGAME_S2C_UseCardFailed;
         nSize = sizeof(MSG_CARDGAME_S2C_UseCardFailed);
-        nReason = 0;
+        nReason = Reason_Success;
     }
     int nReason;
 };
@@ -391,6 +394,39 @@ struct MSG_CARDGAME_S2C_Win : public MSG_BASE
         nPlayerID = -1;
     }
     int nPlayerID;
+};
+
+struct MSG_CARDGAME_S2C_KickOffPlayer : public MSG_BASE
+{
+    enum Reason
+    {
+        Reason_Unknown,
+        Reason_Relogin,
+    };
+    MSG_CARDGAME_S2C_KickOffPlayer()
+    {
+        nMsg = MSGID_CARDGAME_S2C_KickOffPlayer;
+        nSize = sizeof(MSG_CARDGAME_S2C_KickOffPlayer);
+        nReason = Reason_Unknown;
+    }
+    int nReason;
+};
+
+struct MSG_CARDGAME_X2X_ChatContent : public MSG_BASE
+{
+    enum Channel
+    {
+        Channel_World,
+        Channel_Room,
+    };
+    MSG_CARDGAME_X2X_ChatContent()
+    {
+        nMsg = MSGID_CARDGAME_X2X_ChatContent;
+        nSize = sizeof(MSG_CARDGAME_X2X_ChatContent);
+        nChannel = Channel_Room;
+    }
+    int nChannel;
+    char pData[1];
 };
 
 #endif // __cardgame_cardgamemsg_h_

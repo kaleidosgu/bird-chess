@@ -32,12 +32,12 @@ public:
 
     int GetRoomID();
     int GetPlayerNumber();
+    void BroadCastMsg(MSG_BASE & rMsg);
 
 private:
     Player * _CurrentPlayer();
     void _TurnToNextPlayer();
     void _SendAllPlayerInfoToPlayer(Player & rPlayer);
-    void _BroadCastMsg(MSG_BASE & rMsg);
     void _ResetCardTypeIndex();
     void _ResetCardListIndex();
 
