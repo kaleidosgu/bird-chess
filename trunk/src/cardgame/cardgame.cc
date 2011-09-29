@@ -30,7 +30,7 @@ bool CCardGame::Initialize()
     bool bRes = CServerCirculator::Initialize();
     if (bRes)
     {
-        unsigned int m_nMaxClient = GIni.GetInt(m_strServerName.c_str(), "MaxClient", 32);
+        m_nMaxClient = GIni.GetInt(m_strServerName.c_str(), "MaxClient", 32);
         WriteLog("The max client of server(%s) is %u.\n", m_strServerName.c_str(), m_nMaxClient);
 
         m_aCardSlot = new CardSlot[m_nMaxClient];
