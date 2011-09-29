@@ -288,6 +288,9 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
             {
 				Disconnect();
             }
+		case  MSGID_SYSTEM_CheckAlive:
+			MSG_SYSTEM_CheckAliveReply msg;
+			SendMsg(msg);
             break;
         default:
             break;
