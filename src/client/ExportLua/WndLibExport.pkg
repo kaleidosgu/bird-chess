@@ -1,0 +1,112 @@
+$#include "../wndlib/WndBase.h"
+$#include "../wndlib/wndpicture.h"
+$#include "../wndlib/wnddesktop.h"
+$#include "../wndlib/wndloadpicture.h"
+$#include "../wndlib/wndstatic.h"
+$#include "../wndlib/wndedit.h"
+$#include "../UI/UIExportWndBase.h"
+$#include "../ExportLua/UIGlobalExport.h"
+$#include "wtypes.h"
+typedef 0 NULL;
+typedef int INT;
+typedef char CHAR;
+typedef int BOOL;
+typedef long LONG;
+typedef unsigned long DWORD;
+typedef struct
+{
+INT cx;
+INT cy;
+}SIZE;
+typedef long LONG;
+typedef struct
+{
+LONG x;
+LONG y;
+}POINT;
+
+class CWndBase
+{
+public:
+	CWndBase(void);
+	virtual ~CWndBase(void);
+	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
+	virtual bool MoveWindow(int x, int y, bool bRedraw = true);
+	virtual bool ResizeWindow(int cx, int cy, bool bRedraw = true);
+	POINT GetClientPos() const;
+	virtual bool IsWindowEnabled();
+	SIZE GetClientSize() const;
+	virtual void ShowWindow( bool bVisible );
+	CWndBase* SetFocus(CWndBase* pWndFocus);
+};
+
+class CWndPicture 
+{
+public:
+	CWndPicture(void);
+	virtual ~CWndPicture(void);
+	virtual bool Create( int x, int y, const char* pKey, CWndBase* pParent, int nID );
+};
+
+class CWndDesktop
+{
+public:
+	CWndDesktop(void);
+	virtual ~CWndDesktop(void);
+};
+class CUIExportWndBase 
+{
+public:
+	CUIExportWndBase(void);
+	virtual ~CUIExportWndBase(void);
+	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
+	void SetScript( lua_State* pState, const char* pUIEvent, const char* pUITableName,lua_Object nv);
+};
+
+
+class CWndLoadPicture
+{
+public:
+	CWndLoadPicture(void);
+	virtual ~CWndLoadPicture(void);
+	virtual bool Create( int x, int y, const char* pPath, CWndBase* pParent, int nID );
+	void ResetRes( const char* pPath );
+};
+
+
+class CWndStatic
+{
+public:
+	CWndStatic(void);
+	virtual ~CWndStatic(void);
+	virtual bool CreateNoFont( int x, int y, int cx, int cy, const char* pText, CWndBase* pParent, int nID );
+	void SetText( const char* pText );
+	void SetFontColor( DWORD drColor );
+	const char* GetText() const;
+	float GetStringWidth( const char* pChar, bool bMulti );
+};
+
+class CWndEdit
+{
+public:
+	CWndEdit(void);
+	virtual ~CWndEdit(void);
+	virtual bool CreateNoFont( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
+	float GetStringWidth( const char* pChar, bool bMulti );
+	void SetNotifyParent( bool bNotify );
+	const char* GetText() const;
+	void SetText( const char* pText );
+};
+
+CUIExportWndBase* CreateBaseExportWnd( lua_State* pState );
+bool CreateUI( lua_State* pState, const char* pFileName );
+
+$[
+
+    basewnd={}
+function basewnd.toBase(e)
+    return tolua.cast(e, "CWndBase")
+end
+ 
+$] 
+
