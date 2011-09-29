@@ -1,5 +1,6 @@
 #include "cardgame.h"
 #include "../base/log.h"
+#include "../base/assert.h"
 
 using namespace base;
 
