@@ -356,6 +356,18 @@ void Player::ProcessMsg(MSG_BASE & rMsg)
                 }
             }
             break;
+        case MSGID_CARDGAME_X2X_ChatContent:
+            {
+                MSG_CARDGAME_X2X_ChatContent & rChatContent = (MSG_CARDGAME_X2X_ChatContent &)rMsg;
+                if (rChatContent.nChannel == MSG_CARDGAME_X2X_ChatContent::Channel_Room)
+                {
+                    if (m_pRoom)
+                    {
+                        m_pRoom->BroadCastMsg(rChatContent);
+                    }
+                }
+            }
+            break;
         default :
             break;
     }

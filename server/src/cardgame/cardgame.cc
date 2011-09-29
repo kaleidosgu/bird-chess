@@ -324,7 +324,21 @@ void CCardGame::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                         }
                                         else
                                         {
-                                            // need drop the client ?
+                                            // need drop the client
+                                            if (itPlayerID->second >= 0 && itPlayerID->second < m_nMaxClient)
+                                            {
+                                                CardSlot & rPlayerSlot = m_aCardSlot[itPlayerID->second];
+                                                MSG_CARDGAME_S2C_KickOffPlayer kickOffPlayer;
+                                                kickOffPlayer.nReason = MSG_CARDGAME_S2C_KickOffPlayer::Reason_Relogin;
+                                                SendMsg(kickOffPlayer, rPlayerSlot.m_nSlotIndex);
+                                                if (rPlayerSlot.m_pPlayer)
+                                                {
+                                                    rPlayerSlot.m_pPlayer->LeaveRoom();
+                                                    MSG_CARDGAME_S2C_LeaveRoomResult leaveRoomResultMsg;
+                                                    rPlayerSlot.m_pPlayer->SendMsg(leaveRoomResultMsg);
+                                                }
+                                            }
+
                                             // the player has been in game.
                                             MSG_CARDGAME_S2C_LoginResult loginResultMsg;
                                             loginResultMsg.nResult = MSG_CARDGAME_S2C_LoginResult::Result_Relogin;

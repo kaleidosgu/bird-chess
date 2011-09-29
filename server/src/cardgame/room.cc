@@ -69,7 +69,7 @@ int Room::PlayerEnter(Player & rPlayer)
         msg.nWin = rPlayer.GetWin();
         msg.nDogfall = rPlayer.GetDogfall();
         msg.nLose = rPlayer.GetLose();
-        _BroadCastMsg(msg);
+        BroadCastMsg(msg);
 
         // first player
         if (m_pRoomMaster == NULL)
@@ -114,7 +114,7 @@ void Room::_SendAllPlayerInfoToPlayer(Player & rPlayer)
     }
 }
 
-void Room::_BroadCastMsg(MSG_BASE & rMsg)
+void Room::BroadCastMsg(MSG_BASE & rMsg)
 {
     map< int, Player * >::iterator it = m_PlayerMap.begin();
     for (; it!=m_PlayerMap.end(); ++it)
@@ -162,7 +162,7 @@ bool Room::PlayerLeave(Player & rPlayer)
         // Broadcast
         MSG_CARDGAME_S2C_PlayerLeave msg;
         msg.nPlayerID = rPlayer.GetPlayerID();
-        _BroadCastMsg(msg);
+        BroadCastMsg(msg);
         if (m_pRoomMaster == NULL)
         {
             map< int, Player * >::iterator itMain = m_PlayerMap.begin();
@@ -172,7 +172,7 @@ bool Room::PlayerLeave(Player & rPlayer)
                 WriteLog(LEVEL_DEBUG, "Room(%d)::PlayerLeave. Reset the room master to player(%d).\n", m_nRoomID, m_pRoomMaster->GetPlayerID());
                 MSG_CARDGAME_S2C_RoomMaster msg;
                 msg.nPlayerID = m_pRoomMaster->GetPlayerID();
-                _BroadCastMsg(msg);
+                BroadCastMsg(msg);
             }
         }
     }
@@ -186,7 +186,7 @@ bool Room::PlayerLeave(Player & rPlayer)
                 WriteLog(LEVEL_DEBUG, "Room(%d)::PlayerLeave. Reset the current turn player(%d).\n", m_nRoomID, pCurPlayer->GetPlayerID());
                 MSG_CARDGAME_S2C_CurrentTurnPlayer msg;
                 msg.nPlayerID = pCurPlayer->GetPlayerID();
-                _BroadCastMsg(msg);
+                BroadCastMsg(msg);
             }
         }
         if (m_PlayerMap.size() == 1)
@@ -232,7 +232,7 @@ int Room::StartGame(Player & rPlayer)
     }
 
     MSG_CARDGAME_S2C_StartGame msg;
-    _BroadCastMsg(msg);
+    BroadCastMsg(msg);
     WriteLog(LEVEL_DEBUG, "Room(%d)::StartGame. start the game.\n", m_nRoomID);
 
     // init owner card
@@ -300,7 +300,7 @@ int Room::StartGame(Player & rPlayer)
         WriteLog(LEVEL_DEBUG, "Room(%d)::StartGame. Set the current turn player(%d).\n", m_nRoomID, m_it->second->GetPlayerID());
         MSG_CARDGAME_S2C_CurrentTurnPlayer msg;
         msg.nPlayerID = m_it->second->GetPlayerID();
-        _BroadCastMsg(msg);
+        BroadCastMsg(msg);
     }
     return MSG_CARDGAME_S2C_StartGameFailed::Reason_Success;
 }
@@ -328,7 +328,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
     useCardMsg.nCardType = rCard.m_eCardType;
     useCardMsg.nCardInstruction = rCard.m_eCardInstruction;
     useCardMsg.nTargetCardType = eCardType;
-    _BroadCastMsg(useCardMsg);
+    BroadCastMsg(useCardMsg);
 
     int nPathID = m_aCardTypePath[eCardType];
     if (nPathID == 0)
@@ -344,7 +344,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
             msg.nCardType = eCardType;
             msg.nSrcPathID = 0;
             msg.nDesPathID = nNewPathID;
-            _BroadCastMsg(msg);
+            BroadCastMsg(msg);
             WriteLog(LEVEL_DEBUG, "Room(%d)::UseCard. Move Card(%d) from (%d) to (%d).\n", m_nRoomID, eCardType, 0, nNewPathID);
         }
     }
@@ -375,7 +375,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
             msg.nCardType = cardTypeStackRev.top();
             msg.nSrcPathID = nPathID;
             msg.nDesPathID = nNewPathID;
-            _BroadCastMsg(msg);
+            BroadCastMsg(msg);
             WriteLog(LEVEL_DEBUG, "Room(%d)::UseCard. Move Card(%d) from (%d) to (%d).\n", m_nRoomID, eCardType, nPathID, nNewPathID);
 
             cardTypeStackRev.pop();
@@ -403,7 +403,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
                 {
                     MSG_CARDGAME_S2C_Win msg;
                     msg.nPlayerID = pPlayer->GetPlayerID();
-                    _BroadCastMsg(msg);
+                    BroadCastMsg(msg);
                     WriteLog(LEVEL_DEBUG, "Room(%d)::UseCard. CardType(%d) win. Player(%d) win.\n", m_nRoomID, eCardType, pPlayer->GetPlayerID());
                     bHaveWinner = true;
                 }
@@ -414,7 +414,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
         {
             MSG_CARDGAME_S2C_Win msg;
             msg.nPlayerID = -1;
-            _BroadCastMsg(msg);
+            BroadCastMsg(msg);
             WriteLog(LEVEL_DEBUG, "Room(%d)::UseCard. CardType(%d) win. But no one win.\n", m_nRoomID, eCardType);
             for (; it!=m_PlayerMap.end(); ++it)
             {
@@ -459,7 +459,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
         {
             MSG_CARDGAME_S2C_CurrentTurnPlayer msg;
             msg.nPlayerID = pCurPlayer->GetPlayerID();
-            _BroadCastMsg(msg);
+            BroadCastMsg(msg);
             WriteLog(LEVEL_DEBUG, "Room(%d)::UseCard. Turn to next player(%d).\n", m_nRoomID, pCurPlayer->GetPlayerID());
         }
     }
