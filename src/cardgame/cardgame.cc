@@ -3,6 +3,7 @@
 #include "../base/log.h"
 #include "../base/ini.h"
 #include "../base/md5.h"
+#include "../base/assert.h"
 #include "dbquery/createplayerdbquery.h"
 #include "dbquery/cardgamedbquerytasktype.h"
 
