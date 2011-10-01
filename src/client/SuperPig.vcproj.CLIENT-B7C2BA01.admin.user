@@ -38,7 +38,7 @@
 			>
 			<DebugSettings
 				Command="$(TargetPath)"
-				WorkingDirectory="e:\gamedev\bird\birdchess\debug\"
+				WorkingDirectory="e:\gamedev\birdgoogle\out\"
 				CommandArguments=""
 				Attach="false"
 				DebuggerType="3"

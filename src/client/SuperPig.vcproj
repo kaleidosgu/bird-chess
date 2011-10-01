@@ -166,7 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="hge.lib hgehelp.lib"
-				OutputFile=".\Debug/SuperPig.exe"
+				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="libc.lib;libci.lib;LIBCMTD.lib"

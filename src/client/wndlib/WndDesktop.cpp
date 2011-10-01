@@ -5,6 +5,8 @@
 CWndDesktop::CWndDesktop(void)
 {
 	memset(&m_event,0,sizeof(hgeInputEvent));
+	m_nLastKey = 0;
+	bKeyProcess = false;
 }
 
 CWndDesktop::~CWndDesktop(void)
@@ -15,12 +17,42 @@ void CWndDesktop::OnUpdate( float ft )
 {
 	if( m_pDevice && m_pDevice->hge )
 	{
-		memset(&m_event,0,sizeof(hgeInputEvent));
-		m_pDevice->hge->Input_GetEvent(&m_event);
+		if ( bKeyProcess )
+		{
+			memset(&m_event,0,sizeof(hgeInputEvent));
+			bKeyProcess = false;
+		}
 
-		int keydown = m_pDevice->hge->Input_GetKey();
+		int nTempKey = m_pDevice->hge->Input_GetKey();
+		int keychar = m_pDevice->hge->Input_GetChar();
+		if( m_nLastKey > 0 )
+		{
+			bool bKeyUp = m_pDevice->hge->Input_KeyUp(m_nLastKey);
+			if ( bKeyUp )
+			{
+				m_event.type = INPUT_KEYUP;
+				m_nLastKey = nTempKey;
+				bKeyProcess = true;
+			}
+		}
+		if ( nTempKey > 0 )
+		{	
+			m_nLastKey = nTempKey;
+			if( m_nLastKey > 0 )
+			{
+				bool bKeyDown = m_pDevice->hge->Input_KeyDown(m_nLastKey);
+				m_event.type = INPUT_KEYDOWN;
+				bKeyProcess = true;
+				m_event.key = m_nLastKey;
+				m_event.chr = keychar;
+			}
+		}
 
-		if( m_event.type != 0 )
+		if( m_event.type == INPUT_KEYDOWN )
+		{
+			OnKeyboardMessage( m_event );
+		}
+		else if( m_event.type == INPUT_KEYUP )
 		{
 			OnKeyboardMessage( m_event );
 		}
