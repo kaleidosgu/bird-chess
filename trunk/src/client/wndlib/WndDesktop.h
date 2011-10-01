@@ -12,4 +12,6 @@ public:
 	virtual int OnKeyboardMessage( const hgeInputEvent& rEvent );
 private:
 	hgeInputEvent m_event;
+	int m_nLastKey;
+	bool bKeyProcess;
 };

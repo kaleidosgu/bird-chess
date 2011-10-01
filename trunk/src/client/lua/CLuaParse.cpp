@@ -35,6 +35,7 @@ int CLuaParse::LoadLuaFile(const char* name)
 	//str ="1";
 
 	nRes = luaL_dofile(m_pLuaState,name);
+	const char* pChar = lua_tostring(m_pLuaState,-1);
 	return nRes;
 }
 

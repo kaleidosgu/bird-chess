@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 09/29/11 14:14:16.
+** Generated automatically by tolua++-1.0.92 on 10/01/11 17:34:11.
 */
 
 #ifndef __cplusplus
