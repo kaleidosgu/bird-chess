@@ -30,7 +30,7 @@ public:
 
 	void SetMainPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo);
 	void SetPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo);
-	void SetPlayerBirdID(int nPlayerCardType);
+	void SetPlayerBirdID(int nPlayerCardType,bool MainPlayer = true);
 	void SetPlayerCardInfo(int nPosID,int nType,int nInstruction);
 	void SetRoomMater(int nID);
 	void PlayerLeave(int nID);
