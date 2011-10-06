@@ -167,7 +167,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="hge.lib hgehelp.lib"
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="libc.lib;libci.lib;LIBCMTD.lib"
 				GenerateDebugInformation="true"

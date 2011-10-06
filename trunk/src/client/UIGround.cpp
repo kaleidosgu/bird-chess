@@ -160,9 +160,17 @@ void CUIGround::SetPlayerCardInfo(int nPosID,int nType,int nInstruction)
 }
 
 
-void CUIGround::SetPlayerBirdID(int nPlayerCardType)
+void CUIGround::SetPlayerBirdID(int nPlayerCardType,bool MainPlayer )
 {
-	 m_PlayerManager->GetMainPlayer()->SetBirdID(nPlayerCardType);
+	if(MainPlayer)
+	{
+		m_PlayerManager->GetMainPlayer()->SetBirdID(nPlayerCardType);
+	}
+	else
+	{
+		std::vector<UIPlayer*>&  rPlayerVec =  m_PlayerManager->GetPlayerList();
+		rPlayerVec[1]->SetBirdID(nPlayerCardType);
+	}
 }
 
 void CUIGround::SetCurrentTurnPlayer(int nPlayerID)
@@ -206,6 +214,8 @@ void CUIGround::Init()
 		m_vecCloud[i]->SetLocation(CloudDis*i,nCloudY);
 		m_vecCloud[i]->Init();
 	}	
+	std::vector<UIPlayer*>&  rPlayerVec =  m_PlayerManager->GetPlayerList();
+	rPlayerVec[1]->SetBirdID(0);
 	m_PlayerManager->GetMainPlayer()->SetGameStart(true);
 }
 
