@@ -1,0 +1,1 @@
+print(io.open("login.lua", "r"))

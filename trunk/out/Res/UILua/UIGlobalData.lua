@@ -1,4 +1,1 @@
-WND_RESULT_YES 	= 0
-WND_RESULT_NO 	= 1
-
-HGE_KEY_ENTER 	= 13
+g_tUIMap = {}

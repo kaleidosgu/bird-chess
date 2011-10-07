@@ -1,5 +1,3 @@
-UITest = {m_nSpeed = 30,m_bShowEdit = true,movewnd = nil,context = nil,myedit = nil,mttime = 0,
-}
 local function OnUpdate(self,e)
 	local kk = ""
 	if self.m_bShowEdit then
@@ -38,22 +36,33 @@ local function OnKeyDown(self,eKey)
 	if eKey == 112 then
 		self.m_bShowEdit = (not self.m_bShowEdit)
 		keyres = WND_RESULT_YES
-		consoleAddText("d")
 	elseif eKey == HGE_KEY_ENTER then
-		local kdString = self.myedit:GetText()
-		
-		local firstStr = {}
-		local ncount = 1
-		for w in string.gmatch(kdString, "%a+") do
-			firstStr[ncount] = tostring(w)
-			ncount = ncount + 1;
-		end
-		if firstStr[1] == "create" then
-			local ends = string.find(kdString," ")
-			local substr = string.sub(kdString,ends + 1,string.len(kdString))
-			CreateUI(substr)
-		end
-		keyres = WND_RESULT_YES
+		if self.m_bShowEdit == true then
+			local kdString = self.myedit:GetText()
+			
+			local firstStr = {}
+			local ncount = 1
+			for w in string.gmatch(kdString, "%a+") do
+				firstStr[ncount] = tostring(w)
+				ncount = ncount + 1;
+			end
+			if firstStr[1] == "create" then
+				local ends = string.find(kdString," ")
+				local substr = string.sub(kdString,ends + 1,string.len(kdString))
+				local strFile = g_UIcurDir .. substr
+				local bExist = IsFileExist(strFile)
+				if bExist == true then
+					--consoleAddText(strFile)
+					dofile(strFile)
+					createTmpUI(strFile)
+				else
+					consoleAddText("File not exist!")
+				end
+			elseif firstStr[1] == "cls" then
+				consoleClear()
+			end
+			keyres = WND_RESULT_YES
+		end		
 	end
 	return keyres
 end
@@ -65,12 +74,13 @@ end
 
 function consoleAddText( str )
 	g_pConsole.context:AddText(str)
-	g_pConsole.context:SetMask("*")
+end
+function consoleClear( )
+	g_pConsole.context:SetText("")
 end
 
-
 local pDesk = basewnd.toObject(g_UIGlobal["ptDesk"],"CWndBase")
-local expwnd = CreateLuaWnd(pDesk)
+local expwnd = CreateLuaWnd(pDesk,0,0)
 expwnd.m_bShowEdit = true
 expwnd.m_nSpeed = 30
 local bseexp = basewnd.toObject(expwnd,"CWndBase")
@@ -80,7 +90,7 @@ expwnd.movewnd = movewnd
 movewnd:Create(0,0,0,0,bseexp,0)
 
 local bg = CWndLoadPicture:new()
-bg:Create( 0, 0, "res/UILua/ConsoleBG.png", movewnd, 0 );
+bg:Create( 0, 0, "res/UILua/ConsoleBG.png", movewnd, 0,false,0,0,0,0 );
 
 local bsebg = basewnd.toObject(bg,"CWndBase")
 
