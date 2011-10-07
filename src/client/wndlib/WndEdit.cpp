@@ -138,3 +138,12 @@ void CWndEdit::SetMask( const char* pMask )
 {
 	m_strMask = pMask;
 }
+int CWndEdit::OnLButtonDown(const UINT &nFlags,const POINT &point)
+{
+	if(PtInWnd(point))
+	{
+		SetFocus(this);
+		return WND_RESULT_YES;
+	}
+	return WND_RESULT_NO;
+}

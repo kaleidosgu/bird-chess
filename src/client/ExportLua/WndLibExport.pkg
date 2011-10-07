@@ -39,6 +39,8 @@ public:
 	virtual void ShowWindow( bool bVisible );
 	CWndBase* SetFocus(CWndBase* pWndFocus);
 	virtual bool IsVisible();
+	virtual bool Destroy();
+	bool m_bDrawBox;
 };
 
 class CWndPicture 
@@ -70,8 +72,8 @@ class CWndLoadPicture
 public:
 	CWndLoadPicture(void);
 	virtual ~CWndLoadPicture(void);
-	virtual bool Create( int x, int y, const char* pPath, CWndBase* pParent, int nID );
-	void ResetRes( const char* pPath );
+	virtual bool Create( int x, int y, const char* pPath, CWndBase* pParent, int nID, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
+	void ResetRes( const char* pPath, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
 };
 
 
@@ -103,6 +105,7 @@ public:
 
 CUIExportWndBase* CreateBaseExportWnd( lua_State* pState );
 bool CreateUI( lua_State* pState, const char* pFileName );
+void Login2Server( const char* pName, const char* pPassword);
 
 $[
 

@@ -18,6 +18,7 @@ public:
 	void SetNotifyParent( bool bNotify );
 	const char* GetText() const;
 	void SetMask( const char* pMask );
+	virtual int OnLButtonDown(const UINT &nFlags,const POINT &point);
 protected:
 	void DrawCaret();
 private:

@@ -65,6 +65,7 @@ protected:
 	virtual int ProcessMouseInput();
 	virtual void OnSetFocus(){};
 	virtual void OnKillFocus(){};
+	virtual bool NeedMouseInput();
 protected:
 	CWndBase* m_pParent;
 	std::list < CWndBase* > m_listChildren;
@@ -72,21 +73,21 @@ protected:
 	RECT m_rcRect;
 	RECT m_rcAbsWnd;
 	bool m_bVisible;
-	bool m_bDrawBox;
 	RECT m_rcClip;
 
 	SIZE m_size;
 
 	static HGEDevice* m_pDevice;
 
-	bool m_bLPressed;
-	bool m_bLReleased; 
-	bool m_bRPressed;
-	bool m_bRReleased; 
+	static bool m_bLPressed;
+	static bool m_bLReleased; 
+	static bool m_bRPressed;
+	static bool m_bRReleased; 
 
 	std::list < CWndBase* > m_listChildrenDestroy;
 
-	bool m_bDragWithParent;
+	bool	m_bDragWithParent;
+	bool	m_bNeedMouseInput;
 
 public:
 
@@ -96,4 +97,5 @@ public:
 	static CWndBase* m_pWndFocus;
 	static POINT m_ptMouse;
 	static hgeFont*		m_pHgeFont;
+	bool	m_bDrawBox;
 };

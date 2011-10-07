@@ -4,6 +4,7 @@
 CWndStatic::CWndStatic(void)
 :m_strText(""),m_nAlign(0),m_crColor(0)
 {
+	m_bNeedMouseInput = false;
 }
 
 CWndStatic::~CWndStatic(void)

@@ -1,5 +1,10 @@
 #include "UIGlobalExport.h"
+#include "../../netclient/clientsocketMgr.h"
 #include "../ui/UIExportWndBase.h"
+#include "../../cardgame/cardgamemsg.h"
+extern clinetnet::CClientSocketMgr g_CSM;
+extern string G_IPString;
+extern int G_nPort;
 CUIExportWndBase* CreateBaseExportWnd( lua_State* pState )
 {
 	int nTop = lua_gettop( pState );
@@ -60,4 +65,12 @@ bool CreateUI( lua_State* pState, const char* pFileName )
 
 
 	return bSucceed;
+}
+void Login2Server( const char* pName, const char* pPassword)
+{	
+	g_CSM.Connect(G_IPString,G_nPort);
+	MSG_CARDGAME_C2S_LoginRequest msg;
+	strcpy_s(msg.szUsername,cMAX_USERNAME_LEN,pName);
+	strcpy_s(msg.szPassword,cMAX_PASSWORD_LEN,pPassword);
+	g_CSM.SendMsg(msg);
 }
