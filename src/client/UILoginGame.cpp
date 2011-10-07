@@ -106,7 +106,8 @@ void CUILoginGame::_OnEnter(int nCtlID)
 	 		}
 	 		else
 	 		{
-	 			//SendLog2Server(m_AccountName->GetString(),m_Password->GetString());
+				//这里以后去除。先加到服务器上去。
+	 			SendLog2Server(m_AccountName->GetString(),m_Password->GetString());
 	 		}
 	 	}
 }
