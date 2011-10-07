@@ -232,7 +232,7 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 			MSG_CARDGAME_S2C_LoginResult& rLoginResultMsg  =  (MSG_CARDGAME_S2C_LoginResult&)rMsg;
 			if(rLoginResultMsg.nResult == 0 ) //成功
 			{
-				g_UILoginGame->SetEnable(false);
+				//g_UILoginGame->SetEnable(false);
 				SoundSystem::Instance().StopMusic(1);
 				G_nGameStat = ENUM_CARDGAME_BEGIN;
 				SoundSystem::Instance().PlayMusic(2);
@@ -455,7 +455,7 @@ bool FrameFunc()  //帧数逻辑
 // 	}
 	gui->Update(dt);
 
-	g_UILoginGame->Update(dt);
+	//g_UILoginGame->Update(dt);
 	g_UIGround->Update(dt);
 
 #ifdef _DEBUG
@@ -602,7 +602,7 @@ bool FrameFunc()  //帧数逻辑
 		//case HGEK_DOWN:		if(nObjects>MIN_OBJECTS) nObjects-=100; break;
 		case HGEK_SPACE:	
 			{
-				MainPlayer->UsePower();
+				//MainPlayer->UsePower();
 			}
 			break;
 		case HGEK_F1:
@@ -827,8 +827,8 @@ bool FrameFunc()  //帧数逻辑
 
 	if(hge->Input_KeyDown(HGEK_SPACE)) 
 	{
-		CGEEvent State(EventID_StartJump);
-		((ActHeroPig*)MainPlayer)->Response(State);
+		//CGEEvent State(EventID_StartJump);
+		//((ActHeroPig*)MainPlayer)->Response(State);
 	}
 
 	//if (hge->Input_GetKeyState(HGEK_A)) MainPlayer->ChangeSpeed(-dt,0);
@@ -1105,7 +1105,7 @@ bool RenderFunc()
 		bgspr5->RenderEx(bgspr2->GetWidth()*i-G_bgLocateX2-G_LogicX,500-G_LogicY,0.0,0.6,0.6);
 		
 	}
-	g_UILoginGame->Render();
+	//g_UILoginGame->Render();
 
 	g_UIGround->Render();
 #ifdef _DEBUG
@@ -1193,14 +1193,15 @@ void LoadResource()
 	fnt_WinOrLost = new hgeFont("res/FontPsi/fontScore.fnt");
 	EntityFactory::Instance().SetHTEXTURE(tex,texUI);
 
-	g_UILoginGame = new CUILoginGame(500,200,fnt);
+	//g_UILoginGame = new CUILoginGame(500,200,fnt);
 	g_UIGround = new CUIGround();
    
 	// 主角是一只猪
 
 	MainPlayer = EntityFactory::Instance().CreatePlayer();
 	SprMouse = EntityFactory::Instance().CreateSprite("SprMouse");
-	SprMouse->SetHotSpot(10,SprMouse->GetHeight());
+	//SprMouse->SetHotSpot(10,SprMouse->GetHeight());
+	SprMouse->SetHotSpot(0,0);
 	//SprMouse->SetHotSpot(10,15);
 	//SprMouse =new hgeSprite(tex,16,474,20,29);
 	//

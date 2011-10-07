@@ -83,6 +83,7 @@ int CUIExportWndBase::OnKeyDown( const hgeInputEvent& rEvent )
 		}
 		else if ( nRes > 0 )
 		{
+			pChar = lua_tostring( m_pState, -1 );
 		}
 		lua_settop(m_pState,nTop);
 	}

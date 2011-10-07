@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _UIExportWndBase_H_
+#define _UIExportWndBase_H_
 #include "../wndlib/WndBase.h"
 #include <tolua++.h>
 #include <map>
@@ -22,3 +23,6 @@ private:
 	lua_State* m_pState;
 	std::map < std::string, int > m_mapUIEventCall;
 };
+
+#endif
+

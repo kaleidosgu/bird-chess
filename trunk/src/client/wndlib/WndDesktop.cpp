@@ -35,7 +35,7 @@ void CWndDesktop::OnUpdate( float ft )
 				bKeyProcess = true;
 			}
 		}
-		if ( nTempKey > 0 )
+		if ( nTempKey > HGEK_MBUTTON )
 		{	
 			m_nLastKey = nTempKey;
 			if( m_nLastKey > 0 )

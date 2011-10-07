@@ -14,10 +14,16 @@ CWndBase* CWndBase::s_pWndLBDown = NULL;
 CWndBase* CWndBase::m_pWndFocus = NULL;
 hgeFont* CWndBase::m_pHgeFont = NULL;
 
+bool CWndBase::m_bLPressed = false;
+bool CWndBase::m_bLReleased = false;
+bool CWndBase::m_bRPressed = false;
+bool CWndBase::m_bRReleased = false;
+
 POINT CWndBase::m_ptMouse = {0,0};
 
 CWndBase::CWndBase(void)
 :m_nDlgID( 0 ),m_bDrawBox(true),m_bVisible(true),m_bDragWithParent(true),m_pParent(NULL)
+,m_bNeedMouseInput(true)
 {
 	SetRectEmpty(&m_rcRect);
 	SetRectEmpty(&m_rcClip);
@@ -192,7 +198,7 @@ CWndBase * CWndBase::GetChildWndPtIn( const POINT &pt )
 	for( itChild = m_listChildren.rbegin(); itChild != m_listChildren.rend(); itChild++)
 	{
 		pWnd = (*itChild);
-		if( pWnd->IsVisible() && pWnd->PtInWnd(pt) )return pWnd;
+		if( pWnd->IsVisible() && pWnd->NeedMouseInput() && pWnd->PtInWnd(pt) )return pWnd;
 	}
 
 	return NULL;
@@ -236,7 +242,7 @@ int CWndBase::OnMouseInput()
 		lRes = pWnd->OnMouseInput();
 	}
 
-	if(lRes == WND_RESULT_YES)
+	if(lRes == WND_RESULT_NO)
 	{
 		lRes = ProcessMouseInput();
 	}
@@ -501,4 +507,8 @@ void CWndBase::SetDragWithParent( bool bWith )
 bool CWndBase::IsDragWithParent()
 {
 	return m_bDragWithParent;
+}
+bool CWndBase::NeedMouseInput()
+{
+	return m_bNeedMouseInput;
 }

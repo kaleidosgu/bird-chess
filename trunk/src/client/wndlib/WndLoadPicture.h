@@ -9,9 +9,9 @@ class CWndLoadPicture :
 public:
 	CWndLoadPicture(void);
 	virtual ~CWndLoadPicture(void);
-	virtual bool Create( int x, int y, const char* pPath, CWndBase* pParent, int nID );
+	virtual bool Create( int x, int y, const char* pPath, CWndBase* pParent, int nID, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
 	virtual void OnDraw();
-	void ResetRes( const char* pPath );
+	void ResetRes( const char* pPath, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
 private:
 	HTEXTURE m_Texture;
 	hgeSprite* m_pSprite;

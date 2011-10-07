@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/02/11 21:57:34.
+** Generated automatically by tolua++-1.0.92 on 10/07/11 15:15:41.
 */
 
 #ifndef __cplusplus
@@ -646,6 +646,68 @@ static int tolua_WndLibExport_CWndBase_IsVisible00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: Destroy of class  CWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndBase_Destroy00
+static int tolua_WndLibExport_CWndBase_Destroy00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndBase",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndBase* self = (CWndBase*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Destroy'", NULL);
+#endif
+  {
+   bool tolua_ret = (bool)  self->Destroy();
+   tolua_pushboolean(tolua_S,(bool)tolua_ret);
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Destroy'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* get function: m_bDrawBox of class  CWndBase */
+#ifndef TOLUA_DISABLE_tolua_get_CWndBase_m_bDrawBox
+static int tolua_get_CWndBase_m_bDrawBox(lua_State* tolua_S)
+{
+  CWndBase* self = (CWndBase*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'm_bDrawBox'",NULL);
+#endif
+  tolua_pushboolean(tolua_S,(bool)self->m_bDrawBox);
+ return 1;
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* set function: m_bDrawBox of class  CWndBase */
+#ifndef TOLUA_DISABLE_tolua_set_CWndBase_m_bDrawBox
+static int tolua_set_CWndBase_m_bDrawBox(lua_State* tolua_S)
+{
+  CWndBase* self = (CWndBase*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  tolua_Error tolua_err;
+  if (!self) tolua_error(tolua_S,"invalid 'self' in accessing variable 'm_bDrawBox'",NULL);
+  if (!tolua_isboolean(tolua_S,2,0,&tolua_err))
+   tolua_error(tolua_S,"#vinvalid type in variable assignment.",&tolua_err);
+#endif
+  self->m_bDrawBox = ((bool)  tolua_toboolean(tolua_S,2,0))
+;
+ return 0;
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndPicture */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndPicture_new00
 static int tolua_WndLibExport_CWndPicture_new00(lua_State* tolua_S)
@@ -1124,7 +1186,12 @@ static int tolua_WndLibExport_CWndLoadPicture_Create00(lua_State* tolua_S)
      !tolua_isstring(tolua_S,4,0,&tolua_err) ||
      !tolua_isusertype(tolua_S,5,"CWndBase",0,&tolua_err) ||
      !tolua_isnumber(tolua_S,6,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,7,&tolua_err)
+     !tolua_isboolean(tolua_S,7,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,8,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,9,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,10,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,11,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,12,&tolua_err)
  )
   goto tolua_lerror;
  else
@@ -1136,11 +1203,16 @@ static int tolua_WndLibExport_CWndLoadPicture_Create00(lua_State* tolua_S)
   const char* pPath = ((const char*)  tolua_tostring(tolua_S,4,0));
   CWndBase* pParent = ((CWndBase*)  tolua_tousertype(tolua_S,5,0));
   int nID = ((int)  tolua_tonumber(tolua_S,6,0));
+  bool bDrawSprite = ((bool)  tolua_toboolean(tolua_S,7,0));
+  int ptDrawX = ((int)  tolua_tonumber(tolua_S,8,0));
+  int ptDrawY = ((int)  tolua_tonumber(tolua_S,9,0));
+  int ptDrawW = ((int)  tolua_tonumber(tolua_S,10,0));
+  int ptDrawH = ((int)  tolua_tonumber(tolua_S,11,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Create'", NULL);
 #endif
   {
-   bool tolua_ret = (bool)  self->Create(x,y,pPath,pParent,nID);
+   bool tolua_ret = (bool)  self->Create(x,y,pPath,pParent,nID,bDrawSprite,ptDrawX,ptDrawY,ptDrawW,ptDrawH);
    tolua_pushboolean(tolua_S,(bool)tolua_ret);
   }
  }
@@ -1162,7 +1234,12 @@ static int tolua_WndLibExport_CWndLoadPicture_ResetRes00(lua_State* tolua_S)
  if (
      !tolua_isusertype(tolua_S,1,"CWndLoadPicture",0,&tolua_err) ||
      !tolua_isstring(tolua_S,2,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,3,&tolua_err)
+     !tolua_isboolean(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,6,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,7,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,8,&tolua_err)
  )
   goto tolua_lerror;
  else
@@ -1170,11 +1247,16 @@ static int tolua_WndLibExport_CWndLoadPicture_ResetRes00(lua_State* tolua_S)
  {
   CWndLoadPicture* self = (CWndLoadPicture*)  tolua_tousertype(tolua_S,1,0);
   const char* pPath = ((const char*)  tolua_tostring(tolua_S,2,0));
+  bool bDrawSprite = ((bool)  tolua_toboolean(tolua_S,3,0));
+  int ptDrawX = ((int)  tolua_tonumber(tolua_S,4,0));
+  int ptDrawY = ((int)  tolua_tonumber(tolua_S,5,0));
+  int ptDrawW = ((int)  tolua_tonumber(tolua_S,6,0));
+  int ptDrawH = ((int)  tolua_tonumber(tolua_S,7,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'ResetRes'", NULL);
 #endif
   {
-   self->ResetRes(pPath);
+   self->ResetRes(pPath,bDrawSprite,ptDrawX,ptDrawY,ptDrawW,ptDrawH);
   }
  }
  return 0;
@@ -1840,6 +1922,36 @@ static int tolua_WndLibExport_CreateUI00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: Login2Server */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_Login2Server00
+static int tolua_WndLibExport_Login2Server00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isstring(tolua_S,1,0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  const char* pName = ((const char*)  tolua_tostring(tolua_S,1,0));
+  const char* pPassword = ((const char*)  tolua_tostring(tolua_S,2,0));
+  {
+   Login2Server(pName,pPassword);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Login2Server'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* Open function */
 TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
 {
@@ -1884,6 +1996,8 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"ShowWindow",tolua_WndLibExport_CWndBase_ShowWindow00);
    tolua_function(tolua_S,"SetFocus",tolua_WndLibExport_CWndBase_SetFocus00);
    tolua_function(tolua_S,"IsVisible",tolua_WndLibExport_CWndBase_IsVisible00);
+   tolua_function(tolua_S,"Destroy",tolua_WndLibExport_CWndBase_Destroy00);
+   tolua_variable(tolua_S,"m_bDrawBox",tolua_get_CWndBase_m_bDrawBox,tolua_set_CWndBase_m_bDrawBox);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndPicture","CWndPicture","",tolua_collect_CWndPicture);
@@ -1970,6 +2084,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
   tolua_endmodule(tolua_S);
   tolua_function(tolua_S,"CreateBaseExportWnd",tolua_WndLibExport_CreateBaseExportWnd00);
   tolua_function(tolua_S,"CreateUI",tolua_WndLibExport_CreateUI00);
+  tolua_function(tolua_S,"Login2Server",tolua_WndLibExport_Login2Server00);
 
   { /* begin embedded lua code */
    int top = lua_gettop(tolua_S);
