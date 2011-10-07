@@ -9,6 +9,9 @@ CWndEdit::CWndEdit(void):m_pStatic(NULL),m_bDrawCaret(false),m_nCaretPos(0.0f),m
 {
 	m_fCurTime = 0.f;
 	SetRectEmpty(&m_rcCaret);
+	m_strText = "";
+	m_strMask = "";
+	m_strShowText = "";
 }
 
 CWndEdit::~CWndEdit(void)
@@ -31,7 +34,7 @@ int CWndEdit::OnChar( const hgeInputEvent& rEvent )
 	}
 	if( rEvent.key == HGEK_BACKSPACE )
 	{
-		std::string tempStr = m_pStatic->GetText();
+		std::string tempStr = m_strText;
 		const char* pChar = tempStr.c_str();
 		if( pChar )
 		{
@@ -39,7 +42,8 @@ int CWndEdit::OnChar( const hgeInputEvent& rEvent )
 			if( nLen > 0 )
 			{
 				tempStr.resize( nLen - 1);
-				m_pStatic->SetText( tempStr.c_str() );
+				m_strText = tempStr;
+				SetText( m_strText.c_str() );
 			}
 		}
 	}
@@ -52,9 +56,11 @@ int CWndEdit::OnChar( const hgeInputEvent& rEvent )
 		char tempChar[2] = {0};
 		tempChar[0] = (char)(rEvent.chr);
 		std::string strText = tempChar;
-		std::string strOri = m_pStatic->GetText();
+		std::string strOri = m_strText;
 		strText = strOri + strText;
-		m_pStatic->SetText( strText.c_str() );
+		m_strText = strText;
+		//m_pStatic->SetText( m_strText.c_str() );
+		SetText(m_strText.c_str());
 	}
 // 	//return CWndBase::OnChar( rEvent );
 	m_nCaretPos = (int)m_pStatic->GetStringWidth( m_pStatic->GetText(), true );
@@ -85,16 +91,28 @@ void CWndEdit::DrawCaret()
 		if( m_pDevice )
 		{
 			//SColor rc(255,0,0,0);
-			m_pDevice->hge->Gfx_RenderLine(m_nCaretPos + m_rcRect.left,m_rcRect.top + 5,m_nCaretPos + m_rcRect.left ,m_rcRect.top + 18,0xFFFFFFFF);
-			m_pDevice->hge->Gfx_RenderLine(m_nCaretPos + m_rcRect.left + 1,m_rcRect.top + 5,m_nCaretPos + m_rcRect.left + 1,m_rcRect.top + 18,0xFFFFFFFF);
-			m_pDevice->hge->Gfx_RenderLine(m_nCaretPos + m_rcRect.left + 2,m_rcRect.top + 5,m_nCaretPos + m_rcRect.left + 2,m_rcRect.top + 18,0xFFFFFFFF);
+			m_pDevice->hge->Gfx_RenderLine(m_nCaretPos + m_rcAbsWnd.left,m_rcAbsWnd.top + 5,m_nCaretPos + m_rcAbsWnd.left ,m_rcAbsWnd.top + 18,0xFFFFFFFF);
+			m_pDevice->hge->Gfx_RenderLine(m_nCaretPos + m_rcAbsWnd.left + 1,m_rcAbsWnd.top + 5,m_nCaretPos + m_rcAbsWnd.left + 1,m_rcAbsWnd.top + 18,0xFFFFFFFF);
+			m_pDevice->hge->Gfx_RenderLine(m_nCaretPos + m_rcAbsWnd.left + 2,m_rcAbsWnd.top + 5,m_nCaretPos + m_rcAbsWnd.left + 2,m_rcAbsWnd.top + 18,0xFFFFFFFF);
 		}
 	}
 }
 
 void CWndEdit::SetText( const char* pText )
 {
-	m_pStatic->SetText( pText );
+	m_strText = pText;
+	m_strShowText = pText;
+	size_t szCount = m_strShowText.size();
+	if( m_strMask.size() > 0 )
+	{
+		std::string temp = "";
+		for( size_t idx = 0; idx < szCount; idx++ )
+		{
+			temp = temp + m_strMask;
+		}
+		m_strShowText = temp;
+	}
+	m_pStatic->SetText( m_strShowText.c_str() );
 }
 
 bool CWndEdit::CreateNoFont( int x, int y, int cx, int cy, CWndBase* pParent, int nID )
@@ -114,5 +132,9 @@ void CWndEdit::SetNotifyParent( bool bNotify )
 
 const char* CWndEdit::GetText() const
 {
-	return m_pStatic->GetText();
+	return m_strText.c_str();
+}
+void CWndEdit::SetMask( const char* pMask )
+{
+	m_strMask = pMask;
 }

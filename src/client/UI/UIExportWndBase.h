@@ -13,7 +13,7 @@ public:
 	virtual ~CUIExportWndBase(void);
 	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
 	virtual void OnUpdate( float ft );
-	void SetScript( lua_State* pState, const char* pUIEvent, const char* pUITableName,lua_Object nv);
+	void SetScript( lua_State* pState, const char* pUIEvent, lua_Object nv);
 	virtual int OnKeyDown( const hgeInputEvent& rEvent );
 	int m_nCurTime;
 private:
@@ -21,5 +21,4 @@ private:
 private:
 	lua_State* m_pState;
 	std::map < std::string, int > m_mapUIEventCall;
-	std::string m_strTableName;
 };

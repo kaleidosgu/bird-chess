@@ -13,6 +13,7 @@ public:
 	void SetText( const char* pText );
 	void SetFontColor( DWORD drColor );
 	const char* GetText() const;
+	void AddText( const char* pText );
 
 	float GetStringWidth( const char* pChar, bool bMulti );
 private:

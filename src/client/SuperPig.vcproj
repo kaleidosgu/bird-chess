@@ -443,6 +443,10 @@
 				RelativePath=".\lua\lua\lualib.h"
 				>
 			</File>
+			<File
+				RelativePath=".\lua\UILuaState.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Movement"

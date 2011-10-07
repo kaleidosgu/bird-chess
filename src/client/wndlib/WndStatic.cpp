@@ -1,5 +1,6 @@
 #include "WndStatic.h"
 #include <hgefont.h>
+#include <string>
 CWndStatic::CWndStatic(void)
 :m_strText(""),m_nAlign(0),m_crColor(0)
 {
@@ -66,4 +67,8 @@ float CWndStatic::GetStringWidth( const char* pChar, bool bMulti )
 	float fNum = 0.0f;
 	fNum = m_pHgeFont->GetStringWidth( pChar, true );
 	return fNum;
+}
+void CWndStatic::AddText( const char* pText )
+{
+	m_strText = m_strText + "\n" + pText ;
 }

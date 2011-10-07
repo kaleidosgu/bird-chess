@@ -106,7 +106,7 @@ void CUILoginGame::_OnEnter(int nCtlID)
 	 		}
 	 		else
 	 		{
-	 			SendLog2Server(m_AccountName->GetString(),m_Password->GetString());
+	 			//SendLog2Server(m_AccountName->GetString(),m_Password->GetString());
 	 		}
 	 	}
 }
