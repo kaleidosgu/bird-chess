@@ -17,6 +17,7 @@ public:
 	float GetStringWidth( const char* pChar, bool bMulti );
 	void SetNotifyParent( bool bNotify );
 	const char* GetText() const;
+	void SetMask( const char* pMask );
 protected:
 	void DrawCaret();
 private:
@@ -27,4 +28,7 @@ private:
 	RECT		m_rcCaret;
 	float		m_fCurTime;
 	bool		m_bNotifyParent;
+	std::string m_strText;
+	std::string m_strShowText;
+	std::string m_strMask;
 };

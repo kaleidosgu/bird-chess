@@ -4,7 +4,7 @@
 #include "UIDefine/UILuaScriptDefine.h"
 #include "../wndlib/wnddatadefine.h"
 CUIExportWndBase::CUIExportWndBase(void)
-:m_pState(NULL),m_nCurTime(0),m_strTableName("")
+:m_pState(NULL),m_nCurTime(0)
 {
 }
 
@@ -30,7 +30,7 @@ void CUIExportWndBase::OnUpdate( float ft )
 		lua_rawgeti( m_pState,LUA_REGISTRYINDEX,nIndexCall);
 		int nRes = 0;
 
-		lua_getglobal(m_pState,m_strTableName.c_str());
+		tolua_pushusertype(m_pState,this,"CUIExportWndBase");
 		lua_pushnumber( m_pState, ft );
 		int nParam = 2;
 		nRes = lua_pcall( m_pState, nParam, 1, 0);
@@ -41,7 +41,7 @@ void CUIExportWndBase::OnUpdate( float ft )
 	}
 }
 
-void CUIExportWndBase::SetScript( lua_State* pState, const char* pUIEvent, const char* pUITableName,lua_Object nv)
+void CUIExportWndBase::SetScript( lua_State* pState, const char* pUIEvent, lua_Object nv)
 {
 	if( pUIEvent )
 	{
@@ -51,10 +51,6 @@ void CUIExportWndBase::SetScript( lua_State* pState, const char* pUIEvent, const
 		{
 			m_mapUIEventCall[tempEvent] = luaL_ref( pState, LUA_REGISTRYINDEX );
 		}
-	}
-	if( pUITableName )
-	{
-		m_strTableName = pUITableName;
 	}
 	m_pState = pState;
 }
@@ -68,10 +64,10 @@ int CUIExportWndBase::OnKeyDown( const hgeInputEvent& rEvent )
 	{
 		const char* pChar = NULL;
 		int nTop = lua_gettop( m_pState );
-		lua_rawgeti( m_pState,LUA_REGISTRYINDEX,nIndexCall);
+		lua_rawgeti( m_pState,LUA_REGISTRYINDEX,nIndexCall );
 		int nRes = 0;
 
-		lua_getglobal(m_pState,m_strTableName.c_str());
+		tolua_pushusertype(m_pState,this,"CUIExportWndBase");
 		lua_pushnumber( m_pState, rEvent.key );
 		int nParam = 2;
 		nRes = lua_pcall( m_pState, nParam, 1, 0);
@@ -84,6 +80,9 @@ int CUIExportWndBase::OnKeyDown( const hgeInputEvent& rEvent )
 			{
 				nReturn = lua_tonumber( m_pState, -1 );
 			}
+		}
+		else if ( nRes > 0 )
+		{
 		}
 		lua_settop(m_pState,nTop);
 	}

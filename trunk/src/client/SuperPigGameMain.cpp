@@ -35,6 +35,7 @@
 #include "wndlib/WndEdit.h"
 #include "wndlib/WndLoadPicture.h"
 #include <tolua++.h>
+char g_chUICurDir[256] = {'/0'};
 
 
 #include "UIShowMessage.h"
@@ -102,7 +103,7 @@ clinetnet::CClientSocketMgr g_CSM;
 CUILoginGame* g_UILoginGame;
 CUIGround* g_UIGround;
 TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
-lua_State* g_pGlobalState = NULL;
+#include "lua/UILuaState.h"
 /////////////////function////////////////
 void initGameData() 
 {
@@ -414,7 +415,8 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 			{
 				UIShowMessage("Nobody Win!!");
 			}
-			g_UIGround->SetPlayerBirdID(rInfoMsg.nOtherPlayerCardType,false);
+			//编译不过。
+			//g_UIGround->SetPlayerBirdID(rInfoMsg.nOtherPlayerCardType,false);
 			g_UIGround->SetGameState(false);
 			//showmesage
 		}
@@ -1165,7 +1167,7 @@ void initCreateBirdLua()
 	G_LuaConfig.GetLuaStrByIndex("GetLuaStr",1,G_IPString);
 
 
-
+//
 	//这个luastate以后可能会移到合适的位置
 	//////////////////////////////////////////////////////////////////////////
 	g_pGlobalState = luaL_newstate();
@@ -1174,6 +1176,7 @@ void initCreateBirdLua()
 
 	//导出库添加点
 	int nRes = tolua_WndLibExport_open(g_pGlobalState);
+
 	//////////////////////////////////////////////////////////////////////////
 };
 void LoadResource()
@@ -1294,45 +1297,46 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		m_pDesktop = new CWndDesktop;
 		m_pDesktop->Create(0,0,1024,700,0,0);
+		
+		DWORD dw = GetCurrentDirectory(256,g_chUICurDir);
 
 		//////////////////////////////////////////////////////////////////////////
 		lua_newtable(g_pGlobalState); 
 		lua_pushstring(g_pGlobalState, "ptDesk");
-		//tolua_pushusertype(g_pGlobalState,m_pDesktop,"CWndBase");
-		lua_pushlightuserdata(g_pGlobalState,m_pDesktop);
+		tolua_pushusertype(g_pGlobalState,m_pDesktop,"CWndBase");
 		lua_settable(g_pGlobalState, -3);
 		lua_setglobal(g_pGlobalState,"g_UIGlobal");
 
-// 		lua_getglobal(g_pGlobalState, "g_UIGlobal");
-// 		CWndBase* result = NULL;
-// 		lua_pushstring(g_pGlobalState, "ptDesk");
-// 		lua_gettable(g_pGlobalState, -2);  /* get background[key] */
-// 		if (!lua_islightuserdata(g_pGlobalState, -1))
-// 		{
-// 			int breakha = 0;
-// 		}
-// 
-// 		result = (CWndBase*)lua_touserdata(g_pGlobalState, -1);
-// 		lua_pop(g_pGlobalState, 1);  /* remove number */
+		lua_pushstring(g_pGlobalState,g_chUICurDir);
+		lua_setglobal(g_pGlobalState,"g_UIcurDir");
+		
+		const char* pChar = NULL;
+
+		int nLuaRes = 0;
 		//////////////////////////////////////////////////////////////////////////
 		m_pDesktop->m_pHgeFont = fnt;
 
+		
+		nLuaRes = luaL_dofile( g_pGlobalState,"Res\\UILua\\UIGlobal.lua" );
+		if ( nLuaRes > 0 )
+		{
+			pChar = lua_tostring(g_pGlobalState,-1);
+		}
 		if( g_pGlobalState )
 		{
-			const char* pchar = NULL;
-			int nRes = luaL_dofile(g_pGlobalState, "Res\\UILua\\data.lua");
+			nLuaRes = luaL_dofile(g_pGlobalState, "Res\\UILua\\console.lua");
+			if( nLuaRes > 0 )
+			{
+				pChar = lua_tostring( g_pGlobalState, -1 );
+			}
+			else
+			{
+			}
 
-			pchar = lua_tostring( g_pGlobalState, -1 );
 			int nTop = lua_gettop( g_pGlobalState );
 
 			lua_settop( g_pGlobalState, 0 );
-
-			if( m_pEdit )
-			{
-				m_pEdit->SetText("");
-				m_pEdit->SetText( pchar );
-			}
-			nRes = 0;
+			nLuaRes = 0;
 		}
 
 // 		CWndLoadPicture* pPic = new CWndLoadPicture;

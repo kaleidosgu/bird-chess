@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/07/11 01:27:48.
+** Generated automatically by tolua++-1.0.92 on 10/02/11 21:57:34.
 */
 
 #ifndef __cplusplus
@@ -614,6 +614,38 @@ static int tolua_WndLibExport_CWndBase_SetFocus00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: IsVisible of class  CWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndBase_IsVisible00
+static int tolua_WndLibExport_CWndBase_IsVisible00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndBase",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndBase* self = (CWndBase*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'IsVisible'", NULL);
+#endif
+  {
+   bool tolua_ret = (bool)  self->IsVisible();
+   tolua_pushboolean(tolua_S,(bool)tolua_ret);
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'IsVisible'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndPicture */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndPicture_new00
 static int tolua_WndLibExport_CWndPicture_new00(lua_State* tolua_S)
@@ -967,8 +999,7 @@ static int tolua_WndLibExport_CUIExportWndBase_SetScript00(lua_State* tolua_S)
  if (
      !tolua_isusertype(tolua_S,1,"CUIExportWndBase",0,&tolua_err) ||
      !tolua_isstring(tolua_S,2,0,&tolua_err) ||
-     !tolua_isstring(tolua_S,3,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,5,&tolua_err)
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
   goto tolua_lerror;
  else
@@ -977,13 +1008,12 @@ static int tolua_WndLibExport_CUIExportWndBase_SetScript00(lua_State* tolua_S)
   CUIExportWndBase* self = (CUIExportWndBase*)  tolua_tousertype(tolua_S,1,0);
   lua_State* pState =  tolua_S;
   const char* pUIEvent = ((const char*)  tolua_tostring(tolua_S,2,0));
-  const char* pUITableName = ((const char*)  tolua_tostring(tolua_S,3,0));
-  lua_Object nv = ((lua_Object)  tolua_tovalue(tolua_S,4,0));
+  lua_Object nv = ((lua_Object)  tolua_tovalue(tolua_S,3,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetScript'", NULL);
 #endif
   {
-   self->SetScript(pState,pUIEvent,pUITableName,nv);
+   self->SetScript(pState,pUIEvent,nv);
   }
  }
  return 0;
@@ -1422,6 +1452,39 @@ static int tolua_WndLibExport_CWndStatic_GetStringWidth00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: AddText of class  CWndStatic */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndStatic_AddText00
+static int tolua_WndLibExport_CWndStatic_AddText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndStatic",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndStatic* self = (CWndStatic*)  tolua_tousertype(tolua_S,1,0);
+  const char* pText = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'AddText'", NULL);
+#endif
+  {
+   self->AddText(pText);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'AddText'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndEdit */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndEdit_new00
 static int tolua_WndLibExport_CWndEdit_new00(lua_State* tolua_S)
@@ -1686,6 +1749,39 @@ static int tolua_WndLibExport_CWndEdit_SetText00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: SetMask of class  CWndEdit */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndEdit_SetMask00
+static int tolua_WndLibExport_CWndEdit_SetMask00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndEdit",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndEdit* self = (CWndEdit*)  tolua_tousertype(tolua_S,1,0);
+  const char* pMask = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetMask'", NULL);
+#endif
+  {
+   self->SetMask(pMask);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetMask'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: CreateBaseExportWnd */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CreateBaseExportWnd00
 static int tolua_WndLibExport_CreateBaseExportWnd00(lua_State* tolua_S)
@@ -1787,6 +1883,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"GetClientSize",tolua_WndLibExport_CWndBase_GetClientSize00);
    tolua_function(tolua_S,"ShowWindow",tolua_WndLibExport_CWndBase_ShowWindow00);
    tolua_function(tolua_S,"SetFocus",tolua_WndLibExport_CWndBase_SetFocus00);
+   tolua_function(tolua_S,"IsVisible",tolua_WndLibExport_CWndBase_IsVisible00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndPicture","CWndPicture","",tolua_collect_CWndPicture);
@@ -1852,6 +1949,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetFontColor",tolua_WndLibExport_CWndStatic_SetFontColor00);
    tolua_function(tolua_S,"GetText",tolua_WndLibExport_CWndStatic_GetText00);
    tolua_function(tolua_S,"GetStringWidth",tolua_WndLibExport_CWndStatic_GetStringWidth00);
+   tolua_function(tolua_S,"AddText",tolua_WndLibExport_CWndStatic_AddText00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndEdit","CWndEdit","",tolua_collect_CWndEdit);
@@ -1868,6 +1966,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetNotifyParent",tolua_WndLibExport_CWndEdit_SetNotifyParent00);
    tolua_function(tolua_S,"GetText",tolua_WndLibExport_CWndEdit_GetText00);
    tolua_function(tolua_S,"SetText",tolua_WndLibExport_CWndEdit_SetText00);
+   tolua_function(tolua_S,"SetMask",tolua_WndLibExport_CWndEdit_SetMask00);
   tolua_endmodule(tolua_S);
   tolua_function(tolua_S,"CreateBaseExportWnd",tolua_WndLibExport_CreateBaseExportWnd00);
   tolua_function(tolua_S,"CreateUI",tolua_WndLibExport_CreateUI00);
@@ -1877,10 +1976,11 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    static const unsigned char B[] = {
     10, 98, 97,115,101,119,110,100, 61,123,125, 10,102,117,110,
      99,116,105,111,110, 32, 98, 97,115,101,119,110,100, 46,116,
-    111, 66, 97,115,101, 40,101, 41, 10,114,101,116,117,114,110,
-     32,116,111,108,117, 97, 46, 99, 97,115,116, 40,101, 44, 32,
-     34, 67, 87,110,100, 66, 97,115,101, 34, 41, 10,101,110,100,
-     45, 45, 45, 45, 45,32
+    111, 79, 98,106,101, 99,116, 40,101, 44,114,101,115, 67,108,
+     97,115,115, 41, 10,114,101,116,117,114,110, 32,116,111,108,
+    117, 97, 46, 99, 97,115,116, 40,101, 44, 32,114,101,115, 67,
+    108, 97,115,115, 41, 10,101,110,100, 45, 45, 45, 45, 45, 45,
+     45, 45, 45, 45, 45, 45,32
    };
    tolua_dobuffer(tolua_S,(char*)B,sizeof(B),"tolua: embedded Lua code 1");
    lua_settop(tolua_S, top);

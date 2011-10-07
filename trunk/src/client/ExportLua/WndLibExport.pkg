@@ -38,6 +38,7 @@ public:
 	SIZE GetClientSize() const;
 	virtual void ShowWindow( bool bVisible );
 	CWndBase* SetFocus(CWndBase* pWndFocus);
+	virtual bool IsVisible();
 };
 
 class CWndPicture 
@@ -60,7 +61,7 @@ public:
 	CUIExportWndBase(void);
 	virtual ~CUIExportWndBase(void);
 	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
-	void SetScript( lua_State* pState, const char* pUIEvent, const char* pUITableName,lua_Object nv);
+	void SetScript( lua_State* pState, const char* pUIEvent,lua_Object nv);
 };
 
 
@@ -84,6 +85,7 @@ public:
 	void SetFontColor( DWORD drColor );
 	const char* GetText() const;
 	float GetStringWidth( const char* pChar, bool bMulti );
+	void AddText( const char* pText );
 };
 
 class CWndEdit
@@ -96,6 +98,7 @@ public:
 	void SetNotifyParent( bool bNotify );
 	const char* GetText() const;
 	void SetText( const char* pText );
+	void SetMask( const char* pMask );
 };
 
 CUIExportWndBase* CreateBaseExportWnd( lua_State* pState );
@@ -103,9 +106,9 @@ bool CreateUI( lua_State* pState, const char* pFileName );
 
 $[
 
-    basewnd={}
-function basewnd.toBase(e)
-    return tolua.cast(e, "CWndBase")
+basewnd={}
+function basewnd.toObject(e,resClass)
+    return tolua.cast(e, resClass)
 end
  
 $] 
