@@ -36,6 +36,7 @@ enum
     MSGID_CARDGAME_S2C_KickOffPlayer,
 
     MSGID_CARDGAME_X2X_ChatContent,
+	
 };
 
 struct MSG_CARDGAME_C2S_LoginRequest : public MSG_BASE
@@ -391,9 +392,11 @@ struct MSG_CARDGAME_S2C_Win : public MSG_BASE
     {
         nMsg = MSGID_CARDGAME_S2C_Win;
         nSize = sizeof(MSG_CARDGAME_S2C_Win);
+		nOtherPlayerCardType = -1;
         nPlayerID = -1;
     }
     int nPlayerID;
+	int nOtherPlayerCardType;
 };
 
 struct MSG_CARDGAME_S2C_KickOffPlayer : public MSG_BASE
