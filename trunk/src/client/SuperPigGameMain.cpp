@@ -416,7 +416,7 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 				UIShowMessage("Nobody Win!!");
 			}
 			//±àÒë²»¹ý¡£
-			//g_UIGround->SetPlayerBirdID(rInfoMsg.nOtherPlayerCardType,false);
+			g_UIGround->SetPlayerBirdID(rInfoMsg.nOtherPlayerCardType,false);
 			g_UIGround->SetGameState(false);
 			//showmesage
 		}
