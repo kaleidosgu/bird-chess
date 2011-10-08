@@ -71,3 +71,10 @@ void CWndLoadPicture::ResetRes( const char* pPath, bool bDrawSprite, int ptDrawX
 		}
 	}
 }
+void CWndLoadPicture::SetFlip(bool bX,bool bY,bool bHotSpot )
+{
+	if( m_pSprite )
+	{
+		m_pSprite->SetFlip( bX, bY, bHotSpot );
+	}
+}

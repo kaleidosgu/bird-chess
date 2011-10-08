@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/08/11 21:39:46.
+** Generated automatically by tolua++-1.0.92 on 10/08/11 22:33:41.
 */
 
 #ifndef __cplusplus
@@ -1301,6 +1301,43 @@ static int tolua_WndLibExport_CWndLoadPicture_ResetRes00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: SetFlip of class  CWndLoadPicture */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndLoadPicture_SetFlip00
+static int tolua_WndLibExport_CWndLoadPicture_SetFlip00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndLoadPicture",0,&tolua_err) ||
+     !tolua_isboolean(tolua_S,2,0,&tolua_err) ||
+     !tolua_isboolean(tolua_S,3,0,&tolua_err) ||
+     !tolua_isboolean(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,5,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndLoadPicture* self = (CWndLoadPicture*)  tolua_tousertype(tolua_S,1,0);
+  bool bX = ((bool)  tolua_toboolean(tolua_S,2,0));
+  bool bY = ((bool)  tolua_toboolean(tolua_S,3,0));
+  bool bHotSpot = ((bool)  tolua_toboolean(tolua_S,4,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetFlip'", NULL);
+#endif
+  {
+   self->SetFlip(bX,bY,bHotSpot);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetFlip'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndStatic */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndStatic_new00
 static int tolua_WndLibExport_CWndStatic_new00(lua_State* tolua_S)
@@ -2081,6 +2118,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"delete",tolua_WndLibExport_CWndLoadPicture_delete00);
    tolua_function(tolua_S,"Create",tolua_WndLibExport_CWndLoadPicture_Create00);
    tolua_function(tolua_S,"ResetRes",tolua_WndLibExport_CWndLoadPicture_ResetRes00);
+   tolua_function(tolua_S,"SetFlip",tolua_WndLibExport_CWndLoadPicture_SetFlip00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndStatic","CWndStatic","",tolua_collect_CWndStatic);
