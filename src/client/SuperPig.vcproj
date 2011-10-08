@@ -169,6 +169,7 @@
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)lua\lua&quot;"
 				IgnoreDefaultLibraryNames="libc.lib;libci.lib;LIBCMTD.lib"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"

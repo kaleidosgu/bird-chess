@@ -1340,6 +1340,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			nLuaRes = 0;
 		}
 
+		nLuaRes = luaL_dofile( g_pGlobalState,"Res\\UILua\\UICreateProcess.lua" );
+		if ( nLuaRes > 0 )
+		{
+			pChar = lua_tostring(g_pGlobalState,-1);
+		}
+
 // 		CWndLoadPicture* pPic = new CWndLoadPicture;
 // 		pPic->Create(0,0,"res/UILua/ConsoleBG.png",m_pDesktop,0);
 		//////////////////////////////////////////////////////////////////////////
