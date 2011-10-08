@@ -58,6 +58,8 @@ public:
 	SIZE GetClientSize() const;
 	void SetDragWithParent( bool bWith );
 	bool IsDragWithParent( );
+
+	void SetTabWnd( CWndBase* pTabWnd );
 protected:
 	virtual CWndBase * GetChildWndPtIn(const POINT &pt);
 	void RemoveChildWnd( CWndBase* pChild );
@@ -98,4 +100,7 @@ public:
 	static POINT m_ptMouse;
 	static hgeFont*		m_pHgeFont;
 	bool	m_bDrawBox;
+
+private:
+	CWndBase*		m_pTabWnd;
 };

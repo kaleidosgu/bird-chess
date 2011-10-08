@@ -51,6 +51,10 @@ int CWndEdit::OnChar( const hgeInputEvent& rEvent )
 	{
 		return WND_RESULT_NO;
 	}
+	else if ( rEvent.key == HGEK_TAB )
+	{
+		return CWndBase::OnChar(rEvent);
+	}
 	else
 	{
 		char tempChar[2] = {0};
@@ -146,4 +150,9 @@ int CWndEdit::OnLButtonDown(const UINT &nFlags,const POINT &point)
 		return WND_RESULT_YES;
 	}
 	return WND_RESULT_NO;
+}
+void CWndEdit::OnSetFocus()
+{
+	m_bDrawCaret = true;
+	//m_fCurTime = 0.6f;
 }

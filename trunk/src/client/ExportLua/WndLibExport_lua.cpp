@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/07/11 15:15:41.
+** Generated automatically by tolua++-1.0.92 on 10/08/11 21:39:46.
 */
 
 #ifndef __cplusplus
@@ -673,6 +673,39 @@ static int tolua_WndLibExport_CWndBase_Destroy00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'Destroy'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetTabWnd of class  CWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndBase_SetTabWnd00
+static int tolua_WndLibExport_CWndBase_SetTabWnd00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndBase",0,&tolua_err) ||
+     !tolua_isusertype(tolua_S,2,"CWndBase",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndBase* self = (CWndBase*)  tolua_tousertype(tolua_S,1,0);
+  CWndBase* pTabWnd = ((CWndBase*)  tolua_tousertype(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetTabWnd'", NULL);
+#endif
+  {
+   self->SetTabWnd(pTabWnd);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetTabWnd'.",&tolua_err);
  return 0;
 #endif
 }
@@ -1997,6 +2030,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetFocus",tolua_WndLibExport_CWndBase_SetFocus00);
    tolua_function(tolua_S,"IsVisible",tolua_WndLibExport_CWndBase_IsVisible00);
    tolua_function(tolua_S,"Destroy",tolua_WndLibExport_CWndBase_Destroy00);
+   tolua_function(tolua_S,"SetTabWnd",tolua_WndLibExport_CWndBase_SetTabWnd00);
    tolua_variable(tolua_S,"m_bDrawBox",tolua_get_CWndBase_m_bDrawBox,tolua_set_CWndBase_m_bDrawBox);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus

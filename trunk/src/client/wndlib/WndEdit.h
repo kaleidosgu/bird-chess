@@ -21,6 +21,7 @@ public:
 	virtual int OnLButtonDown(const UINT &nFlags,const POINT &point);
 protected:
 	void DrawCaret();
+	virtual void OnSetFocus();
 private:
 	int			m_nCaretPos;
 	CWndStatic* m_pStatic;
