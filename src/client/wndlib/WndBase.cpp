@@ -38,6 +38,8 @@ CWndBase::CWndBase(void)
 	m_bRPressed		= false;
 	m_bRReleased	= false;
 
+	m_pTabWnd = NULL;
+
 }
 
 CWndBase::~CWndBase(void)
@@ -453,6 +455,14 @@ int CWndBase::OnKeyDown( const hgeInputEvent& rEvent )
 int CWndBase::OnKeyUp( const hgeInputEvent& rEvent )
 {
 	int nRes = WND_RESULT_NO;
+	if( m_pTabWnd )
+	{
+		if( rEvent.key == HGEK_TAB )
+		{
+			SetFocus(m_pTabWnd);
+			return WND_RESULT_YES;
+		}
+	}
 	return nRes;
 }
 
@@ -511,4 +521,8 @@ bool CWndBase::IsDragWithParent()
 bool CWndBase::NeedMouseInput()
 {
 	return m_bNeedMouseInput;
+}
+void CWndBase::SetTabWnd( CWndBase* pTabWnd )
+{
+	m_pTabWnd = pTabWnd;
 }

@@ -6,7 +6,7 @@ CWndDesktop::CWndDesktop(void)
 {
 	memset(&m_event,0,sizeof(hgeInputEvent));
 	m_nLastKey = 0;
-	bKeyProcess = false;
+	m_bKeyProcess = false;
 }
 
 CWndDesktop::~CWndDesktop(void)
@@ -17,55 +17,59 @@ void CWndDesktop::OnUpdate( float ft )
 {
 	if( m_pDevice && m_pDevice->hge )
 	{
-		if ( bKeyProcess )
+		if ( m_bKeyProcess )
 		{
 			memset(&m_event,0,sizeof(hgeInputEvent));
-			bKeyProcess = false;
+			m_bKeyProcess = false;
 		}
 
-		int nTempKey = m_pDevice->hge->Input_GetKey();
-		int keychar = m_pDevice->hge->Input_GetChar();
-		if( m_nLastKey > 0 )
+		if( !m_bKeyProcess )
 		{
-			bool bKeyUp = m_pDevice->hge->Input_KeyUp(m_nLastKey);
-			if ( bKeyUp )
-			{
-				m_event.type = INPUT_KEYUP;
-				m_nLastKey = nTempKey;
-				bKeyProcess = true;
-			}
-		}
-		if ( nTempKey > HGEK_MBUTTON )
-		{	
-			m_nLastKey = nTempKey;
+			int nTempKey = m_pDevice->hge->Input_GetKey();
+			int keychar = m_pDevice->hge->Input_GetChar();
 			if( m_nLastKey > 0 )
 			{
-				bool bKeyDown = m_pDevice->hge->Input_KeyDown(m_nLastKey);
-				m_event.type = INPUT_KEYDOWN;
-				bKeyProcess = true;
-				m_event.key = m_nLastKey;
-				m_event.chr = keychar;
+				bool bKeyUp = m_pDevice->hge->Input_KeyUp(m_nLastKey);
+				if ( bKeyUp )
+				{
+					m_event.type = INPUT_KEYUP;
+					m_event.key = m_nLastKey;
+					m_nLastKey = nTempKey;
+					m_bKeyProcess = true;
+				}
 			}
-		}
+			if ( nTempKey > HGEK_MBUTTON )
+			{	
+				m_nLastKey = nTempKey;
+				if( m_nLastKey > 0 )
+				{
+					bool bKeyDown = m_pDevice->hge->Input_KeyDown(m_nLastKey);
+					m_event.type = INPUT_KEYDOWN;
+					m_bKeyProcess = true;
+					m_event.key = m_nLastKey;
+					m_event.chr = keychar;
+				}
+			}
 
-		if( m_event.type == INPUT_KEYDOWN )
-		{
-			OnKeyboardMessage( m_event );
-		}
-		else if( m_event.type == INPUT_KEYUP )
-		{
-			OnKeyboardMessage( m_event );
-		}
-		float fx = 0;
-		float fy = 0;
-		m_pDevice->hge->Input_GetMousePos(&fx,&fy);
-		m_ptMouse.x = (LONG)fx;
-		m_ptMouse.y = (LONG)fy;
+			if( m_event.type == INPUT_KEYDOWN )
+			{
+				OnKeyboardMessage( m_event );
+			}
+			else if( m_event.type == INPUT_KEYUP )
+			{
+				OnKeyboardMessage( m_event );
+			}
+			float fx = 0;
+			float fy = 0;
+			m_pDevice->hge->Input_GetMousePos(&fx,&fy);
+			m_ptMouse.x = (LONG)fx;
+			m_ptMouse.y = (LONG)fy;
 
-		m_bLPressed  = m_pDevice->hge->Input_KeyDown(HGEK_LBUTTON);
-		m_bLReleased = m_pDevice->hge->Input_KeyUp(HGEK_LBUTTON);
-		m_bRPressed  = m_pDevice->hge->Input_KeyDown(HGEK_RBUTTON);
-		m_bRReleased = m_pDevice->hge->Input_KeyUp(HGEK_RBUTTON);
+			m_bLPressed  = m_pDevice->hge->Input_KeyDown(HGEK_LBUTTON);
+			m_bLReleased = m_pDevice->hge->Input_KeyUp(HGEK_LBUTTON);
+			m_bRPressed  = m_pDevice->hge->Input_KeyDown(HGEK_RBUTTON);
+			m_bRReleased = m_pDevice->hge->Input_KeyUp(HGEK_RBUTTON);
+		}
 	}
 	CWndBase::OnUpdate( ft );
 }

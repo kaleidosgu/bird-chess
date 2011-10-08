@@ -42,6 +42,9 @@ function createTmpUI(strFile)
 		ptReturn.stEditName 	= stEdit1
 		ptReturn.stEditPassword = stEdit2
 		regEvent(ptReturn)
+		
+		ptEdit1Bse:SetTabWnd(ptEdit2Bse)
+		ptEdit2Bse:SetTabWnd(ptEdit1Bse)
 		--ptEdit1Bse:SetFocus(ptEdit1Bse);
 	end
 end

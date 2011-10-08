@@ -13,5 +13,5 @@ public:
 private:
 	hgeInputEvent m_event;
 	int m_nLastKey;
-	bool bKeyProcess;
+	bool m_bKeyProcess;
 };
