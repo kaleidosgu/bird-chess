@@ -661,6 +661,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\wndlib\WndButton.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\wndlib\WndButton.h"
+				>
+			</File>
+			<File
 				RelativePath=".\wndlib\wnddatadefine.h"
 				>
 			</File>
