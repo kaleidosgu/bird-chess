@@ -23,13 +23,24 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
     SetNonBlocking(m_nFd);
 
     _SetState(SocketState_Free, SocketState_Accepting);
-    MSG_SYSTEM_ConnectSuccess * pConnectSuccessMsg = new MSG_SYSTEM_ConnectSuccess();
-    if (!_AddRecvMsg(pConnectSuccessMsg))
-    {
-        delete pConnectSuccessMsg;
-        pConnectSuccessMsg = NULL;
-        WriteLog(LEVEL_ERROR, "CClientSocketSlot::OnConnect. Add connect success msg failed.\n");
-    }
+    
+    // TODO : Generate public key
+    MSG_SYSTEM_ClientPublicKey * pCPKMsg = new MSG_SYSTEM_ClientPublicKey();
+    _SendMsgDirectly(pCPKMsg);
+    _GenerateSecretKey();
+    // TODO : Encrypt
+
+    MSG_SYSTEM_C2S_SecretKey * pSKMsg = new MSG_SYSTEM_C2S_SecretKey();
+    _SendMsgDirectly(pSKMsg);
+    /*
+       MSG_SYSTEM_ConnectSuccess * pConnectSuccessMsg = new MSG_SYSTEM_ConnectSuccess();
+       if (!_AddRecvMsg(pConnectSuccessMsg))
+       {
+       delete pConnectSuccessMsg;
+       pConnectSuccessMsg = NULL;
+       WriteLog(LEVEL_ERROR, "CClientSocketSlot::OnConnect. Add connect success msg failed.\n");
+       }
+     */
 }
 
 void CClientSocketSlot::SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue)
@@ -57,4 +68,39 @@ bool CClientSocketSlot::NeedSendData()
         return true;
     }
     return false;
+}
+bool CClientSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
+{
+    bool bRes = true;
+    switch (rMsg.nMsg)
+    {
+        case MSGID_SYSTEM_S2C_SecretKey:
+            {
+                MSG_SYSTEM_S2C_SecretKey & rSKMsg = (MSG_SYSTEM_S2C_SecretKey &)rMsg;
+                // TODO : Decrypt
+                // m_DecryptKey = "";
+
+                _SetState(SocketState_Accepting, SocketState_Normal);
+
+                MSG_SYSTEM_ConnectSuccess * pConnectSuccessMsg = new MSG_SYSTEM_ConnectSuccess();
+                if (!_AddRecvMsg(pConnectSuccessMsg))
+                {
+                    delete pConnectSuccessMsg;
+                    pConnectSuccessMsg = NULL;
+                    WriteLog(LEVEL_ERROR, "CClientSocketSlot::OnConnect. Add connect success msg failed.\n");
+                    bRes = false;
+                }
+            }
+            break;
+        case MSGID_SYSTEM_S2C_UpdateSecretKey:
+            {
+                // TODO : Decrypt
+                // m_DecryptKey = "";
+            }
+            break;
+        default:
+            bRes = CSocketSlot::_DisposeRecvMsg(rMsg);
+            break;
+    }
+    return bRes;
 }

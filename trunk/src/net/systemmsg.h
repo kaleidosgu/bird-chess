@@ -2,14 +2,78 @@
 #define __net_systemmsg_h_
 
 #include "msgbasic.h"
+#include <string.h>
 
 const unsigned short MSGID_TYPE_SYSTEM                    = 0x0000;
-const unsigned short MSGID_SYSTEM_ConnectSuccess          = 0x0001;
-const unsigned short MSGID_SYSTEM_Disconnect              = 0x0002;
-const unsigned short MSGID_SYSTEM_CheckAlive              = 0x0003;
-const unsigned short MSGID_SYSTEM_CheckAliveReply         = 0x0004;
+const unsigned short MSGID_SYSTEM_SocketConnectSuccess          = 0x0001;
+const unsigned short MSGID_SYSTEM_ClientPublicKey          = 0x0002;
+const unsigned short MSGID_SYSTEM_C2S_SecretKey          = 0x0003;
+const unsigned short MSGID_SYSTEM_S2C_SecretKey         = 0x0003;
+const unsigned short MSGID_SYSTEM_S2C_UpdateSecretKey          = 0x0004;
+const unsigned short MSGID_SYSTEM_ConnectSuccess          = 0x0006;
+const unsigned short MSGID_SYSTEM_Disconnect              = 0x0007;
+const unsigned short MSGID_SYSTEM_CheckAlive              = 0x0008;
+const unsigned short MSGID_SYSTEM_CheckAliveReply         = 0x0009;
+const unsigned short MSGID_SYSTEM_Compressed         = 0x000A;
+const unsigned short MSGID_SYSTEM_CompressedAndEncrypted         = 0x000B;
+const unsigned short MSGID_SYSTEM_Encrypted         = 0x000C;
 
 #pragma pack(1)
+
+struct MSG_SYSTEM_SocketConnectSuccess : public MSG_BASE
+{
+    MSG_SYSTEM_SocketConnectSuccess()
+    {
+        nMsg = MSGID_SYSTEM_SocketConnectSuccess;
+        nSize = sizeof(MSG_SYSTEM_SocketConnectSuccess);
+    }
+};
+
+const unsigned int cMAX_CLIENT_PUBLIC_KEY_LEN = 512;
+struct MSG_SYSTEM_ClientPublicKey : public MSG_BASE
+{
+    MSG_SYSTEM_ClientPublicKey()
+    {
+        nMsg = MSGID_SYSTEM_ClientPublicKey;
+        nSize = sizeof(MSG_SYSTEM_ClientPublicKey);
+        memset(key, 0, cMAX_CLIENT_PUBLIC_KEY_LEN);
+    }
+    char key[cMAX_CLIENT_PUBLIC_KEY_LEN];
+};
+
+const unsigned int cMAX_SECRETKEY_LEN = 16;
+struct MSG_SYSTEM_C2S_SecretKey : public MSG_BASE
+{
+    MSG_SYSTEM_C2S_SecretKey()
+    {
+        nMsg = MSGID_SYSTEM_C2S_SecretKey;
+        nSize = sizeof(MSG_SYSTEM_C2S_SecretKey);
+        memset(key, 0, cMAX_SECRETKEY_LEN);
+    }
+    char key[cMAX_SECRETKEY_LEN];
+};
+
+struct MSG_SYSTEM_S2C_SecretKey : public MSG_BASE
+{
+    MSG_SYSTEM_S2C_SecretKey()
+    {
+        nMsg = MSGID_SYSTEM_S2C_SecretKey;
+        nSize = sizeof(MSG_SYSTEM_S2C_SecretKey);
+        memset(key, 0, cMAX_SECRETKEY_LEN);
+    }
+    char key[cMAX_SECRETKEY_LEN];
+};
+
+struct MSG_SYSTEM_S2C_UpdateSecretKey : public MSG_BASE
+{
+    MSG_SYSTEM_S2C_UpdateSecretKey()
+    {
+        nMsg = MSGID_SYSTEM_S2C_UpdateSecretKey;
+        nSize = sizeof(MSG_SYSTEM_S2C_UpdateSecretKey);
+        memset(key, 0, cMAX_SECRETKEY_LEN);
+    }
+    char key[cMAX_SECRETKEY_LEN];
+};
 
 struct MSG_SYSTEM_ConnectSuccess : public MSG_BASE
 {
@@ -46,6 +110,57 @@ struct MSG_SYSTEM_CheckAliveReply : public MSG_BASE
         nSize = sizeof(MSG_SYSTEM_CheckAliveReply);
     }
 };
+
+struct MSG_SYSTEM_Compressed : public MSG_BASE
+{
+    MSG_SYSTEM_Compressed()
+    {
+        nMsg = MSGID_SYSTEM_Compressed;
+        nSize = sizeof(MSG_SYSTEM_Compressed);
+        nCheckSum = 0;
+    }
+    unsigned int nCheckSum;
+    unsigned short nSrcDataSize;
+    unsigned char data[1];
+    unsigned short GetDataSize() const
+    {
+        return nSize - sizeof(MSG_SYSTEM_Compressed) + 1;
+    }
+};
+
+struct MSG_SYSTEM_CompressedAndEncrypted : public MSG_BASE
+{
+    MSG_SYSTEM_CompressedAndEncrypted()
+    {
+        nMsg = MSGID_SYSTEM_CompressedAndEncrypted;
+        nSize = sizeof(MSG_SYSTEM_CompressedAndEncrypted);
+        nCheckSum = 0;
+    }
+    unsigned int nCheckSum;
+    unsigned short nSrcDataSize;
+    unsigned char data[1];
+    unsigned short GetDataSize() const
+    {
+        return nSize - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1;
+    }
+};
+
+struct MSG_SYSTEM_Encrypted : public MSG_BASE
+{
+    MSG_SYSTEM_Encrypted()
+    {
+        nMsg = MSGID_SYSTEM_Encrypted;
+        nSize = sizeof(MSG_SYSTEM_Encrypted);
+        nCheckSum = 0;
+    }
+    unsigned int nCheckSum;
+    unsigned char data[1];
+    unsigned short GetDataSize() const
+    {
+        return nSize - sizeof(MSG_SYSTEM_Encrypted) + 1;
+    }
+};
+
 
 #pragma pack()
 

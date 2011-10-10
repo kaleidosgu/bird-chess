@@ -13,10 +13,16 @@
 using namespace base;
 using namespace std;
 
+const unsigned int cMAX_SERVER_PUBLIC_KEY_LEN = 512;
+const unsigned int cMAX_SERVER_PRIVATE_KEY_LEN = 512;
+const char cSERVER_PUBLIC_KEY[cMAX_SERVER_PUBLIC_KEY_LEN] = "QWERDFADSRFQWER!@#$ASDFASDFG!#@$!%#$T%!#E$RASFDSDG$#@%$@!#$@!#!$!@#$!@#%!@#$@#$!";
+const char cSERVER_PRIVATE_KEY[cMAX_SERVER_PRIVATE_KEY_LEN] = "QWERDFADSRFQWER!@#$ASDFASDFG!#@$!%#$T%!#E$RASFDSDG$#@%$@!#$@!#!$!@#$!@#%!@#$@#$!";
+
 namespace net
 {
     class CSocketMgr : public Thread
     {
+        friend class CSocketSlot;
     public:
         CSocketMgr();
         ~CSocketMgr();
