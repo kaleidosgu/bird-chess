@@ -16,6 +16,7 @@ public:
 	virtual void OnUpdate( float ft );
 	void SetScript( lua_State* pState, const char* pUIEvent, lua_Object nv);
 	virtual int OnKeyDown( const hgeInputEvent& rEvent );
+	virtual bool Destroy();
 	int m_nCurTime;
 private:
 	bool _IsUIEventExist( int& nCallIndex, const char* pChar );
