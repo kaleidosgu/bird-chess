@@ -4,6 +4,7 @@ $#include "../wndlib/wnddesktop.h"
 $#include "../wndlib/wndloadpicture.h"
 $#include "../wndlib/wndstatic.h"
 $#include "../wndlib/wndedit.h"
+$#include "../wndlib/wndbutton.h"
 $#include "../UI/UIExportWndBase.h"
 $#include "../ExportLua/UIGlobalExport.h"
 $#include "wtypes.h"
@@ -65,6 +66,7 @@ public:
 	virtual ~CUIExportWndBase(void);
 	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
 	void SetScript( lua_State* pState, const char* pUIEvent,lua_Object nv);
+	void SetPath( const char* pChar );
 };
 
 
@@ -103,6 +105,16 @@ public:
 	const char* GetText() const;
 	void SetText( const char* pText );
 	void SetMask( const char* pMask );
+};
+
+class CWndButton
+{
+public:
+	CWndButton(void);
+	virtual ~CWndButton(void);
+	virtual bool Create( int x, int y, int cx, int cy,const char* pPath, CWndBase* pParent, int nID );
+	virtual void SetBtnState( int nBtnState );
+	void AddRes(int x, int y, int cx, int cy );
 };
 
 CUIExportWndBase* CreateBaseExportWnd( lua_State* pState );
