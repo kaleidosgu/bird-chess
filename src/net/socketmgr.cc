@@ -18,11 +18,6 @@ const int cLISTEN_QUEUE_SIZE = 16;
 
 const unsigned int cRECV_QUEUE_SIZE = 65536;
 
-#ifndef EPOLLRDHUP
-#define EPOLLRDHUP              0x2000
-#endif //EPOLLRDHUP
-
-
 using namespace net;
 
 extern bool SetNonBlocking(int nFd);
@@ -166,7 +161,7 @@ bool CSocketMgr::_InitServer()
     //m_RecvQueue.Init(cRECV_QUEUE_SIZE);
     //m_RecvArray.Init(cRECV_QUEUE_SIZE);
     m_pRecvQueue = new LoopQueue< CRecvDataElement * >(cRECV_QUEUE_SIZE);
-    m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue);
+    m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue, this);
 
     SetFileLimit(m_nMaxClient);
 
@@ -283,6 +278,7 @@ void CSocketMgr::Process()
                         // if the system buffer is full
                         if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
                         {
+                            WriteLog(LEVEL_DEBUG, "The system buffer is full. SlotIndex=%d.\n", pSocketSlot->GetSlotIndex());
                             _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
                         }
                     }
@@ -552,7 +548,7 @@ bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
     while (true)
     {
         CRecvDataElement * pRecvData = NULL;
-        if (!m_pRecvQueue->GetElement(pRecvData))
+        if (!m_pRecvQueue->Pop(pRecvData))
         {
             _CheckAlive();
             break;
@@ -588,8 +584,26 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
 {
     switch (pMsg->nMsg)
     {
+        /*
+        case MSGID_SYSTEM_SocketConnectSuccess:
+            {
+                delete pMsg;
+                pMsg = NULL;
+            }
+            break;
+        case MSGID_SYSTEM_ClientPublicKey:
+            {
+                // sennd key
+            }
+            break;
+        case MSGID_SYSTEM_UseNewSecretKey:
+            {
+            }
+            break;
+            */
         case MSGID_SYSTEM_ConnectSuccess:
             {
+                /*
                 CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
                 if (pSocketSlot != NULL)
                 {
@@ -599,26 +613,12 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
                 {
                     WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. MsgID=%d, SlotIndex = %d.\n", MSGID_SYSTEM_ConnectSuccess, pSocketSlot->GetSlotIndex());
                 }
+                */
             }
             break;
         case MSGID_SYSTEM_Disconnect:
             {
                 m_SocketSlotMgr.ReleaseSlot(nSlotIndex);
-            }
-            break;
-        case MSGID_SYSTEM_CheckAliveReply:
-            {
-                CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
-                if (pSocketSlot != NULL)
-                {
-                    pSocketSlot->UpdateLatestAliveTime();
-                }
-                else
-                {
-                    WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. MsgID=%d, SlotIndex = %d.\n", MSGID_SYSTEM_CheckAliveReply, pSocketSlot->GetSlotIndex());
-                }
-                delete pMsg;
-                pMsg = NULL;
             }
             break;
         default:

@@ -30,7 +30,7 @@ namespace base
             {
                 return (m_pHead == m_pTail);
             }
-            bool GetElement(T & rElement)
+            bool Pop(T & rElement)
             {
                 if (m_pHead != m_pTail)
                 {
@@ -50,7 +50,19 @@ namespace base
                     return false;
                 }
             }
-            bool AddElement(const T & rElement)
+            bool Front(T & rElement)
+            {
+                if (m_pHead != m_pTail)
+                {
+                    rElement = *m_pHead;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            bool Push(const T & rElement)
             {
                 T * pTailNext = m_pTail;
                 if (pTailNext == m_pEnd)

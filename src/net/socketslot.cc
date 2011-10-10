@@ -1,6 +1,8 @@
 #include "socketslot.h"
 #include "systemmsg.h"
+#include "socketmgr.h"
 #include "../base/log.h"
+#include "../base/assert.h"
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -8,9 +10,22 @@
 #include <sys/socket.h>
 #include <string>
 #include <netinet/tcp.h>
+#include <zlib.h>
 
 using namespace net;
 using namespace base;
+
+const unsigned int cMAX_SIZE_BEFORE_COMPRESS = 65500;
+
+unsigned int CheckSum(const unsigned char * pData, unsigned long nLen)
+{
+    unsigned int nCheckSum = 0;
+    for (unsigned long i=0; i<nLen; ++i)
+    {
+        nCheckSum += *pData++;
+    }
+    return nCheckSum;
+}
 
 bool net::SetNonBlocking(int nFd)
 {
@@ -44,8 +59,7 @@ CSocketSlot::CSocketSlot() :
 
     m_pEncryptFunc = NULL;
     m_pDecryptFunc = NULL;
-    m_pCompressFunc = NULL;
-    m_pUncompressFunc = NULL;
+    m_bCompress = false;
     m_pMsgCache = NULL;
     m_nSeek = 0;
 
@@ -55,6 +69,7 @@ CSocketSlot::CSocketSlot() :
     m_State = SocketState_Closed;
     m_pLastBuffer = &m_RecvBuffer[cMAX_RECV_BUFFER_SIZE - cMAX_PACKET_SIZE];
     m_tLatestAliveTime = time(NULL);
+    m_pSocketMgr = NULL;
     _Reset();
 }
 
@@ -84,13 +99,15 @@ void CSocketSlot::OnAccept(int nFd, const sockaddr_in &rSaClient)
     setsockopt(m_nFd, IPPROTO_TCP, TCP_NODELAY, (void *)&nOptVal, sizeof(int));
     _SetState(SocketState_Free, SocketState_Accepting);
 
-    MSG_SYSTEM_ConnectSuccess * pConnectSuccessMsg = new MSG_SYSTEM_ConnectSuccess();
-    if (!_AddRecvMsg(pConnectSuccessMsg))
-    {
-        WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::OnAccept. Add Connect success msg failed.\n", m_nSlotIndex);
-        delete pConnectSuccessMsg;
-        pConnectSuccessMsg = NULL;
-    }
+    /*
+       MSG_SYSTEM_SocketConnectSuccess * pSCSMsg = new MSG_SYSTEM_SocketConnectSuccess();
+       if (!_AddRecvMsg(pSCSMsg))
+       {
+       WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::OnAccept. Add Connect success msg failed.\n", m_nSlotIndex);
+       delete pSCSMsg;
+       pSCSMsg = NULL;
+       }
+     */
     m_tLatestAliveTime = time(NULL);
 }
 
@@ -128,10 +145,12 @@ bool CSocketSlot::Disconnect(int nDisconnectReason)
     }
 }
 
-void CSocketSlot::SetStateConnected()
-{
-    _SetState(SocketState_Accepting, SocketState_Normal);
-}
+/*
+   void CSocketSlot::SetStateConnected()
+   {
+   _SetState(SocketState_Accepting, SocketState_Normal);
+   }
+ */
 
 bool CSocketSlot::Close()
 {
@@ -153,18 +172,22 @@ bool CSocketSlot::Close()
     WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::Close. State %d -> %d.\n", m_nSlotIndex, m_State, SocketState_Closed);
     m_State = SocketState_Closed;
     m_MutexForState.Unlock();
-    MSG_SYSTEM_Disconnect * pDisconnectMsg = new MSG_SYSTEM_Disconnect();
-    if (_AddRecvMsg(pDisconnectMsg))
+    if (m_bConnectSuccess)
     {
-        return true;
+        MSG_SYSTEM_Disconnect * pDisconnectMsg = new MSG_SYSTEM_Disconnect();
+        if (_AddRecvMsg(pDisconnectMsg))
+        {
+            return true;
+        }
+        else
+        {
+            WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::Close. Add Disconnect Msg Failed.\n");
+            delete pDisconnectMsg;
+            pDisconnectMsg = NULL;
+            return false;
+        }
     }
-    else
-    {
-        WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::Close. Add Disconnect Msg Failed.\n");
-        delete pDisconnectMsg;
-        pDisconnectMsg = NULL;
-        return false;
-    }
+    return true;
 }
 
 void CSocketSlot::SetInSendQueue()
@@ -190,7 +213,7 @@ bool CSocketSlot::SendMsg(MSG_BASE & rMsg)
     MSG_BASE * pMsg = CreateDynamicLengthMsg(rMsg.nSize, (MSG_BASE *)0);
     memcpy(pMsg, &rMsg, rMsg.nSize);
 
-    if (m_SendQueue.AddElement(pMsg))
+    if (m_SendQueue.Push(pMsg))
     {
         return true;
     }
@@ -203,79 +226,518 @@ bool CSocketSlot::SendMsg(MSG_BASE & rMsg)
     }
 }
 
-void CSocketSlot::_DisposeSendQueue()
+void CSocketSlot::_EncryptMsg(unsigned char * pData, unsigned int nLen)
+{
+}
+
+bool CSocketSlot::_EncryptDataToWSQ(const unsigned char * pData, unsigned long nLen)
+{
+    MSG_SYSTEM_Encrypted * pEncryptedMsg = CreateDynamicLengthMsg(nLen + sizeof(MSG_SYSTEM_Encrypted) - 1, (MSG_SYSTEM_Encrypted *)0);
+    memcpy(pEncryptedMsg->data, pData, nLen);
+    pEncryptedMsg->nCheckSum = CheckSum(pData, nLen);
+    _EncryptMsg((unsigned char *)pEncryptedMsg + sizeof(MSG_BASE), pEncryptedMsg->nSize - sizeof(MSG_BASE));
+
+    if (!_AddMsgToWSQ(pEncryptedMsg))
+    {
+        delete pEncryptedMsg;
+        pEncryptedMsg = NULL;
+        return false;
+    }
+    return true;
+}
+
+bool CSocketSlot::_CompressDataToWSQ(const unsigned char * pData, unsigned long nLen, bool & rbNotDelete)
+{
+    rbNotDelete = false;
+    unsigned long nNewLen = compressBound(nLen);
+
+    ASSERT(nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1 <= cMAX_PACKET_SIZE);
+
+    MSG_SYSTEM_Compressed * pCompressedMsg = CreateDynamicLengthMsg(nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1, (MSG_SYSTEM_Compressed *)0);
+    pCompressedMsg->nCheckSum = CheckSum(pData, nLen);
+    int nRet = compress(pCompressedMsg->data, &nNewLen, pData, nLen);
+    if (nRet == Z_OK)
+    {
+        pCompressedMsg->nSize = nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1;
+        pCompressedMsg->nSrcDataSize = nLen;
+        if (!_AddMsgToWSQ(pCompressedMsg))
+        {
+            delete pCompressedMsg;
+            pCompressedMsg = NULL;
+            return false;
+        }
+    }
+    else
+    {
+        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CompressDataToWSQ. Compress error. nRet=%d, nLen=%lu, nNewLen=%lu.\n", m_nSlotIndex, nRet, nLen, nNewLen);
+        delete pCompressedMsg;
+        pCompressedMsg = NULL;
+
+        // if only one msg
+        const unsigned char * pHeader = pData;
+        MSG_BASE * pHeaderMsg = (MSG_BASE *)pHeader;
+        if (pHeaderMsg->nSize == nLen)
+        {
+            if (!_AddMsgToWSQ(pHeaderMsg))
+            {
+                return false;
+            }
+            else
+            {
+                rbNotDelete = true;
+                return true;
+            }
+        }
+
+        MSG_BASE * pMsg = NULL;
+        while (pHeader - pData < nLen)
+        {
+            pHeaderMsg = (MSG_BASE *)pHeader;
+            pMsg = CreateDynamicLengthMsg(pHeaderMsg->nSize, (MSG_BASE *)0);
+            if (!_AddMsgToWSQ(pMsg))
+            {
+                delete pMsg;
+                pMsg = NULL;
+                return false;
+            }
+            pMsg = NULL;
+            pHeader += pHeaderMsg->nSize;
+        }
+        if (pHeader - pData != nLen)
+        {
+            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CompressDataToWSQ. pData is error. pHeader=%p, pData=%p, nLen=%lu.\n", m_nSlotIndex, pHeader, pData, nLen);
+            return false;
+        }
+    }
+    return true;
+}
+bool CSocketSlot::_CompressAndEncryptDataToWSQ(const unsigned char * pData, unsigned long nLen)
+{
+    unsigned long nNewLen = compressBound(nLen);
+
+    ASSERT(nNewLen + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1 <= cMAX_PACKET_SIZE);
+
+    MSG_SYSTEM_CompressedAndEncrypted * pCEMsg = CreateDynamicLengthMsg(nNewLen + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1, (MSG_SYSTEM_CompressedAndEncrypted *)0);
+    pCEMsg->nCheckSum = CheckSum(pData, nLen);
+    int nRet = compress(pCEMsg->data, &nNewLen, pData, nLen);
+    if (nRet == Z_OK)
+    {
+        pCEMsg->nSize = nNewLen + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1;
+        pCEMsg->nSrcDataSize = nLen;
+        _EncryptMsg((unsigned char *)pCEMsg + sizeof(MSG_BASE), pCEMsg->nSize - sizeof(MSG_BASE));
+        if (!_AddMsgToWSQ(pCEMsg))
+        {
+            delete pCEMsg;
+            pCEMsg = NULL;
+            return false;
+        }
+    }
+    else
+    {
+        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CompressAndEncryptDataToWSQ. Compress error. nRet=%d, nLen=%lu, nNewLen=%lu.\n", m_nSlotIndex, nRet, nLen, nNewLen);
+        delete pCEMsg;
+        pCEMsg = NULL;
+
+        return _EncryptDataToWSQ(pData, nLen);
+    }
+    return true;
+}
+
+const unsigned int cMIN_SIZE_FOR_COMPRESS = 100;
+bool CSocketSlot::_DisposeSendQueue()
 {
     // get and deal with the msg which is in send queue
     MSG_BASE * pMsg = NULL;
-    if (m_pEncryptFunc == NULL && m_pCompressFunc == NULL)
+    if (m_bCompress)
     {
         while (true)
         {
-            CSendDataElement *ptr = m_pSendDataTail;
-            ptr++;
-            if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
+            unsigned char * pCBHeader = m_CompressBuffer;
+            unsigned int nTotalSize = 0;
+            int nCount = 0;
+            MSG_BASE * pFirstMsg = NULL;
+            while (m_SendQueue.Front(pMsg))
             {
-                ptr = m_aSendData;
-            }
-            if (ptr != m_pSendDataHead)
-            {
-                // can add
-                if (m_SendQueue.GetElement(pMsg))
+                if (nTotalSize + pMsg->nSize <= cMAX_SIZE_BEFORE_COMPRESS)
                 {
-                    m_pSendDataTail->SetData(pMsg);
-                    pMsg = NULL;
-                    m_pSendDataTail = ptr;
+                    nTotalSize += pMsg->nSize;
+                    memcpy(pCBHeader, pMsg, pMsg->nSize);
+                    pCBHeader += pMsg->nSize;
+                    m_SendQueue.Pop(pMsg);
+                    if (nCount == 0)
+                    {
+                        pFirstMsg = pMsg;
+                    }
+                    else
+                    {
+                        delete pMsg;
+                        pMsg = NULL;
+                    }
+                    nCount++;
                 }
                 else
                 {
+                    if (nCount == 0)
+                    {
+                        pFirstMsg = pMsg;
+                        m_SendQueue.Pop(pMsg);
+                        nCount++;
+                    }
                     break;
+                }
+            }
+            if (nCount > 1)
+            {
+                delete pFirstMsg;
+                pFirstMsg = NULL;
+                if (m_pEncryptFunc == NULL)
+                {
+                    bool bNotDelete = false;
+                    if (!_CompressDataToWSQ(m_CompressBuffer, nTotalSize, bNotDelete))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if (!_CompressAndEncryptDataToWSQ(m_CompressBuffer, nTotalSize))
+                    {
+                        return false;
+                    }
+                }
+            }
+            else if (nCount == 1)
+            {
+                if (pFirstMsg->nSize < cMIN_SIZE_FOR_COMPRESS)
+                {
+                    if (m_pEncryptFunc == NULL)
+                    {
+                        if (!_AddMsgToWSQ(pFirstMsg))
+                        {
+                            delete pFirstMsg;
+                            pFirstMsg = NULL;
+                            return false;
+                        }
+                        pFirstMsg = NULL;
+                    }
+                    else
+                    {
+                        if (!_EncryptDataToWSQ((unsigned char *)pFirstMsg, pFirstMsg->nSize))
+                        {
+                            delete pFirstMsg;
+                            pFirstMsg = NULL;
+                            return false;
+                        }
+                        delete pFirstMsg;
+                        pFirstMsg = NULL;
+                    }
+                }
+                else
+                {
+                    if (m_pEncryptFunc == NULL)
+                    {
+                        bool bNotDelete = false;
+                        if (!_CompressDataToWSQ((const unsigned char *)pFirstMsg, pFirstMsg->nSize, bNotDelete))
+                        {
+                            delete pFirstMsg;
+                            pFirstMsg = NULL;
+                            return false;
+                        }
+                        if (!bNotDelete)
+                        {
+                            delete pFirstMsg;
+                            pFirstMsg = NULL;
+                        }
+                    }
+                    else
+                    {
+                        if (!_CompressAndEncryptDataToWSQ((unsigned char *)pFirstMsg, pFirstMsg->nSize))
+                        {
+                            delete pFirstMsg;
+                            pFirstMsg = NULL;
+                            return false;
+                        }
+                        delete pFirstMsg;
+                        pFirstMsg = NULL;
+                    }
                 }
             }
             else
             {
-                // can't add
-                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeSendQueue. The waiting send queue is full .\n", m_nSlotIndex);
-                return;
+                break;
             }
         }
     }
     else
     {
-        while (true)
+        if (m_pEncryptFunc == NULL)
         {
-            CSendDataElement *ptr = m_pSendDataTail;
-            ptr++;
-            if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
+            while (m_SendQueue.Pop(pMsg))
             {
-                ptr = m_aSendData;
-            }
-            if (ptr != m_pSendDataHead)
-            {
-                MSG_BASE * pNewMsg = NULL;
-                // can add
-                if (m_SendQueue.GetElement(pMsg))
+                if (!_AddMsgToWSQ(pMsg))
                 {
-                    pNewMsg = pMsg;
+                    delete pMsg;
                     pMsg = NULL;
-                }
-                else
-                {
-                    break;
-                }
-                if (pNewMsg)
-                {
-                    m_pSendDataTail->SetData(pNewMsg);
-                    m_pSendDataTail = ptr;
+                    return false;
                 }
             }
-            else
+        }
+        else
+        {
+            while (m_SendQueue.Pop(pMsg))
             {
-                // can't add
-                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeSendQueue. The waiting send queue is full .\n", m_nSlotIndex);
-                return;
+                if (!_EncryptDataToWSQ((unsigned char *)pMsg, pMsg->nSize))
+                {
+                    delete pMsg;
+                    pMsg = NULL;
+                    return false;
+                }
+                delete pMsg;
+                pMsg = NULL;
             }
         }
     }
+    return true;
+    /*
+       if (m_pCompressFunc == NULL)
+       {
+       while (true)
+       {
+       CSendDataElement *ptr = m_pSendDataTail;
+       ptr++;
+       if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
+       {
+       ptr = m_aSendData;
+       }
+       if (ptr != m_pSendDataHead)
+       {
+    // can add
+    if (m_SendQueue.Pop(pMsg))
+    {
+    if (m_pEncryptFunc == NULL)
+    {
+    m_pSendDataTail->SetData(pMsg);
+    pMsg = NULL;
+    m_pSendDataTail = ptr;
+    }
+    else
+    {
+    //TODO if the pMsg size is too large, it can't be encrypted.
+    unsigned short nSize = pMsg->nSize + sizeof(MSG_SYSTEM_Encrypted) - sizeof(MSG_BASE);
+    MSG_SYSTEM_Encrypted * pEncryptedMsg = CreateDynamicLengthMsg(nSize, (MSG_SYSTEM_Encrypted *)0);
+    pEncryptedMsg->nCheckSum = pMsg->CheckSum();
+    memcpy(pEncryptedMsg->data, pMsg, pMsg->nSize);
+    _EncryptMsg((unsigned char *)pEncryptedMsg + sizeof(MSG_BASE), pEncryptedMsg->nSize - sizeof(MSG_BASE));
+    m_pSendDataTail->SetData(pEncryptedMsg);
+    delete pMsg;
+    pMsg = NULL;
+    m_pSendDataTail = ptr;
+    }
+    }
+    else
+    {
+    break;
+    }
+    }
+    else
+    {
+    // can't add
+    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeSendQueue. The waiting send queue is full .\n", m_nSlotIndex);
+    return;
+    }
+    }
+    }
+    else
+    {
+    // compress
+    while (true)
+    {
+    CSendDataElement *ptr = m_pSendDataTail;
+    ptr++;
+    if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
+    {
+    ptr = m_aSendData;
+    }
+    if (ptr != m_pSendDataHead)
+    {
+    // can add
+    unsigned char * pCBHeader = m_CompressBuffer;
+    unsigned int nTotalSize = 0;
+    int nCount = 0;
+    MSG_BASE * pFirstMsg = NULL;
+    while (m_SendQueue.Front(pMsg))
+    {
+    if (nTotalSize + pMsg->nSize <= cMAX_SIZE_BEFORE_COMPRESS)
+    {
+    nTotalSize += pMsg->nSize;
+    memcpy(pCBHeader, pMsg, pMsg->nSize);
+    pCBHeader += pMsg->nSize;
+    m_SendQueue.Pop(pMsg);
+    if (nCount == 0)
+    {
+        pFirstMsg = pMsg;
+    }
+    else
+    {
+        delete pMsg;
+        pMsg = NULL;
+    }
+    nCount++;
+}
+else
+{
+    if (nCount == 0)
+    {
+        pFirstMsg = pMsg;
+        m_SendQueue.Pop(pMsg);
+        nCount++;
+    }
+    break;
+}
+}
+if (nCount > 1)
+{
+    delete pFirstMsg;
+    pFirstMsg = NULL;
+    if (m_pEncryptFunc == NULL)
+    {
+        MSG_SYSTEM_Compressed * pCompressedMsg = CreateDynamicLengthMsg(nTotalSize + sizeof(MSG_SYSTEM_Compressed) - 1, (MSG_SYSTEM_Compressed *)0);
+        unsigned long nNewSize = nTotalSize;
+        if (compress(pCompressedMsg->data, &nNewSize, m_CompressBuffer, nTotalSize) == Z_OK)
+        {
+            pCompressedMsg->nSize = nNewSize + sizeof(MSG_SYSTEM_Compressed) - 1;
+            pCompressedMsg->nSrcDataSize = nTotalSize;
+            m_pSendDataTail->SetData(pCompressedMsg);
+            m_pSendDataTail = ptr;
+        }
+        else
+        {
+            WriteLog(LEVEL_ERROR, "compress error. NewSize=%lu, nTotalSize=%lu.\n", m_nSlotIndex, nNewSize, nTotalSize);
+            delete pCompressedMsg;
+            pCompressedMsg = NULL;
+        }
+    }
+    else
+    {
+        MSG_SYSTEM_CompressedAndEncrypted * pCEMsg = CreateDynamicLengthMsg(nTotalSize + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1, (MSG_SYSTEM_CompressedAndEncrypted *)0);
+        unsigned long nNewSize = nTotalSize;
+        if (compress(pCEMsg->data, &nNewSize, m_CompressBuffer, nTotalSize) == Z_OK)
+        {
+            pCEMsg->nSize = nNewSize + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1;
+            pCEMsg->nSrcDataSize = nTotalSize;
+            _EncryptMsg((unsigned char *)pCEMsg + sizeof(MSG_BASE), pCEMsg->nSize - sizeof(MSG_BASE));
+            m_pSendDataTail->SetData(pCEMsg);
+        }
+        else
+        {
+            delete pCEMsg;
+            pCEMsg = NULL;
+
+            // encrypt and send
+            unsigned short nSize = nTotalSize + sizeof(MSG_SYSTEM_Encrypted) - sizeof(MSG_BASE);
+            MSG_SYSTEM_Encrypted * pEncryptedMsg = CreateDynamicLengthMsg(nSize, (MSG_SYSTEM_Encrypted *)0);
+            //pEncryptedMsg->nCheckSum = pFirstMsg->CheckSum();
+            memcpy(pEncryptedMsg->data, m_CompressBuffer, nTotalSize);
+            _EncryptMsg((unsigned char *)pEncryptedMsg + sizeof(MSG_BASE), pEncryptedMsg->nSize - sizeof(MSG_BASE));
+            m_pSendDataTail->SetData(pEncryptedMsg);
+        }
+        m_pSendDataTail = ptr;
+    }
+}
+else if (nCount == 1)
+{
+    if (pFirstMsg->nSize < cMIN_SIZE_FOR_COMPRESS)
+    {
+        if (m_pEncryptFunc == NULL)
+        {
+            // send
+            m_pSendDataTail->SetData(pFirstMsg);
+            pFirstMsg = NULL;
+            m_pSendDataTail = ptr;
+        }
+        else
+        {
+            // encrypt and send
+            unsigned short nSize = pFirstMsg->nSize + sizeof(MSG_SYSTEM_Encrypted) - sizeof(MSG_BASE);
+            MSG_SYSTEM_Encrypted * pEncryptedMsg = CreateDynamicLengthMsg(nSize, (MSG_SYSTEM_Encrypted *)0);
+            pEncryptedMsg->nCheckSum = pFirstMsg->CheckSum();
+            memcpy(pEncryptedMsg->data, pFirstMsg, pFirstMsg->nSize);
+            _EncryptMsg((unsigned char *)pEncryptedMsg + sizeof(MSG_BASE), pEncryptedMsg->nSize - sizeof(MSG_BASE));
+
+            m_pSendDataTail->SetData(pEncryptedMsg);
+            delete pFirstMsg;
+            pFirstMsg = NULL;
+            m_pSendDataTail = ptr;
+        }
+    }
+    else
+    {
+        if (m_pEncryptFunc == NULL)
+        {
+            MSG_SYSTEM_Compressed * pCompressedMsg = CreateDynamicLengthMsg(pFirstMsg->nSize + sizeof(MSG_SYSTEM_Compressed) - 1, (MSG_SYSTEM_Compressed *)0);
+            unsigned long nNewSize = pFirstMsg->nSize;
+            if (compress(pCompressedMsg->data, &nNewSize, (unsigned char *)pFirstMsg, pFirstMsg->nSize) == Z_OK)
+            {
+                pCompressedMsg->nSize = nNewSize + sizeof(MSG_SYSTEM_Compressed) - 1;
+                pCompressedMsg->nSrcDataSize = pFirstMsg->nSize;
+                m_pSendDataTail->SetData(pCompressedMsg);
+                delete pFirstMsg;
+                pFirstMsg = NULL;
+            }
+            else
+            {
+                m_pSendDataTail->SetData(pFirstMsg);
+                pFirstMsg = NULL;
+                delete pCompressedMsg;
+                pCompressedMsg = NULL;
+            }
+            m_pSendDataTail = ptr;
+        }
+        else
+        {
+            MSG_SYSTEM_CompressedAndEncrypted * pCEMsg = CreateDynamicLengthMsg(pFirstMsg->nSize + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1, (MSG_SYSTEM_CompressedAndEncrypted *)0);
+            unsigned long nNewSize = pFirstMsg->nSize;
+            if (compress(pCEMsg->data, &nNewSize, (unsigned char *)pFirstMsg, pFirstMsg->nSize) == Z_OK)
+            {
+                pCEMsg->nSize = nNewSize + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1;
+                pCEMsg->nSrcDataSize = pFirstMsg->nSize;
+                _EncryptMsg((unsigned char *)pCEMsg + sizeof(MSG_BASE), pCEMsg->nSize - sizeof(MSG_BASE));
+                m_pSendDataTail->SetData(pCEMsg);
+            }
+            else
+            {
+                delete pCEMsg;
+                pCEMsg = NULL;
+
+                // encrypt and send
+                unsigned short nSize = pFirstMsg->nSize + sizeof(MSG_SYSTEM_Encrypted) - sizeof(MSG_BASE);
+                MSG_SYSTEM_Encrypted * pEncryptedMsg = CreateDynamicLengthMsg(nSize, (MSG_SYSTEM_Encrypted *)0);
+                pEncryptedMsg->nCheckSum = pFirstMsg->CheckSum();
+                memcpy(pEncryptedMsg->data, pFirstMsg, pFirstMsg->nSize);
+                _EncryptMsg((unsigned char *)pEncryptedMsg + sizeof(MSG_BASE), pEncryptedMsg->nSize - sizeof(MSG_BASE));
+                m_pSendDataTail->SetData(pEncryptedMsg);
+
+            }
+            m_pSendDataTail = ptr;
+            delete pFirstMsg;
+            pFirstMsg = NULL;
+        }
+    }
+}
+else
+{
+    break;
+}
+}
+else
+{
+    // can't add
+    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeSendQueue. The waiting send queue is full .\n", m_nSlotIndex);
+    return;
+}
+}
+}
+*/
 }
 
 bool CSocketSlot::_SendBufferData()
@@ -362,6 +824,58 @@ bool CSocketSlot::_SendWSQ()
     return bRes;
 }
 
+bool CSocketSlot::_AddMsgToWSQ(MSG_BASE * pMsg)
+{
+    ASSERT(pMsg != NULL);
+
+    CSendDataElement *ptr = m_pSendDataTail;
+    ptr++;
+    if (ptr == m_aSendData + cSEND_QUEUE_SIZE)
+    {
+        ptr = m_aSendData;
+    }
+    if (ptr != m_pSendDataHead)
+    {
+        // can add
+        m_pSendDataTail->SetData(pMsg);
+        m_pSendDataTail = ptr;
+        return true;
+    }
+    else
+    {
+        // can't add
+        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_AddMsgToWSQ. The waiting send queue is full. MSGID=%d.\n", m_nSlotIndex, pMsg->nMsg);
+        return false;
+    }
+}
+bool CSocketSlot::_SendMsgDirectly(MSG_BASE * pMsg)
+{
+    ASSERT(pMsg != NULL);
+
+    if (!_AddMsgToWSQ(pMsg))
+    {
+        // TODO : need i delete pMsg?
+        delete pMsg;
+        pMsg = NULL;
+        return false;
+    }
+
+    if (!SendData())
+    {
+        if (m_State == SocketState_Accepting || m_State == SocketState_Normal)
+        {
+            // Modify event
+            WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_SendMsgDirectly. The system buffer is full.\n", m_nSlotIndex);
+            m_pSocketMgr->_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool CSocketSlot::SendData()
 {
     if (m_State != SocketState_Normal && m_State != SocketState_Accepting)
@@ -371,7 +885,11 @@ bool CSocketSlot::SendData()
     }
 
     // dispose with the send queue.
-    _DisposeSendQueue();
+    if (!_DisposeSendQueue())
+    {
+        _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_DisposeSendQueueFailed);
+        return false;
+    }
 
     // send buffer data
     if (!_SendBufferData())
@@ -461,6 +979,7 @@ void CSocketSlot::_Reset()
         m_nFd = -1;
     }
 
+    m_bConnectSuccess = false;
     //m_bRemainData = false;
 
     memset(m_RecvBuffer, 0, cMAX_RECV_BUFFER_SIZE);
@@ -503,17 +1022,75 @@ bool CSocketSlot::_SetState(SocketState eSrcState, SocketState eDesState)
 
     return bRes;
 } 
+/*
+   void CSocketSlot::_Pretreat(MSG_BASE * &pMsg)
+   {
+   switch (pMsg->nMsg)
+   {
+   case MSGID_SYSTEM_ClientPublicKey:
+   {
+// TODO : Get secret key, and send to client
+m_EncryptKey = "";
+m_DecryptKey = "";
+MSG_SYSTEM_SecretKey * pSKMsg = new MSG_SYSTEM_SecretKey();
+_SendMsgDirectly(pSKMsg);
+delete pMsg;
+pMsg = NULL;
+
+MSG_SYSTEM_ConnectSuccess * pCSMsg = new MSG_SYSTEM_ConnectSuccess();
+if (!_AddRecvMsg(pCSMsg))
+{
+WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::_Pretreat. Add Connect success msg failed.\n", m_nSlotIndex);
+delete pCSMsg;
+pCSMsg = NULL;
+}
+else
+{
+m_bConnectSuccess = true;
+}
+}
+break;
+case MSGID_SYSTEM_UseNewSecretKey:
+{
+// TODO: update new key
+m_DecryptKey = m_EncryptKey;
+delete pMsg;
+pMsg = NULL;
+}
+break;
+case MSGID_SYSTEM_CheckAliveReply:
+{
+m_tLatestAliveTime = time(NULL);
+delete pMsg;
+pMsg = NULL;
+}
+break;
+default:
+break;
+}
+}
+ */
 
 bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
 {
-    if (pMsg == NULL)
+    ASSERT(pMsg != NULL);
+
+    /*
+       _Pretreat(pMsg);
+       if (pMsg == NULL)
+       {
+       return true;
+       }
+     */
+    if (m_State != SocketState_Normal && m_State != SocketState_Closed)
     {
+        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_AddRecvMsg. The state(%d) is normal or closed. MSGID=%d.\n", m_nSlotIndex, m_State, pMsg->nMsg);
         return false;
     }
 
     CRecvDataElement * pRecvDataElement = new CRecvDataElement();
     pRecvDataElement->SetData(pMsg, m_nSlotIndex);
-    if (m_pRecvQueue->AddElement(pRecvDataElement))
+    if (m_pRecvQueue->Push(pRecvDataElement))
     {
         return true;
     }
@@ -525,25 +1102,227 @@ bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
         return false;
     }
 }
-
+void CSocketSlot::_Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen)
+{
+}
+void CSocketSlot::_Decrypt(unsigned char * pData, unsigned int nLen)
+{
+}
+void CSocketSlot::_GenerateSecretKey()
+{
+    memcpy(m_EncryptKey, "kjkl!@#$ADFWQ$R%", cMAX_SECRETKEY_LEN);
+}
 bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
 {
     bool bRes = true;
     MSG_BASE * pMsg = NULL;
-    if (m_pDecryptFunc == NULL && m_pUncompressFunc == NULL)
+    switch (rMsg.nMsg)
     {
-        pMsg = CreateDynamicLengthMsg(rMsg.nSize, (MSG_BASE *)0);
-        memcpy(pMsg, &rMsg, rMsg.nSize);
-        if (!_AddRecvMsg(pMsg))
-        {
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Add Recv msg failed.\n", m_nSlotIndex);
-            delete pMsg;
-            pMsg = NULL;
-            bRes = false;
-        }
-    }
-    else
-    {
+        case MSGID_SYSTEM_ClientPublicKey:
+            {
+                if (rMsg.nSize != sizeof(MSG_SYSTEM_ClientPublicKey))
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. sizeof(MSG_SYSTEM_ClientPublicKey) != rMsg.nSize.\n", m_nSlotIndex);
+                    return false;
+                }
+
+                MSG_SYSTEM_ClientPublicKey & rCPKMsg = (MSG_SYSTEM_ClientPublicKey &)rMsg;
+                memcpy(m_ClientPublicKey, rCPKMsg.key, cMAX_CLIENT_PUBLIC_KEY_LEN);
+
+                // TODO : Get secret key, and send to client
+                _GenerateSecretKey();
+                char szEncryptedKey[cMAX_SECRETKEY_LEN];
+                //_EncryptSecretKey();
+                // TODO : Encrypt
+                MSG_SYSTEM_S2C_SecretKey * pSKMsg = new MSG_SYSTEM_S2C_SecretKey();
+                memcpy(pSKMsg->key, m_EncryptKey, cMAX_SECRETKEY_LEN);
+                _SendMsgDirectly(pSKMsg);
+
+            }
+            break;
+        case MSGID_SYSTEM_C2S_SecretKey:
+            {
+                if (rMsg.nSize != sizeof(MSG_SYSTEM_C2S_SecretKey))
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. sizeof(MSG_SYSTEM_C2S_SecretKey) != rMsg.nSize.\n", m_nSlotIndex);
+                    return false;
+                }
+
+                MSG_SYSTEM_C2S_SecretKey & rSKMsg = (MSG_SYSTEM_C2S_SecretKey &)rMsg;
+                // TODO : Decrypt
+                // m_DecryptKey = "";
+                // accepting -> normal
+                _SetState(SocketState_Accepting, SocketState_Normal);
+                MSG_SYSTEM_ConnectSuccess * pCSMsg = new MSG_SYSTEM_ConnectSuccess();
+                if (!_AddRecvMsg(pCSMsg))
+                {
+                    WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::_DisposeRecvMsg. Add Connect success msg failed.\n", m_nSlotIndex);
+                    delete pCSMsg;
+                    pCSMsg = NULL;
+                    bRes = false;
+                }
+                else
+                {
+                    m_bConnectSuccess = true;
+                }
+            }
+            break;
+        case MSGID_SYSTEM_CheckAliveReply:
+            {
+                m_tLatestAliveTime = time(NULL);
+                delete pMsg;
+                pMsg = NULL;
+            }
+            break;
+        case MSGID_SYSTEM_CompressedAndEncrypted:
+            {
+                if (!m_bCompress || m_pEncryptFunc == NULL)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received CompressedAndEncrypted msg. but m_bCompress= %d and m_pEncryptFunc = %p.\n", m_nSlotIndex, m_bCompress, m_pEncryptFunc);
+                    return false;
+                }
+                _Decrypt((unsigned char *)(&rMsg) + sizeof(MSG_BASE), rMsg.nSize - sizeof(MSG_BASE));
+
+                MSG_SYSTEM_CompressedAndEncrypted & rCEMsg = (MSG_SYSTEM_CompressedAndEncrypted &)rMsg;
+
+                unsigned long nNewLen = rCEMsg.nSrcDataSize;
+                int nRet = uncompress(m_UncompressBuffer, &nNewLen, rCEMsg.data, rCEMsg.nSize - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1);
+                if (nRet != Z_OK)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. uncompress failed. nRet=%d, nNewLen=%lu, nLen=%lu.\n", m_nSlotIndex, nRet, nNewLen, rCEMsg.nSize - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1);
+                    return false;
+                }
+
+                if (nNewLen != rCEMsg.nSrcDataSize)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. nNewLen(%lu) != rCEMsg.nSrcDataSize(%d).\n", m_nSlotIndex, nNewLen, rCEMsg.nSrcDataSize);
+                    return false;
+                }
+                if (CheckSum(m_UncompressBuffer, nNewLen) != rCEMsg.nCheckSum)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. CheckSum(m_UncompressBuffer, nNewLen(%lu)) !=rCEMsg.nCheckSum.\n", m_nSlotIndex, nNewLen);
+                    return false;
+                }
+                unsigned char * pUBHeader = m_UncompressBuffer;
+                while (pUBHeader < m_UncompressBuffer + nNewLen)
+                {
+                    MSG_BASE * pHeaderMsg = (MSG_BASE *)pUBHeader;
+                    MSG_BASE * pMsg = CreateDynamicLengthMsg(pHeaderMsg->nSize, (MSG_BASE *)0);
+                    memcpy(pMsg, pHeaderMsg, pHeaderMsg->nSize);
+                    if (!_AddRecvMsg(pMsg))
+                    {
+                        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Add Recv msg failed.\n", m_nSlotIndex);
+                        delete pMsg;
+                        pMsg = NULL;
+                        return false;
+                    }
+                    pUBHeader += pHeaderMsg->nSize;
+                }
+                if (pUBHeader - m_UncompressBuffer != nNewLen)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. pUBHeader(%p) - m_UncompressBuffer(%p) != nNewLen(%lu).\n", m_nSlotIndex, pUBHeader, m_UncompressBuffer, nNewLen);
+                    return false;
+                }
+            }
+            break;
+        case MSGID_SYSTEM_Compressed:
+            {
+                if (!m_bCompress)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received Compressed msg. but m_bCompress is false.\n", m_nSlotIndex);
+                    return false;
+                }
+                MSG_SYSTEM_Compressed & rCompressedMsg = (MSG_SYSTEM_Compressed &)rMsg;
+                unsigned long nNewLen = rCompressedMsg.nSrcDataSize;
+                int nRet = uncompress(m_UncompressBuffer, &nNewLen, rCompressedMsg.data, rCompressedMsg.nSize - sizeof(MSG_SYSTEM_Compressed) + 1);
+                if (nRet != Z_OK)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. uncompress failed. nRet=%d, nNewLen=%lu, nLen=%lu.\n", m_nSlotIndex, nRet, nNewLen, rCompressedMsg.nSize - sizeof(MSG_SYSTEM_Compressed) + 1);
+                    return false;
+                }
+                if (nNewLen != rCompressedMsg.nSrcDataSize)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. nNewLen(%lu) != rCompressedMsg.nSrcDataSize(%d).\n", m_nSlotIndex, nNewLen, rCompressedMsg.nSrcDataSize);
+                    return false;
+                }
+                if (CheckSum(m_UncompressBuffer, nNewLen) != rCompressedMsg.nCheckSum)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. CheckSum(m_UncompressBuffer, nNewLen(%lu)) !=rCompressedMsg.nCheckSum.\n", m_nSlotIndex, nNewLen);
+                    return false;
+                }
+                unsigned char * pUBHeader = m_UncompressBuffer;
+                while (pUBHeader < m_UncompressBuffer + nNewLen)
+                {
+                    MSG_BASE * pHeaderMsg = (MSG_BASE *)pUBHeader;
+                    MSG_BASE * pMsg = CreateDynamicLengthMsg(pHeaderMsg->nSize, (MSG_BASE *)0);
+                    memcpy(pMsg, pHeaderMsg, pHeaderMsg->nSize);
+                    if (!_AddRecvMsg(pMsg))
+                    {
+                        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Add Recv msg failed.\n", m_nSlotIndex);
+                        delete pMsg;
+                        pMsg = NULL;
+                        return false;
+                    }
+                    pUBHeader += pHeaderMsg->nSize;
+                }
+                if (pUBHeader - m_UncompressBuffer != nNewLen)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. pUBHeader(%p) - m_UncompressBuffer(%p) != nNewLen(%lu).\n", m_nSlotIndex, pUBHeader, m_UncompressBuffer, nNewLen);
+                    return false;
+                }
+            }
+            break;
+        case MSGID_SYSTEM_Encrypted:
+            {
+                if (m_pEncryptFunc == NULL)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received Encrypted msg. but m_pEncryptFunc is NULL.\n", m_nSlotIndex);
+                    return false;
+                }
+                _Decrypt((unsigned char *)(&rMsg) + sizeof(MSG_BASE), rMsg.nSize - sizeof(MSG_BASE));
+                MSG_SYSTEM_Encrypted & rEncryptedMsg = (MSG_SYSTEM_Encrypted &)rMsg;
+                int nDataSize = rEncryptedMsg.nSize - sizeof(MSG_SYSTEM_Encrypted) + 1;
+                if (CheckSum(rEncryptedMsg.data, nDataSize) != rEncryptedMsg.nCheckSum)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. CheckSum(rEncryptedMsg.data, nDataSize(%d)) != rEncryptedMsg.nCheckSum.\n", m_nSlotIndex, nDataSize);
+                    return false;
+                }
+
+                unsigned char * pHeader = rEncryptedMsg.data;
+                MSG_BASE * pHeaderMsg = NULL;
+                MSG_BASE * pMsg = NULL;
+                while (pHeader - rEncryptedMsg.data < nDataSize)
+                {
+                    pHeaderMsg = (MSG_BASE *)pHeader;
+                    pMsg = CreateDynamicLengthMsg(pHeaderMsg->nSize, (MSG_BASE *)0);
+                    memcpy(pMsg, pHeaderMsg, pHeaderMsg->nSize);
+                    if (!_AddRecvMsg(pMsg))
+                    {
+                        WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Add Recv msg failed.\n", m_nSlotIndex);
+                        delete pMsg;
+                        pMsg = NULL;
+                        return false;
+                    }
+                }
+                if (pHeader - rEncryptedMsg.data != nDataSize)
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. pHeader(%p) - rEncryptedMsg.data(%p) != nDataSize(%d).\n", m_nSlotIndex, pHeader, rEncryptedMsg.data, nDataSize);
+                    bRes = false;
+                }
+            }
+        default:
+            {
+                pMsg = CreateDynamicLengthMsg(rMsg.nSize, (MSG_BASE *)0);
+                memcpy(pMsg, &rMsg, rMsg.nSize);
+                if (!_AddRecvMsg(pMsg))
+                {
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Add Recv msg failed.\n", m_nSlotIndex);
+                    delete pMsg;
+                    pMsg = NULL;
+                    bRes = false;
+                }
+            }
+            break;
     }
     return bRes;
 }
@@ -561,7 +1340,7 @@ bool CSocketSlot::_DisposeRecvBuffer()
     bool bRes = true;
     while (m_nBytesRemain >= sizeof(MSG_BASE))
     {
-        MSG_BASE *pMsg = (MSG_BASE *)m_pRecvHead;
+        MSG_BASE * pMsg = (MSG_BASE *)m_pRecvHead;
 
         // if Size is Larger than Max Size, Error
         if (pMsg->nSize > cMAX_PACKET_SIZE)
@@ -591,8 +1370,16 @@ bool CSocketSlot::_DisposeRecvBuffer()
         }
         else
         {
-            WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer. Recv queue is full.\n", m_nSlotIndex);
-            _SetState(m_State == SocketState_Accepting ? SocketState_Accepting : SocketState_Normal, SocketState_Broken, DisconnectReason_RecvBuffOverflow);
+            if (m_State == SocketState_Normal)
+            {
+                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer. Recv queue is full.\n", m_nSlotIndex);
+                _SetState(SocketState_Normal, SocketState_Broken, DisconnectReason_RecvBuffOverflow);
+            }
+            else
+            {
+                WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvBuffer. Recv queue is full or the state(%d) is not normal.\n", m_nSlotIndex, m_State);
+                _SetState(SocketState_Accepting, SocketState_Broken, DisconnectReason_RecvBuffOverflow_OR_StateNotNormal);
+            }
             bRes = false;
             break;
         }
@@ -661,7 +1448,7 @@ void CSocketSlot::SendAliveMsg()
     //if (m_State == SocketState_Normal || m_State == SocketState_Accepting)
     {
         MSG_SYSTEM_CheckAlive * pCheckAliveMsg = new MSG_SYSTEM_CheckAlive();
-        if (!m_SendQueue.AddElement(pCheckAliveMsg))
+        if (!m_SendQueue.Push(pCheckAliveMsg))
         {
             WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::_CheckAlive. The send queue is full.\n", m_nSlotIndex);
             delete pCheckAliveMsg;
@@ -689,11 +1476,16 @@ CSocketSlotMgr::~CSocketSlotMgr()
     m_pFreeSlot = NULL;
 }
 
-bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue)
+bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr)
 {
     if (!pRecvQueue)
     {
         WriteLog(LEVEL_ERROR, "CSocketSlotMgr::Init. Receive queue is NULL.\n");
+        return false;
+    }
+    if (!pSocketMgr)
+    {
+        WriteLog(LEVEL_ERROR, "CSocketSlotMgr::Init. pSocketMgr is NULL.\n");
         return false;
     }
     m_nMaxSlotNum = nMaxSlotNum;
@@ -708,6 +1500,7 @@ bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement 
         m_aSlot[i].m_next = m_pFreeSlot;
         m_aSlot[i]._SetSlotIndex(i);
         m_aSlot[i]._SetRecvQueue(pRecvQueue);
+        m_aSlot[i]._SetSocketMgr(pSocketMgr);
         m_pFreeSlot = &m_aSlot[i];
     }
     m_nFreeSlotNum = m_nMaxSlotNum;

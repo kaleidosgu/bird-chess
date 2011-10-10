@@ -41,6 +41,7 @@ namespace clinetnet
 		void ProcessRecv();
 		bool _Send();
 		bool _Recv();
+                void _DisposeRecvMsg(const MSG_BASE & rMsg);
 		bool _DisposeMsgData();
 		void _Pretreat(MSG_BASE * &pMsg);
 		void _AddSendMsg(MSG_BASE * pMsg);

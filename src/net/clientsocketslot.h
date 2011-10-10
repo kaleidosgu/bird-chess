@@ -9,12 +9,14 @@ namespace net
     {
     public:
         CClientSocketSlot();
-        ~CClientSocketSlot();
+        virtual ~CClientSocketSlot();
         void OnConnect(int nFd, const sockaddr_in &rSaClient);
         //void SetRecvQueue(CRecvDataElementQueue * pRecvQueue);
         void SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
         void Reset();
         bool NeedSendData();
+    protected:
+        virtual bool _DisposeRecvMsg(MSG_BASE & rMsg);
     };
 }
 

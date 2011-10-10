@@ -10,10 +10,6 @@
 
 const int cMAX_EPOLL_QUEUE_FOR_CLIENT = 16;
 
-#ifndef EPOLLRDHUP
-#define EPOLLRDHUP              0x2000
-#endif //EPOLLRDHUP
-
 const unsigned int cRECV_QUEUE_SIZE = 65536;
 
 
@@ -149,7 +145,7 @@ MSG_BASE * CClientSocketMgr::GetMsg()
     while (true)
     {
         CRecvDataElement * pRecvData = NULL;
-        if (!m_pRecvQueue->GetElement(pRecvData))
+        if (!m_pRecvQueue->Pop(pRecvData))
         {
             break;
         }
@@ -183,11 +179,13 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 {
     switch (pMsg->nMsg)
     {
+        /*
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 m_ClientSocketSlot.SetStateConnected();
             }
             break;
+            */
         case MSGID_SYSTEM_Disconnect:
             {
                 m_ClientSocketSlot.Reset();

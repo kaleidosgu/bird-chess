@@ -17,6 +17,7 @@ typedef struct MSG_BASE
         nMsg = 0;
         nSize = sizeof(MSG_BASE);
     }
+    /*
     unsigned int CheckSum()
     {
         unsigned int nCheckSum = 0;
@@ -27,6 +28,7 @@ typedef struct MSG_BASE
         }
         return nCheckSum;
     }
+    */
 } *LPMSG_BASE;
 
 template < typename T >

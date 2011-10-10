@@ -8,9 +8,15 @@
 //#include "recvdataelementqueue.h"
 #include "recvdataelement.h"
 #include <netinet/in.h>
+#include "systemmsg.h"
 
 const unsigned int cSEND_QUEUE_SIZE = 4096;
 const unsigned int cMAX_RECV_BUFFER_SIZE = cMAX_PACKET_SIZE * 2;
+
+#ifndef EPOLLRDHUP
+#define EPOLLRDHUP              0x2000
+#endif //EPOLLRDHUP
+
 
 using namespace base;
 namespace net
@@ -29,15 +35,18 @@ namespace net
         DisconnectReason_Unkown,
         DisconnectReason_ErrMsgSize,
         DisconnectReason_RecvBuffOverflow,
+        DisconnectReason_RecvBuffOverflow_OR_StateNotNormal,
         DisconnectReason_Shutdown,
         DisconnectReason_ReadError,
         DisconnectReason_SendError,
         DisconnectReason_RemainDataError,
         DisconnectReason_CreateMSG_BASE,
         DisconnectReason_AliveTimeOut,
+        DisconnectReason_DisposeSendQueueFailed,
     };
 
     class CSocketSlotMgr;
+    class CSocketMgr;
     class CSocketSlot
     {
         friend class CSocketSlotMgr;
@@ -76,34 +85,51 @@ namespace net
         {
             return m_tLatestAliveTime;
         }
-        void UpdateLatestAliveTime()
-        {
-            m_tLatestAliveTime = time(NULL);
-        }
 
         //For ClientSocketMgr
 
     protected:
         CSocketSlot();
-        ~CSocketSlot();
+        virtual ~CSocketSlot();
         void _Reset();
         void _SetSlotIndex(unsigned int nSlotIndex);
         void _SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
-        void _DisposeSendQueue();
+        void _SetSocketMgr(CSocketMgr * pSocketMgr)
+        {
+            m_pSocketMgr = pSocketMgr;
+        }
+        bool _SendMsgDirectly(MSG_BASE * pMsg);
+        bool _AddMsgToWSQ(MSG_BASE * pMsg);
+        void _EncryptMsg(unsigned char * pData, unsigned int nLen);
+        bool _CompressDataToWSQ(const unsigned char * pData, unsigned long nLen, bool & rbNotDelete);
+        bool _CompressAndEncryptDataToWSQ(const unsigned char * pData, unsigned long nLen);
+        bool _EncryptDataToWSQ(const unsigned char * pData, unsigned long nLen);
+        //void _Compress(unsigned char * pDes, unsigned int & rnDesLen, const unsigned char * pSrc, unsigned int nSrcLen);
+        bool _DisposeSendQueue();
         bool _SendBufferData();
         bool _SendWSQ();
         bool _SendElement(CSendDataElement *pOut, int nCount);
         void _ClearSendMsgQueue();
+        void _Pretreat(MSG_BASE * &pMsg);
         bool _AddRecvMsg(MSG_BASE * pMsg);
-        bool _DisposeRecvMsg(MSG_BASE & rMsg);
+        void _Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen);
+        void _Decrypt(unsigned char * pData, unsigned int nLen);
+        void _GenerateSecretKey();
+        virtual bool _DisposeRecvMsg(MSG_BASE & rMsg);
         bool _DisposeRecvBuffer();
         bool _SetState(SocketState eSrcState, SocketState eDesState);
         bool _SetState(SocketState eSrcState, SocketState eDesState, int nReason);
 
+        bool m_bConnectSuccess;
+        char m_ClientPublicKey[cMAX_CLIENT_PUBLIC_KEY_LEN];
         void * m_pEncryptFunc;
+        char m_EncryptKey[cMAX_SECRETKEY_LEN];
         void * m_pDecryptFunc;
-        void * m_pCompressFunc;
-        void * m_pUncompressFunc;
+        char m_DecryptKey[cMAX_SECRETKEY_LEN];
+
+        bool m_bCompress;
+        unsigned char m_CompressBuffer[cMAX_PACKET_SIZE];
+        unsigned char m_UncompressBuffer[cMAX_PACKET_SIZE];
         int m_nFd;
         unsigned short m_nPort;
         in_addr m_addr;
@@ -150,6 +176,7 @@ namespace net
 
         // check alive
         time_t m_tLatestAliveTime;
+        CSocketMgr * m_pSocketMgr;
     };
 
     class CSocketSlotMgr
@@ -158,7 +185,7 @@ namespace net
         CSocketSlotMgr();
         ~CSocketSlotMgr();
 
-        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue);
+        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr);
         CSocketSlot * GetFreeSlot();
         bool ReleaseSlot(unsigned int nSlotIndex);
         bool ReleaseSlot(CSocketSlot & rSocketSlot);
