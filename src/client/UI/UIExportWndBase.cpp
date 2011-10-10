@@ -35,6 +35,13 @@ void CUIExportWndBase::OnUpdate( float ft )
 		int nParam = 2;
 		nRes = lua_pcall( m_pState, nParam, 1, 0);
 		pChar = lua_tostring( m_pState, -1 );
+
+		if( nRes > 0 )
+		{
+			lua_getglobal(m_pState,"consoleAddText");
+			lua_pushstring( m_pState, pChar);
+			nRes = lua_pcall( m_pState, 1,0,0);
+		}
 		lua_settop(m_pState,nTop);
 		int ntop = lua_gettop( m_pState );
 		nRes = 0;
@@ -116,4 +123,13 @@ bool CUIExportWndBase::_IsUIEventExist( int& nCallIndex, const char* pChar )
 		}
 	}
 	return bResult;
+}
+bool CUIExportWndBase::Destroy()
+{
+	for( std::map < std::string, int >::iterator it = m_mapUIEventCall.begin(); it != m_mapUIEventCall.end(); ++it )
+	{
+		int nRef = it->second;
+		luaL_unref( m_pState, LUA_REGISTRYINDEX,nRef );
+	}
+	return CWndBase::Destroy();
 }
