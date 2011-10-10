@@ -36,33 +36,41 @@ local function OnKeyDown(self,eKey)
 	if eKey == 112 then
 		self.m_bShowEdit = (not self.m_bShowEdit)
 		keyres = WND_RESULT_YES
-	elseif eKey == HGE_KEY_ENTER then
-		if self.m_bShowEdit == true then
-			local kdString = self.myedit:GetText()
-			
-			local firstStr = {}
-			local ncount = 1
-			for w in string.gmatch(kdString, "%a+") do
-				firstStr[ncount] = tostring(w)
-				ncount = ncount + 1;
-			end
-			if firstStr[1] == "create" then
-				local ends = string.find(kdString," ")
-				local substr = string.sub(kdString,ends + 1,string.len(kdString))
-				local strFile = g_UIcurDir .. substr
-				local bExist = IsFileExist(strFile)
-				if bExist == true then
-					--consoleAddText(strFile)
-					dofile(strFile)
-					createTmpUI(strFile)
-				else
-					consoleAddText("File not exist!")
+	end
+	return keyres
+end
+
+local function OnMessage(self,nUIEvent,nDlgID)
+	local keyres = WND_RESULT_NO
+	if nUIEvent == WND_ONCHAR then
+		if nDlgID == 35 then
+			if self.m_bShowEdit == true then
+				local kdString = self.myedit:GetText()
+				
+				local firstStr = {}
+				local ncount = 1
+				for w in string.gmatch(kdString, "%a+") do
+					firstStr[ncount] = tostring(w)
+					ncount = ncount + 1;
 				end
-			elseif firstStr[1] == "cls" then
-				consoleClear()
+				if firstStr[1] == "create" then
+					local ends = string.find(kdString," ")
+					local substr = string.sub(kdString,ends + 1,string.len(kdString))
+					local strFile = g_UIcurDir .. substr
+					local bExist = IsFileExist(strFile)
+					if bExist == true then
+						--consoleAddText(strFile)
+						dofile(strFile)
+						createTmpUI(strFile)
+					else
+						consoleAddText("File not exist!")
+					end
+				elseif firstStr[1] == "cls" then
+					consoleClear()
+				end
+				keyres = WND_RESULT_YES
 			end
-			keyres = WND_RESULT_YES
-		end		
+		end
 	end
 	return keyres
 end
@@ -70,6 +78,7 @@ end
 local function regEvent( parent )
 	parent:SetScript( "OnUpdate",OnUpdate )
 	parent:SetScript( "OnKeyDown",OnKeyDown )
+	parent:SetScript( "OnMessage",OnMessage )
 end
 
 function consoleAddText( str )
@@ -81,6 +90,7 @@ end
 
 local pDesk = basewnd.toObject(g_UIGlobal["ptDesk"],"CWndBase")
 local expwnd = CreateLuaWnd(pDesk,0,0)
+expwnd:SetPath("console")
 expwnd.m_bShowEdit = true
 expwnd.m_nSpeed = 30
 local bseexp = basewnd.toObject(expwnd,"CWndBase")
@@ -105,7 +115,7 @@ stText:CreateNoFont(0,0,100,28,"haha",movewnd,0)
 stText:SetText("")
 
 local stEdit = CWndEdit:new();
-stEdit:CreateNoFont(0,280,100,28,movewnd,0)
+stEdit:CreateNoFont(0,280,100,28,movewnd,35)
 stEdit:SetNotifyParent(true)
 stEdit:SetText("")
 expwnd.myedit = stEdit

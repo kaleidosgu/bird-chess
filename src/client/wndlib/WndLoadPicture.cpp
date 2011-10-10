@@ -4,6 +4,7 @@
 #include "../hgedevice/HGEDevice.h"
 CWndLoadPicture::CWndLoadPicture(void):m_pSprite(NULL)
 {
+	m_bNeedMouseInput = false;
 }
 
 CWndLoadPicture::~CWndLoadPicture(void)

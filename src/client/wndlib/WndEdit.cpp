@@ -23,6 +23,7 @@ bool CWndEdit::Create( int x, int y, int cx, int cy, const char* pText, CWndBase
 	bool bRes = CWndBase::Create( x, y, cx, cy, pParent, nID );
 	m_pStatic = new CWndStatic;
 	m_pStatic->Create(0,0,cx,cy,pText,this,0,pFont,nAligh);
+	SetWindowPos(NULL,x,y,cx,cy,0);
 	return bRes;
 }
 
@@ -49,7 +50,8 @@ int CWndEdit::OnChar( const hgeInputEvent& rEvent )
 	}
 	else if( rEvent.key == HGEK_ENTER && m_bNotifyParent )
 	{
-		return WND_RESULT_NO;
+		int nResult = SendMessageToParent( WND_ONCHAR,m_nDlgID );
+		return nResult;
 	}
 	else if ( rEvent.key == HGEK_TAB )
 	{

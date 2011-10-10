@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/08/11 22:33:41.
+** Generated automatically by tolua++-1.0.92 on 10/10/11 16:47:13.
 */
 
 #ifndef __cplusplus
@@ -19,6 +19,7 @@ TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 #include "../wndlib/wndloadpicture.h"
 #include "../wndlib/wndstatic.h"
 #include "../wndlib/wndedit.h"
+#include "../wndlib/wndbutton.h"
 #include "../UI/UIExportWndBase.h"
 #include "../ExportLua/UIGlobalExport.h"
 #include "wtypes.h"
@@ -68,6 +69,13 @@ static int tolua_collect_CUIExportWndBase (lua_State* tolua_S)
 	return 0;
 }
 
+static int tolua_collect_CWndButton (lua_State* tolua_S)
+{
+ CWndButton* self = (CWndButton*) tolua_tousertype(tolua_S,1,0);
+	Mtolua_delete(self);
+	return 0;
+}
+
 static int tolua_collect_POINT (lua_State* tolua_S)
 {
  POINT* self = (POINT*) tolua_tousertype(tolua_S,1,0);
@@ -100,6 +108,7 @@ static void tolua_reg_types (lua_State* tolua_S)
  tolua_usertype(tolua_S,"CWndLoadPicture");
  tolua_usertype(tolua_S,"CWndPicture");
  tolua_usertype(tolua_S,"CUIExportWndBase");
+ tolua_usertype(tolua_S,"CWndButton");
  tolua_usertype(tolua_S,"POINT");
  tolua_usertype(tolua_S,"CWndEdit");
  tolua_usertype(tolua_S,"SIZE");
@@ -1120,6 +1129,39 @@ static int tolua_WndLibExport_CUIExportWndBase_SetScript00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: SetPath of class  CUIExportWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CUIExportWndBase_SetPath00
+static int tolua_WndLibExport_CUIExportWndBase_SetPath00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CUIExportWndBase",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CUIExportWndBase* self = (CUIExportWndBase*)  tolua_tousertype(tolua_S,1,0);
+  const char* pChar = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetPath'", NULL);
+#endif
+  {
+   self->SetPath(pChar);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetPath'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndLoadPicture */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndLoadPicture_new00
 static int tolua_WndLibExport_CWndLoadPicture_new00(lua_State* tolua_S)
@@ -1934,6 +1976,210 @@ static int tolua_WndLibExport_CWndEdit_SetMask00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: new of class  CWndButton */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndButton_new00
+static int tolua_WndLibExport_CWndButton_new00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CWndButton",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  {
+   CWndButton* tolua_ret = (CWndButton*)  Mtolua_new((CWndButton)());
+    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CWndButton");
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: new_local of class  CWndButton */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndButton_new00_local
+static int tolua_WndLibExport_CWndButton_new00_local(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CWndButton",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  {
+   CWndButton* tolua_ret = (CWndButton*)  Mtolua_new((CWndButton)());
+    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CWndButton");
+    tolua_register_gc(tolua_S,lua_gettop(tolua_S));
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: delete of class  CWndButton */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndButton_delete00
+static int tolua_WndLibExport_CWndButton_delete00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndButton",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndButton* self = (CWndButton*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'delete'", NULL);
+#endif
+  Mtolua_delete(self);
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'delete'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: Create of class  CWndButton */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndButton_Create00
+static int tolua_WndLibExport_CWndButton_Create00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndButton",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,0,&tolua_err) ||
+     !tolua_isstring(tolua_S,6,0,&tolua_err) ||
+     !tolua_isusertype(tolua_S,7,"CWndBase",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,8,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,9,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndButton* self = (CWndButton*)  tolua_tousertype(tolua_S,1,0);
+  int x = ((int)  tolua_tonumber(tolua_S,2,0));
+  int y = ((int)  tolua_tonumber(tolua_S,3,0));
+  int cx = ((int)  tolua_tonumber(tolua_S,4,0));
+  int cy = ((int)  tolua_tonumber(tolua_S,5,0));
+  const char* pPath = ((const char*)  tolua_tostring(tolua_S,6,0));
+  CWndBase* pParent = ((CWndBase*)  tolua_tousertype(tolua_S,7,0));
+  int nID = ((int)  tolua_tonumber(tolua_S,8,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Create'", NULL);
+#endif
+  {
+   bool tolua_ret = (bool)  self->Create(x,y,cx,cy,pPath,pParent,nID);
+   tolua_pushboolean(tolua_S,(bool)tolua_ret);
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Create'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetBtnState of class  CWndButton */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndButton_SetBtnState00
+static int tolua_WndLibExport_CWndButton_SetBtnState00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndButton",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndButton* self = (CWndButton*)  tolua_tousertype(tolua_S,1,0);
+  int nBtnState = ((int)  tolua_tonumber(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetBtnState'", NULL);
+#endif
+  {
+   self->SetBtnState(nBtnState);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetBtnState'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: AddRes of class  CWndButton */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndButton_AddRes00
+static int tolua_WndLibExport_CWndButton_AddRes00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndButton",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,6,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndButton* self = (CWndButton*)  tolua_tousertype(tolua_S,1,0);
+  int x = ((int)  tolua_tonumber(tolua_S,2,0));
+  int y = ((int)  tolua_tonumber(tolua_S,3,0));
+  int cx = ((int)  tolua_tonumber(tolua_S,4,0));
+  int cy = ((int)  tolua_tonumber(tolua_S,5,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'AddRes'", NULL);
+#endif
+  {
+   self->AddRes(x,y,cx,cy);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'AddRes'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* function: CreateBaseExportWnd */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CreateBaseExportWnd00
 static int tolua_WndLibExport_CreateBaseExportWnd00(lua_State* tolua_S)
@@ -2105,6 +2351,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"delete",tolua_WndLibExport_CUIExportWndBase_delete00);
    tolua_function(tolua_S,"Create",tolua_WndLibExport_CUIExportWndBase_Create00);
    tolua_function(tolua_S,"SetScript",tolua_WndLibExport_CUIExportWndBase_SetScript00);
+   tolua_function(tolua_S,"SetPath",tolua_WndLibExport_CUIExportWndBase_SetPath00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndLoadPicture","CWndLoadPicture","",tolua_collect_CWndLoadPicture);
@@ -2153,6 +2400,20 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"GetText",tolua_WndLibExport_CWndEdit_GetText00);
    tolua_function(tolua_S,"SetText",tolua_WndLibExport_CWndEdit_SetText00);
    tolua_function(tolua_S,"SetMask",tolua_WndLibExport_CWndEdit_SetMask00);
+  tolua_endmodule(tolua_S);
+  #ifdef __cplusplus
+  tolua_cclass(tolua_S,"CWndButton","CWndButton","",tolua_collect_CWndButton);
+  #else
+  tolua_cclass(tolua_S,"CWndButton","CWndButton","",NULL);
+  #endif
+  tolua_beginmodule(tolua_S,"CWndButton");
+   tolua_function(tolua_S,"new",tolua_WndLibExport_CWndButton_new00);
+   tolua_function(tolua_S,"new_local",tolua_WndLibExport_CWndButton_new00_local);
+   tolua_function(tolua_S,".call",tolua_WndLibExport_CWndButton_new00_local);
+   tolua_function(tolua_S,"delete",tolua_WndLibExport_CWndButton_delete00);
+   tolua_function(tolua_S,"Create",tolua_WndLibExport_CWndButton_Create00);
+   tolua_function(tolua_S,"SetBtnState",tolua_WndLibExport_CWndButton_SetBtnState00);
+   tolua_function(tolua_S,"AddRes",tolua_WndLibExport_CWndButton_AddRes00);
   tolua_endmodule(tolua_S);
   tolua_function(tolua_S,"CreateBaseExportWnd",tolua_WndLibExport_CreateBaseExportWnd00);
   tolua_function(tolua_S,"CreateUI",tolua_WndLibExport_CreateUI00);

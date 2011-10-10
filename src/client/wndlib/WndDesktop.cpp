@@ -65,7 +65,8 @@ void CWndDesktop::OnUpdate( float ft )
 			m_ptMouse.x = (LONG)fx;
 			m_ptMouse.y = (LONG)fy;
 
-			m_bLPressed  = m_pDevice->hge->Input_KeyDown(HGEK_LBUTTON);
+			//m_bLPressed  = m_pDevice->hge->Input_KeyDown(HGEK_LBUTTON);
+			m_bLPressed = m_pDevice->hge->Input_GetKeyState(HGEK_LBUTTON);
 			m_bLReleased = m_pDevice->hge->Input_KeyUp(HGEK_LBUTTON);
 			m_bRPressed  = m_pDevice->hge->Input_KeyDown(HGEK_RBUTTON);
 			m_bRReleased = m_pDevice->hge->Input_KeyUp(HGEK_RBUTTON);

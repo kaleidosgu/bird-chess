@@ -16,11 +16,14 @@ public:
 	virtual void OnUpdate( float ft );
 	void SetScript( lua_State* pState, const char* pUIEvent, lua_Object nv);
 	virtual int OnKeyDown( const hgeInputEvent& rEvent );
+	virtual int OnWndMessage( const int& nUIEvent, const int& nID );
 	virtual bool Destroy();
 	int m_nCurTime;
+	void SetPath( const char* pChar );
 private:
 	bool _IsUIEventExist( int& nCallIndex, const char* pChar );
 private:
+	std::string m_strPath;
 	lua_State* m_pState;
 	std::map < std::string, int > m_mapUIEventCall;
 };

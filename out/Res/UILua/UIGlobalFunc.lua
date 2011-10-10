@@ -27,6 +27,7 @@ function CreateUI(strRes,bDestroy,pParent,ptx,pty)
 	end
 	if bCreate == true then
 		ptReturn = CreateLuaWnd(pParent,ptx,pty)
+		ptReturn:SetPath(strRes)
 		g_tUIMap[strRes] = ptReturn
 	end
 	return ptReturn

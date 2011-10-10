@@ -60,6 +60,11 @@ public:
 	bool IsDragWithParent( );
 
 	void SetTabWnd( CWndBase* pTabWnd );
+
+	virtual int OnWndMessage( const int& nUIEvent, const int& nID );
+	int SendMessage( const int& nUIEvent, const int& nID );
+	int SendMessageToParent( const int& nUIEvent, const int& nID );
+
 protected:
 	virtual CWndBase * GetChildWndPtIn(const POINT &pt);
 	void RemoveChildWnd( CWndBase* pChild );

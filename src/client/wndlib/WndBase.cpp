@@ -276,7 +276,10 @@ int CWndBase::ProcessMouseInput()
 	{
 		lRes = OnRButtonUp(nFlags,m_ptMouse);
 	}
-	lRes = OnMouseMove(nFlags, m_ptMouse);
+	if ( lRes == WND_RESULT_NO )
+	{
+		lRes = OnMouseMove(nFlags, m_ptMouse);
+	}
 	return lRes;
 }
 
@@ -525,4 +528,33 @@ bool CWndBase::NeedMouseInput()
 void CWndBase::SetTabWnd( CWndBase* pTabWnd )
 {
 	m_pTabWnd = pTabWnd;
+}
+
+int CWndBase::OnWndMessage( const int& nUIEvent, const int& nID )
+{
+	int nResult = WND_RESULT_NO;
+	if ( m_pParent )
+	{
+		nResult = m_pParent->OnWndMessage( nUIEvent, nID );
+	}
+	else
+	{
+
+	}
+	return nResult;
+}
+
+int CWndBase::SendMessage( const int& nUIEvent, const int& nID )
+{
+	return OnWndMessage( nUIEvent, nID );
+}
+
+int CWndBase::SendMessageToParent( const int& nUIEvent, const int& nID )
+{
+	int nRes = WND_RESULT_NO;
+	if( m_pParent )
+	{
+		nRes = m_pParent->SendMessage( nUIEvent, nID );
+	}
+	return nRes;
 }
