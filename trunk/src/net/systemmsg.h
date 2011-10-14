@@ -161,6 +161,10 @@ struct MSG_SYSTEM_Encrypted : public MSG_BASE
     }
 };
 
+const unsigned short cMAX_ENCRYPTED_DATA_SIZE = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_Encrypted) + 1;
+const unsigned short cMAX_COMPRESSED_DATA_SIZE = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_Compressed) + 1;
+const unsigned short cMAX_COMPRESSED_DATA_SIZE_Bound = compressBound(cMAX_COMPRESSED_DATA_SIZE); //<= cMAX_MSG_SIZE
+const unsigned short cMAX_C_AND_E_DATA_SIZE = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1;
 
 #pragma pack()
 
