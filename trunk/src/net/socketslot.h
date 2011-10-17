@@ -87,8 +87,6 @@ namespace net
             return m_tLatestAliveTime;
         }
 
-        //For ClientSocketMgr
-
     protected:
         CSocketSlot();
         virtual ~CSocketSlot();
@@ -123,11 +121,10 @@ namespace net
 
         bool m_bConnectSuccess;
         char m_ClientPublicKey[cMAX_CLIENT_PUBLIC_KEY_LEN];
-        void * m_pEncryptFunc;
         char m_EncryptKey[cMAX_SECRETKEY_LEN];
-        void * m_pDecryptFunc;
         char m_DecryptKey[cMAX_SECRETKEY_LEN];
 
+        bool m_bEncrypt;
         bool m_bCompress;
         unsigned char m_SendDataBuffer[cMAX_SEND_DATA_BUFFER_SIZE];
         unsigned char m_UncompressBuffer[cMAX_COMPRESSED_DATA_SIZE];
