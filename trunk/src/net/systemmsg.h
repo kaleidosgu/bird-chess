@@ -5,13 +5,13 @@
 #include <string.h>
 
 const unsigned short MSGID_TYPE_SYSTEM                    = 0x0000;
-const unsigned short MSGID_SYSTEM_SocketConnectSuccess    = 0x0001;
+//const unsigned short MSGID_SYSTEM_SocketConnectSuccess    = 0x0001;
 const unsigned short MSGID_SYSTEM_ClientPublicKey         = 0x0002;
 const unsigned short MSGID_SYSTEM_C2S_SecretKey           = 0x0003;
 const unsigned short MSGID_SYSTEM_S2C_SecretKey           = 0x0004;
 const unsigned short MSGID_SYSTEM_S2C_UpdateSecretKey     = 0x0005;
 const unsigned short MSGID_SYSTEM_ConnectSuccess          = 0x0006;
-const unsigned short MSGID_SYSTEM_SocketDisconnect        = 0x0007;
+//const unsigned short MSGID_SYSTEM_SocketDisconnect        = 0x0007;
 const unsigned short MSGID_SYSTEM_Disconnect              = 0x0008;
 const unsigned short MSGID_SYSTEM_CheckAlive              = 0x0009;
 const unsigned short MSGID_SYSTEM_CheckAliveReply         = 0x000A;
@@ -21,6 +21,7 @@ const unsigned short MSGID_SYSTEM_Encrypted               = 0x000D;
 
 #pragma pack(1)
 
+/*
 struct MSG_SYSTEM_SocketConnectSuccess : public MSG_BASE
 {
     MSG_SYSTEM_SocketConnectSuccess()
@@ -29,6 +30,7 @@ struct MSG_SYSTEM_SocketConnectSuccess : public MSG_BASE
         nSize = sizeof(MSG_SYSTEM_SocketConnectSuccess);
     }
 };
+*/
 
 const unsigned int cMAX_CLIENT_PUBLIC_KEY_LEN = 512;
 struct MSG_SYSTEM_ClientPublicKey : public MSG_BASE
@@ -85,6 +87,7 @@ struct MSG_SYSTEM_ConnectSuccess : public MSG_BASE
     }
 };
 
+/*
 struct MSG_SYSTEM_SocketDisconnect : public MSG_BASE
 {
     MSG_SYSTEM_SocketDisconnect()
@@ -93,6 +96,7 @@ struct MSG_SYSTEM_SocketDisconnect : public MSG_BASE
         nSize = sizeof(MSG_SYSTEM_SocketDisconnect);
     }
 };
+*/
 
 struct MSG_SYSTEM_Disconnect : public MSG_BASE
 {

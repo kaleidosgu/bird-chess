@@ -597,6 +597,7 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
 {
     switch (pMsg->nMsg)
     {
+        /*
         case MSGID_SYSTEM_SocketConnectSuccess:
             {
                 delete pMsg;
@@ -609,17 +610,7 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
                 pMsg = NULL;
             }
             break;
-            /*
-               case MSGID_SYSTEM_ClientPublicKey:
-               {
-            // sennd key
-            }
-            break;
-            case MSGID_SYSTEM_UseNewSecretKey:
-            {
-            }
-            break;
-             */
+            */
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 /*

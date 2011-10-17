@@ -88,6 +88,7 @@ void CSocketSlot::OnAccept(int nFd, const sockaddr_in &rSaClient)
     setsockopt(m_nFd, IPPROTO_TCP, TCP_NODELAY, (void *)&nOptVal, sizeof(int));
     _SetState(SocketState_Free, SocketState_Accepting);
 
+    /*
     // Add SocketConnectSuccessMsg to Recv queue
     MSG_SYSTEM_SocketConnectSuccess * pSCSMsg = new MSG_SYSTEM_SocketConnectSuccess();
     if (!_AddRecvMsg(pSCSMsg))
@@ -96,6 +97,7 @@ void CSocketSlot::OnAccept(int nFd, const sockaddr_in &rSaClient)
         delete pSCSMsg;
         pSCSMsg = NULL;
     }
+    */
     m_tLatestAliveTime = time(NULL);
 }
 
@@ -146,6 +148,7 @@ bool CSocketSlot::Close()
     {
         close(m_nFd);
         m_nFd = -1;
+        /*
         MSG_SYSTEM_SocketDisconnect * pSDMsg = new MSG_SYSTEM_SocketDisconnect();
         if (!_AddRecvMsg(pSDMsg))
         {
@@ -153,6 +156,7 @@ bool CSocketSlot::Close()
             delete pSDMsg;
             pSDMsg = NULL;
         }
+        */
     }
     // m_State = SocketState_Accepting(EPOLLERR), SocketState_Normal(EPOLLERR), SocketState_Disconnecting, SocketState_Broken
     /*
@@ -764,6 +768,7 @@ void CSocketSlot::_Reset()
     {
         close(m_nFd);
         m_nFd = -1;
+        /*
         MSG_SYSTEM_SocketDisconnect * pSDMsg = new MSG_SYSTEM_SocketDisconnect();
         if (!_AddRecvMsg(pSDMsg))
         {
@@ -771,6 +776,7 @@ void CSocketSlot::_Reset()
             delete pSDMsg;
             pSDMsg = NULL;
         }
+        */
     }
 
     m_bConnectSuccess = false;
@@ -873,6 +879,7 @@ bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
     if (pMsg->nMsg == MSGID_SYSTEM_CheckAliveReply)
     {
         m_tLatestAliveTime = time(NULL);
+        WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_AddRecvMsg. Get the check alive reply msg, time=%u.\n", m_nSlotIndex, (unsigned int)m_tLatestAliveTime);
         delete pMsg;
         pMsg = NULL;
         return true;
@@ -950,6 +957,7 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
     {
         case MSGID_SYSTEM_ClientPublicKey:
             {
+                WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_DisposeRecvMsg. Receive the public key.\n", m_nSlotIndex);
                 if (rMsg.nSize != sizeof(MSG_SYSTEM_ClientPublicKey))
                 {
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. sizeof(MSG_SYSTEM_ClientPublicKey) != rMsg.nSize.\n", m_nSlotIndex);
@@ -971,11 +979,11 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Send secret key failed.\n", m_nSlotIndex);
                     return false;
                 }
-
             }
             break;
         case MSGID_SYSTEM_C2S_SecretKey:
             {
+                WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_DisposeRecvMsg. Receive the secret key.\n", m_nSlotIndex);
                 if (rMsg.nSize != sizeof(MSG_SYSTEM_C2S_SecretKey))
                 {
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. sizeof(MSG_SYSTEM_C2S_SecretKey) != rMsg.nSize.\n", m_nSlotIndex);
