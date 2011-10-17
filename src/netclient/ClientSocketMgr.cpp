@@ -20,7 +20,7 @@ CClientSocketMgr::CClientSocketMgr()
     m_hConnectEvent = WSA_INVALID_EVENT;
     m_hSocketEvent = WSA_INVALID_EVENT;
 
-    memset(m_Buffer, 0, cMAX_MSG_SIZE);
+    memset(m_Buffer, 0, cMAX_RECV_BUFFER_SIZE);
     m_nBytesRemain = 0;
 
     m_hSendEvent = NULL;
@@ -31,6 +31,11 @@ CClientSocketMgr::CClientSocketMgr()
     m_nSendThreadID = 0;
     m_hRecvThread = NULL;
     m_nRecvThreadID = 0;
+	m_bCompress = true;
+	m_bEncrypt = true;
+    memset(m_SendBuffer, 0, cMAX_SEND_BUFFER_SIZE);
+    memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
+	
 }
 
 CClientSocketMgr::~CClientSocketMgr()
@@ -94,9 +99,9 @@ bool CClientSocketMgr::_DisposeRecvMsg(const MSG_BASE & rMsg)
             {
                 // Decrypt
                 // m_
+                m_eSocketState = SocketState_Normal;
                 MSG_SYSTEM_ConnectSuccess msg;
                 _AddRecvMsg(msg);
-                m_eSocketState = SocketState_Normal;
             }
             break;
         case MSGID_SYSTEM_CompressedAndEncrypted:
@@ -109,16 +114,16 @@ bool CClientSocketMgr::_DisposeRecvMsg(const MSG_BASE & rMsg)
 				net::Decrypt((unsigned char *)(&rMsg) + sizeof(MSG_BASE), rMsg.nSize - sizeof(MSG_BASE));
 
                 MSG_SYSTEM_CompressedAndEncrypted & rCEMsg = (MSG_SYSTEM_CompressedAndEncrypted &)rMsg;
-				if (rCEMsg.nMsg > cMAX_MSG_SIZE)
+				if (rCEMsg.nSize > cMAX_MSG_SIZE)
 				{
 					return false;
 				}
 
-                unsigned long nNewLen = rCEMsg.nSrcDataSize;
-				if (nNewLen > cMAX_C_AND_E_DATA_SIZE)
+				if (rCEMsg.nSrcDataSize > cMAX_C_AND_E_DATA_SIZE)
 				{
 					return false;
 				}
+                unsigned long nNewLen = rCEMsg.nSrcDataSize;
                 int nRet = uncompress(m_UncompressBuffer, &nNewLen, rCEMsg.data, rCEMsg.nSize - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1);
                 if (nRet != Z_OK)
                 {
@@ -258,8 +263,10 @@ void CClientSocketMgr::_AddRecvMsg(const MSG_BASE & rMsg)
     }
 }
 
-bool CClientSocketMgr::Init(HWND hWndNotify/* = NULL*/)
+bool CClientSocketMgr::Init(bool bCompress/* = true*/, bool bEncrypt/* = true*/, HWND hWndNotify/* = NULL*/)
 {
+	m_bCompress = bCompress;
+	m_bEncrypt = bEncrypt;
     m_hWndNotify = hWndNotify;
     WSADATA WSAData;
     if (WSAStartup(WINSOCK_VERSION, &WSAData))
@@ -312,7 +319,7 @@ bool CClientSocketMgr::Reconnect()
     }
 
     // reset recv buffer
-    memset(m_Buffer, 0, cMAX_MSG_SIZE);
+    memset(m_Buffer, 0, cMAX_RECV_BUFFER_SIZE);
     m_nBytesRemain = 0;
 
     m_hSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
@@ -407,6 +414,11 @@ bool CClientSocketMgr::Reconnect()
 
         m_eSocketState = SocketState_Connecting;
 
+
+        ////MSG_SYSTEM_ConnectSuccess msg;
+        //MSG_SYSTEM_SocketConnectSuccess msg;
+        //_AddRecvMsg(msg);
+
 		// TODO : Generate public key
 		MSG_SYSTEM_ClientPublicKey * pCPKMsg = new MSG_SYSTEM_ClientPublicKey();
 		_AddSendMsg(pCPKMsg);
@@ -416,11 +428,6 @@ bool CClientSocketMgr::Reconnect()
 
 		MSG_SYSTEM_C2S_SecretKey * pSKMsg = new MSG_SYSTEM_C2S_SecretKey();
 		_AddSendMsg(pSKMsg);
-
-        //MSG_SYSTEM_ConnectSuccess msg;
-        MSG_SYSTEM_SocketConnectSuccess msg;
-        _AddRecvMsg(msg);
-
 
         int nOptVal = 1;
         setsockopt(m_hSocket, IPPROTO_TCP, TCP_NODELAY, (char *)&nOptVal, sizeof(int));
@@ -471,16 +478,16 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 {
     switch (pMsg->nMsg)
     {
-        case MSGID_SYSTEM_SocketConnectSuccess:
-            {
-                MSG_SYSTEM_ClientPublicKey cpkMsg;
-                SendMsg(cpkMsg);
-                MSG_SYSTEM_C2S_SecretKey skMsg;
-                SendMsg(skMsg);
-                delete pMsg;
-                pMsg = NULL;
-            }
-            break;
+        //case MSGID_SYSTEM_SocketConnectSuccess:
+        //    {
+        //        //MSG_SYSTEM_ClientPublicKey cpkMsg;
+        //        //SendMsg(cpkMsg);
+        //        //MSG_SYSTEM_C2S_SecretKey skMsg;
+        //        //SendMsg(skMsg);
+        //        delete pMsg;
+        //        pMsg = NULL;
+        //    }
+        //    break;
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 //m_eSocketState = SocketState_Normal;
@@ -506,6 +513,10 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 
 bool CClientSocketMgr::SendMsg(const MSG_BASE & rMsg, bool bToSelf/* = false */)
 {
+	while (m_eSocketState == SocketState_Connecting)
+	{
+		Sleep(5);
+	}
     if (m_eSocketState != SocketState_Normal)
     {
         // log the state is not normal
@@ -536,7 +547,7 @@ MSG_BASE * CClientSocketMgr::_GetSendMsg()
 {
     MSG_BASE * pMsg = NULL;
     EnterCriticalSection(&m_SendMsgListCS);
-    while (!m_SendMsgList.empty())
+    if (!m_SendMsgList.empty())
     {
         pMsg = m_SendMsgList.front();
         m_SendMsgList.pop_front();
@@ -700,7 +711,7 @@ bool CClientSocketMgr::_EncryptDataToSend(const unsigned char * pData, int nLen)
 bool CClientSocketMgr::_CompressDataToSend(const unsigned char * pData, int nLen)
 {
 	unsigned long nNewLen = compressBound(nLen);
-	//ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_Bound);
+	//ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_BOUND);
 
     MSG_SYSTEM_Compressed * pCompressedMsg = CreateDynamicLengthMsg(nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1, (MSG_SYSTEM_Compressed *)0);
     pCompressedMsg->nCheckSum = net::CheckSum(pData, nLen);
@@ -745,7 +756,7 @@ bool CClientSocketMgr::_CompressDataToSend(const unsigned char * pData, int nLen
 bool CClientSocketMgr::_CompressAndEncryptDataToSend(const unsigned char * pData, int nLen)
 {
 	unsigned long nNewLen = compressBound(nLen);
-	//ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_Bound);
+	//ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_BOUND);
 
 	MSG_SYSTEM_CompressedAndEncrypted * pCEMsg = CreateDynamicLengthMsg(nNewLen + sizeof(MSG_SYSTEM_CompressedAndEncrypted) - 1, (MSG_SYSTEM_CompressedAndEncrypted *)0);
 	pCEMsg->nCheckSum = net::CheckSum(pData, nLen);
@@ -871,7 +882,7 @@ bool CClientSocketMgr::_Recv()
     int nLen = 0;
     while (true)
     {
-        nLen = recv(m_hSocket, m_Buffer + m_nBytesRemain, cMAX_MSG_SIZE - m_nBytesRemain, 0);
+        nLen = recv(m_hSocket, m_Buffer + m_nBytesRemain, cMAX_RECV_BUFFER_SIZE - m_nBytesRemain, 0);
         if (nLen > 0)
         {
             m_nBytesRemain += nLen;
