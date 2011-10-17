@@ -179,6 +179,7 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 {
     switch (pMsg->nMsg)
     {
+        /*
         case MSGID_SYSTEM_SocketConnectSuccess:
             {
                 delete pMsg;
@@ -190,7 +191,6 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
                 delete pMsg;
                 pMsg = NULL;
             }
-        /*
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 m_ClientSocketSlot.SetStateConnected();

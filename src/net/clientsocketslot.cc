@@ -40,6 +40,7 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
         WriteLog(LEVEL_WARNING, "CClientSocketSlot::OnConnect. Send secret key failed.\n");
     }
 
+    /*
     // Add SocketConnectSuccessMsg to Recv queue
     MSG_SYSTEM_SocketConnectSuccess * pSCSMsg = new MSG_SYSTEM_SocketConnectSuccess();
     if (!_AddRecvMsg(pSCSMsg))
@@ -48,6 +49,7 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
         pSCSMsg = NULL;
         WriteLog(LEVEL_ERROR, "CClientSocketSlot::OnConnect. Add connect success msg failed.\n");
     }
+    */
 }
 
 void CClientSocketSlot::SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue)
