@@ -1182,7 +1182,7 @@ void initCreateBirdLua()
 void LoadResource()
 {
 	initCreateBirdLua();
-	g_CSM.Init();
+	g_CSM.Init(false, false);
 	//bgtex=hge->Texture_Load("res/Pic/Bigbg1.png");
 	bgtex=hge->Texture_Load("res/Pic/bg1.png");
 	tex=hge->Texture_Load("res/Pic/EntityPic.png");

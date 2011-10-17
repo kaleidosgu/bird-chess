@@ -11,6 +11,7 @@
 #endif // UM_MSG
 
 const unsigned short cMAX_SEND_BUFFER_SIZE = cMAX_COMPRESSED_DATA_SIZE;
+const unsigned short cMAX_RECV_BUFFER_SIZE = cMAX_MSG_SIZE;
 using namespace std;
 
 namespace clinetnet
@@ -27,7 +28,7 @@ namespace clinetnet
     public:
         CClientSocketMgr();
         ~CClientSocketMgr();
-        bool Init(HWND hWndNotify = NULL);
+        bool Init(bool bCompress = true, bool bEncrypt = true, HWND hWndNotify = NULL);
         bool Connect(string strIP, unsigned short nPort);
         bool Reconnect();
         MSG_BASE * GetMsg();
@@ -74,7 +75,7 @@ namespace clinetnet
 		WSAEVENT m_hSocketEvent;
 		
         // for recv
-        char m_Buffer[cMAX_MSG_SIZE];
+        char m_Buffer[cMAX_RECV_BUFFER_SIZE];
         int m_nBytesRemain;
 
 		HANDLE m_hSendEvent;

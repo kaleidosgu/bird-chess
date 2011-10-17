@@ -270,7 +270,7 @@ bool CSocketSlot::_CompressDataToWSQ(const unsigned char * pData, int nLen)
 {
     unsigned long nNewLen = compressBound(nLen);
 
-    ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_Bound);
+    ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_BOUND);
 
     MSG_SYSTEM_Compressed * pCompressedMsg = CreateDynamicLengthMsg(nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1, (MSG_SYSTEM_Compressed *)0);
     pCompressedMsg->nCheckSum = CheckSum(pData, nLen);

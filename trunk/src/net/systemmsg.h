@@ -176,9 +176,18 @@ struct MSG_SYSTEM_Encrypted : public MSG_BASE
 };
 
 const unsigned short cMAX_ENCRYPTED_DATA_SIZE = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_Encrypted) + 1;
-const unsigned short cMAX_COMPRESSED_DATA_SIZE = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_Compressed) + 1;
-const unsigned short cMAX_COMPRESSED_DATA_SIZE_Bound = cMAX_MSG_SIZE;//compressBound(cMAX_COMPRESSED_DATA_SIZE); //<= cMAX_MSG_SIZE
-const unsigned short cMAX_C_AND_E_DATA_SIZE = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1;
+
+// condition: cMAX_COMPRESSED_DATA_SIZE >= cMAX_LOGIC_MSG_SIZE
+const unsigned short cMAX_COMPRESSED_DATA_SIZE = 65024;
+
+// condition: cMAX_C_AND_E_DATA_SIZE >= cMAX_LOGIC_MSG_SIZE
+const unsigned short cMAX_C_AND_E_DATA_SIZE = 65024;
+
+// condition: compressBound(cMAX_COMPRESSED_DATA_SIZE) <= cMAX_COMPRESSED_DATA_SIZE_BOUND
+// condition: compressBound(cMAX_C_AND_E_DATA_SIZE) <= cMAX_COMPRESSED_DATA_SIZE_BOUND
+// condition: cMAX_COMPRESSED_DATA_SIZE_BOUND <= cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_Compressed) + 1;
+// condition: cMAX_COMPRESSED_DATA_SIZE_BOUND <= cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_CompressedAndEncrypted) + 1;
+const unsigned short cMAX_COMPRESSED_DATA_SIZE_BOUND = cMAX_MSG_SIZE - sizeof(MSG_SYSTEM_Compressed) + 1;
 
 #pragma pack()
 
