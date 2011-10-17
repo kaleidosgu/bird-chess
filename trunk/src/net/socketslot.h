@@ -11,7 +11,8 @@
 #include "systemmsg.h"
 
 const unsigned int cSEND_QUEUE_SIZE = 4096;
-const unsigned int cMAX_RECV_BUFFER_SIZE = cMAX_PACKET_SIZE * 2;
+const unsigned int cMAX_RECV_BUFFER_SIZE = cMAX_MSG_SIZE * 2;
+const unsigned int cMAX_SEND_DATA_BUFFER_SIZE = cMAX_COMPRESSED_DATA_SIZE;
 
 #ifndef EPOLLRDHUP
 #define EPOLLRDHUP              0x2000
@@ -80,7 +81,7 @@ namespace net
         void SetNotInSendQueue();
 
         void SendAliveMsg();
-        void SetStateNotAlive();
+        //void SetStateNotAlive();
         time_t GetLatestAliveTime()
         {
             return m_tLatestAliveTime;
@@ -100,10 +101,10 @@ namespace net
         }
         bool _SendMsgDirectly(MSG_BASE * pMsg);
         bool _AddMsgToWSQ(MSG_BASE * pMsg);
-        void _EncryptMsg(unsigned char * pData, unsigned int nLen);
-        bool _CompressDataToWSQ(const unsigned char * pData, unsigned long nLen, bool & rbNotDelete);
-        bool _CompressAndEncryptDataToWSQ(const unsigned char * pData, unsigned long nLen);
-        bool _EncryptDataToWSQ(const unsigned char * pData, unsigned long nLen);
+        bool _AddDataToWSQ(const unsigned char * pData, int nLen);
+        bool _CompressDataToWSQ(const unsigned char * pData, int nLen);
+        bool _CompressAndEncryptDataToWSQ(const unsigned char * pData, int nLen);
+        bool _EncryptDataToWSQ(const unsigned char * pData, int nLen);
         //void _Compress(unsigned char * pDes, unsigned int & rnDesLen, const unsigned char * pSrc, unsigned int nSrcLen);
         bool _DisposeSendQueue();
         bool _SendBufferData();
@@ -112,9 +113,9 @@ namespace net
         void _ClearSendMsgQueue();
         void _Pretreat(MSG_BASE * &pMsg);
         bool _AddRecvMsg(MSG_BASE * pMsg);
-        void _Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen);
-        void _Decrypt(unsigned char * pData, unsigned int nLen);
+        //void _Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen);
         void _GenerateSecretKey();
+        bool _AddRecvData(const unsigned char * pData, int nLen);
         virtual bool _DisposeRecvMsg(MSG_BASE & rMsg);
         bool _DisposeRecvBuffer();
         bool _SetState(SocketState eSrcState, SocketState eDesState);
@@ -128,8 +129,8 @@ namespace net
         char m_DecryptKey[cMAX_SECRETKEY_LEN];
 
         bool m_bCompress;
-        unsigned char m_CompressBuffer[cMAX_PACKET_SIZE];
-        unsigned char m_UncompressBuffer[cMAX_PACKET_SIZE];
+        unsigned char m_SendDataBuffer[cMAX_SEND_DATA_BUFFER_SIZE];
+        unsigned char m_UncompressBuffer[cMAX_COMPRESSED_DATA_SIZE];
         int m_nFd;
         unsigned short m_nPort;
         in_addr m_addr;
@@ -145,7 +146,7 @@ namespace net
         char m_RecvBuffer[cMAX_RECV_BUFFER_SIZE];
         char * m_pLastBuffer;
         char * m_pRecvHead;
-        unsigned int m_nBytesRemain;
+        int m_nBytesRemain;
 
         LoopQueue< CRecvDataElement * > * m_pRecvQueue;
 

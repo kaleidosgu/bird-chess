@@ -40,6 +40,7 @@ namespace net
         virtual void Process();
 
     private:
+        void _SendData();
         bool _AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot);
         bool _ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot);
         bool _InitServer();

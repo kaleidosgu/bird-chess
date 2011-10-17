@@ -218,6 +218,35 @@ bool CSocketMgr::_InitServer()
     return true;
 }
 
+void CSocketMgr::_SendData()
+{
+    vector< CSocketSlot * >::iterator it;
+    for (it=m_pDelSendQueue->begin(); it!=m_pDelSendQueue->end(); ++it)
+    {
+        CSocketSlot * pSocketSlot = *it;
+        if (pSocketSlot)
+        {
+            pSocketSlot->SetNotInSendQueue();
+            if (!pSocketSlot->SendData())
+            {
+                // if the system buffer is full
+                if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
+                {
+                    WriteLog(LEVEL_DEBUG, "The system buffer is full. SlotIndex=%d.\n", pSocketSlot->GetSlotIndex());
+                    _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                }
+            }
+            /*
+            // socket is borken
+            else
+            {
+            }
+             */
+        }
+    }
+    m_pDelSendQueue->clear();
+}
+
 void CSocketMgr::Process()
 {
     if (!m_bInitSuccess)
@@ -264,34 +293,10 @@ void CSocketMgr::Process()
         m_pDelSendQueue = pTmp;
         m_MutexForSendQueue.Unlock();
 
-        vector< CSocketSlot * >::iterator it;
         if (!m_pDelSendQueue->empty())
         {
-            for (it=m_pDelSendQueue->begin(); it!=m_pDelSendQueue->end(); ++it)
-            {
-                CSocketSlot * pSocketSlot = *it;
-                if (pSocketSlot)
-                {
-                    pSocketSlot->SetNotInSendQueue();
-                    if (!pSocketSlot->SendData())
-                    {
-                        // if the system buffer is full
-                        if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
-                        {
-                            WriteLog(LEVEL_DEBUG, "The system buffer is full. SlotIndex=%d.\n", pSocketSlot->GetSlotIndex());
-                            _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
-                        }
-                    }
-                    /*
-                    // socket is borken
-                    else
-                    {
-                    }
-                     */
-                }
-            }
+            _SendData();
             bBusy = true;
-            m_pDelSendQueue->clear();
         }
 
         // if not busy, then sleep for a moment.
@@ -380,17 +385,17 @@ bool CSocketMgr::_ProcessEpollEvent(struct epoll_event & rEv)
             return true;
         }
         /*
-        if (pSocketSlot->GetState() != SocketState_Accepting && pSocketSlot->GetState() != SocketState_Normal)
-        {
-            WriteLog(LEVEL_DEBUG, "Receive Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
-            _Close(*pSocketSlot);
-            return true;
-        }
-        else if (pSocketSlot->GetState() == SocketState_Broken)
-        {
-            WriteLog(LEVEL_WARNING, "What's wrong with the State. State = %d, Slot=%d\n", pSocketSlot->GetState(), pSocketSlot->GetSlotIndex());
-        }
-        */
+           if (pSocketSlot->GetState() != SocketState_Accepting && pSocketSlot->GetState() != SocketState_Normal)
+           {
+           WriteLog(LEVEL_DEBUG, "Receive Data Failed. Slot=%d\n", pSocketSlot->GetSlotIndex());
+           _Close(*pSocketSlot);
+           return true;
+           }
+           else if (pSocketSlot->GetState() == SocketState_Broken)
+           {
+           WriteLog(LEVEL_WARNING, "What's wrong with the State. State = %d, Slot=%d\n", pSocketSlot->GetState(), pSocketSlot->GetSlotIndex());
+           }
+         */
     }
     if (rEv.events & EPOLLOUT)
     {
@@ -515,17 +520,25 @@ void CSocketMgr::_CheckAlive()
             pSocketSlot = m_SocketSlotMgr.GetSocketSlot(i);
             if (pSocketSlot)
             {
-                if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
+                if (pSocketSlot->GetState() == SocketState_Normal)
                 {
                     if (tNow - pSocketSlot->GetLatestAliveTime() > (int)m_nAliveTimeOut)
                     {
-                        pSocketSlot->SetStateNotAlive();
+                        pSocketSlot->Disconnect(DisconnectReason_AliveTimeOut);
                         _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
                         pSocketSlot = NULL;
                         continue;
                     }
                     pSocketSlot->SendAliveMsg();
+                    if (!pSocketSlot->IsInSendQueue())
+                    {
+                        m_MutexForSendQueue.Lock();
+                        m_pAddSendQueue->push_back(pSocketSlot);
+                        m_MutexForSendQueue.Unlock();
+                        pSocketSlot->SetInSendQueue();
+                    }
                 }
+
                 pSocketSlot = NULL;
             }
         }
@@ -584,36 +597,42 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
 {
     switch (pMsg->nMsg)
     {
-        /*
         case MSGID_SYSTEM_SocketConnectSuccess:
             {
                 delete pMsg;
                 pMsg = NULL;
             }
             break;
-        case MSGID_SYSTEM_ClientPublicKey:
+        case MSGID_SYSTEM_SocketDisconnect:
             {
-                // sennd key
+                delete pMsg;
+                pMsg = NULL;
             }
             break;
-        case MSGID_SYSTEM_UseNewSecretKey:
+            /*
+               case MSGID_SYSTEM_ClientPublicKey:
+               {
+            // sennd key
+            }
+            break;
+            case MSGID_SYSTEM_UseNewSecretKey:
             {
             }
             break;
-            */
+             */
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 /*
-                CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
-                if (pSocketSlot != NULL)
-                {
-                    pSocketSlot->SetStateConnected();
-                }
-                else
-                {
-                    WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. MsgID=%d, SlotIndex = %d.\n", MSGID_SYSTEM_ConnectSuccess, pSocketSlot->GetSlotIndex());
-                }
-                */
+                   CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
+                   if (pSocketSlot != NULL)
+                   {
+                   pSocketSlot->SetStateConnected();
+                   }
+                   else
+                   {
+                   WriteLog(LEVEL_ERROR, "Disconnect. Can't find the slot. MsgID=%d, SlotIndex = %d.\n", MSGID_SYSTEM_ConnectSuccess, pSocketSlot->GetSlotIndex());
+                   }
+                 */
             }
             break;
         case MSGID_SYSTEM_Disconnect:

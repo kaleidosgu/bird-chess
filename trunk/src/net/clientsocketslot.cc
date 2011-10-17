@@ -23,24 +23,31 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
     SetNonBlocking(m_nFd);
 
     _SetState(SocketState_Free, SocketState_Accepting);
-    
+
     // TODO : Generate public key
     MSG_SYSTEM_ClientPublicKey * pCPKMsg = new MSG_SYSTEM_ClientPublicKey();
-    _SendMsgDirectly(pCPKMsg);
+    if (!_SendMsgDirectly(pCPKMsg))
+    {
+        WriteLog(LEVEL_WARNING, "CClientSocketSlot::OnConnect. Send client public key failed.\n");
+    }
+
     _GenerateSecretKey();
     // TODO : Encrypt
 
     MSG_SYSTEM_C2S_SecretKey * pSKMsg = new MSG_SYSTEM_C2S_SecretKey();
-    _SendMsgDirectly(pSKMsg);
-    /*
-       MSG_SYSTEM_ConnectSuccess * pConnectSuccessMsg = new MSG_SYSTEM_ConnectSuccess();
-       if (!_AddRecvMsg(pConnectSuccessMsg))
-       {
-       delete pConnectSuccessMsg;
-       pConnectSuccessMsg = NULL;
-       WriteLog(LEVEL_ERROR, "CClientSocketSlot::OnConnect. Add connect success msg failed.\n");
-       }
-     */
+    if (!_SendMsgDirectly(pSKMsg))
+    {
+        WriteLog(LEVEL_WARNING, "CClientSocketSlot::OnConnect. Send secret key failed.\n");
+    }
+
+    // Add SocketConnectSuccessMsg to Recv queue
+    MSG_SYSTEM_SocketConnectSuccess * pSCSMsg = new MSG_SYSTEM_SocketConnectSuccess();
+    if (!_AddRecvMsg(pSCSMsg))
+    {
+        delete pSCSMsg;
+        pSCSMsg = NULL;
+        WriteLog(LEVEL_ERROR, "CClientSocketSlot::OnConnect. Add connect success msg failed.\n");
+    }
 }
 
 void CClientSocketSlot::SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue)
