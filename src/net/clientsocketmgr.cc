@@ -179,6 +179,17 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
 {
     switch (pMsg->nMsg)
     {
+        case MSGID_SYSTEM_SocketConnectSuccess:
+            {
+                delete pMsg;
+                pMsg = NULL;
+            }
+            break;
+        case MSGID_SYSTEM_SocketDisconnect:
+            {
+                delete pMsg;
+                pMsg = NULL;
+            }
         /*
         case MSGID_SYSTEM_ConnectSuccess:
             {
