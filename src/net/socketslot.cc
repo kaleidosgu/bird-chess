@@ -46,9 +46,9 @@ CSocketSlot::CSocketSlot() :
        m_pTailWSQ = m_pBeginWSQ;
      */
 
-    m_pEncryptFunc = NULL;
-    m_pDecryptFunc = NULL;
+    m_bEncrypt = false;
     m_bCompress = false;
+
     m_pMsgCache = NULL;
     m_nSeek = 0;
 
@@ -59,6 +59,10 @@ CSocketSlot::CSocketSlot() :
     m_pLastBuffer = &m_RecvBuffer[cMAX_RECV_BUFFER_SIZE - cMAX_MSG_SIZE];
     m_tLatestAliveTime = time(NULL);
     m_pSocketMgr = NULL;
+    m_pRecvQueue = NULL;
+    m_bCompress = false;
+    memset(m_SendDataBuffer, 0, cMAX_SEND_DATA_BUFFER_SIZE);
+    memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
     _Reset();
 }
 
@@ -411,7 +415,7 @@ bool CSocketSlot::_DisposeSendQueue()
                 // if not only one msg, do with m_SendDataBuffer by nTotalSize
                 delete pFirstMsg;
                 pFirstMsg = NULL;
-                if (m_pEncryptFunc == NULL)
+                if (!m_bEncrypt)
                 {
                     if (!_CompressDataToWSQ(m_SendDataBuffer, nTotalSize))
                     {
@@ -438,7 +442,7 @@ bool CSocketSlot::_DisposeSendQueue()
                 if (pFirstMsg->nSize < cMIN_SIZE_FOR_COMPRESS)
                 {
                     // need not compress
-                    if (m_pEncryptFunc == NULL)
+                    if (!m_bEncrypt)
                     {
                         if (!_AddMsgToWSQ(pFirstMsg))
                         {
@@ -461,7 +465,7 @@ bool CSocketSlot::_DisposeSendQueue()
                 else
                 {
                     // need compress
-                    if (m_pEncryptFunc == NULL)
+                    if (!m_bEncrypt)
                     {
                         if (_CompressDataToWSQ((const unsigned char *)pFirstMsg, pFirstMsg->nSize))
                         {
@@ -501,7 +505,7 @@ bool CSocketSlot::_DisposeSendQueue()
     }
     else
     {
-        if (m_pEncryptFunc == NULL)
+        if (!m_bEncrypt)
         {
             while (m_SendQueue.Pop(pMsg))
             {
@@ -1011,9 +1015,9 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
             break;
         case MSGID_SYSTEM_CompressedAndEncrypted:
             {
-                if (!m_bCompress || m_pEncryptFunc == NULL)
+                if (!m_bCompress || !m_bEncrypt)
                 {
-                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received CompressedAndEncrypted msg. but m_bCompress= %d and m_pEncryptFunc = %p.\n", m_nSlotIndex, m_bCompress, m_pEncryptFunc);
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received CompressedAndEncrypted msg. but m_bCompress= %d and m_bEncrypt = %d.\n", m_nSlotIndex, m_bCompress, m_bEncrypt);
                     return false;
                 }
                 net::Decrypt((unsigned char *)(&rMsg) + sizeof(MSG_BASE), rMsg.nSize - sizeof(MSG_BASE));
@@ -1137,9 +1141,9 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
             break;
         case MSGID_SYSTEM_Encrypted:
             {
-                if (m_pEncryptFunc == NULL)
+                if (!m_bEncrypt)
                 {
-                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received Encrypted msg. but m_pEncryptFunc is NULL.\n", m_nSlotIndex);
+                    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. Received Encrypted msg. but m_bEncrypt is false.\n", m_nSlotIndex);
                     return false;
                 }
                 net::Decrypt((unsigned char *)(&rMsg) + sizeof(MSG_BASE), rMsg.nSize - sizeof(MSG_BASE));
