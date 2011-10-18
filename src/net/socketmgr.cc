@@ -58,6 +58,10 @@ CSocketMgr::CSocketMgr()
     m_nAliveCheckInterval = 0;
     m_nAliveTimeOut = 30;
     m_tLastCheckTime = time(NULL);
+    m_bEncrypt = false;
+    m_bCompress = false;
+    memset(m_SendDataBuffer, 0, cMAX_SEND_DATA_BUFFER_SIZE);
+    memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
 }
 
 CSocketMgr::~CSocketMgr()
@@ -110,7 +114,7 @@ bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
     return true;
 }
 
-bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, unsigned int nAliveCheckInterval, unsigned int nAliveTimeOut, bool bGetMsgThreadSafety)
+bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bEncrypt, bool bCompress, unsigned int nAliveCheckInterval, unsigned int nAliveTimeOut, bool bGetMsgThreadSafety)
 {
     if (nPort == 0)
     {
@@ -120,6 +124,8 @@ bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, unsigned in
     {
         return false;
     }
+    m_bEncrypt = bEncrypt;
+    m_bCompress = bCompress;
     m_nAliveCheckInterval = nAliveCheckInterval;
     m_nAliveTimeOut = nAliveTimeOut;
     if (m_nAliveCheckInterval > 0 && m_nAliveTimeOut <= m_nAliveCheckInterval)
@@ -161,7 +167,7 @@ bool CSocketMgr::_InitServer()
     //m_RecvQueue.Init(cRECV_QUEUE_SIZE);
     //m_RecvArray.Init(cRECV_QUEUE_SIZE);
     m_pRecvQueue = new LoopQueue< CRecvDataElement * >(cRECV_QUEUE_SIZE);
-    m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue, this);
+    m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue, this, m_bEncrypt, m_bCompress, m_SendDataBuffer, m_UncompressBuffer);
 
     SetFileLimit(m_nMaxClient);
 
@@ -554,10 +560,12 @@ void CSocketMgr::_CheckAlive()
 bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
 {
     pMsg = NULL;
+    /*
     if (m_bGetMsgThreadSafety)
     {
         m_MutextForGetMsg.Lock();
     }
+    */
     while (true)
     {
         CRecvDataElement * pRecvData = NULL;
@@ -586,10 +594,12 @@ bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
             WriteLog(LEVEL_ERROR, "CSocketMgr::GetMsg. The Msg of the RecvElement is NULL. SlotIndex = %d.\n", nSlotIndex);
         }
     }
+    /*
     if (m_bGetMsgThreadSafety)
     {
         m_MutextForGetMsg.Unlock();
     }
+    */
     return pMsg != NULL;
 }
 

@@ -17,7 +17,11 @@ bool CServerCirculator::_InitSocketMgr()
     bool bRes = true;
     unsigned short nPort = GIni.GetInt(m_strServerName.c_str(), "Port", 8888);
     unsigned int nMaxClient = GIni.GetInt(m_strServerName.c_str(), "MaxClient", 32);
-    bRes = m_SocketMgr.Init(nPort, nMaxClient);
+    bool bEncrypt = GIni.GetInt(m_strServerName.c_str(), "Encrypt", 0) == 0 ? false : true;
+    bool bCompress = GIni.GetInt(m_strServerName.c_str(), "Compress", 0) == 0 ? false : true;
+    unsigned int nAliveCheckInterval = GIni.GetInt(m_strServerName.c_str(), "AliveCheckInterval", 5);
+    unsigned int nAliveTimeOut = GIni.GetInt(m_strServerName.c_str(), "AliveTimeOut", 30);
+    bRes = m_SocketMgr.Init(nPort, nMaxClient, bEncrypt, bCompress, nAliveCheckInterval, nAliveTimeOut);
     if (bRes)
     {
         WriteLog("Initialize the socket mgr success. Port = %d, MaxClient = %d.\n", nPort, nMaxClient);

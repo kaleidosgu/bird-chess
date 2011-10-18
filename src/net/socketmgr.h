@@ -13,6 +13,7 @@
 using namespace base;
 using namespace std;
 
+const unsigned int cMAX_SEND_DATA_BUFFER_SIZE = cMAX_COMPRESSED_DATA_SIZE;
 const unsigned int cMAX_SERVER_PUBLIC_KEY_LEN = 512;
 const unsigned int cMAX_SERVER_PRIVATE_KEY_LEN = 512;
 const char cSERVER_PUBLIC_KEY[cMAX_SERVER_PUBLIC_KEY_LEN] = "QWERDFADSRFQWER!@#$ASDFASDFG!#@$!%#$T%!#E$RASFDSDG$#@%$@!#$@!#!$!@#$!@#%!@#$@#$!";
@@ -26,7 +27,7 @@ namespace net
     public:
         CSocketMgr();
         ~CSocketMgr();
-        bool Init(unsigned short nPort, unsigned int nMaxClient, unsigned int nAliveCheckInterval = 5, unsigned int nAliveTimeOut = 30, bool bGetMsgThreadSafety = false);
+        bool Init(unsigned short nPort, unsigned int nMaxClient, bool bEncrypt = false, bool bCompress = false, unsigned int nAliveCheckInterval = 5, unsigned int nAliveTimeOut = 30, bool bGetMsgThreadSafety = false);
 
         bool SendMsg(MSG_BASE & rMsg, unsigned int nSlotIndex);
         bool BroadcastMsg(MSG_BASE & rMsg);
@@ -75,6 +76,12 @@ namespace net
         time_t m_tLastCheckTime;
         unsigned int m_nAliveCheckInterval; // second
         unsigned int m_nAliveTimeOut; //second
+
+        bool m_bEncrypt;
+        bool m_bCompress;
+
+        unsigned char m_SendDataBuffer[cMAX_SEND_DATA_BUFFER_SIZE];
+        unsigned char m_UncompressBuffer[cMAX_COMPRESSED_DATA_SIZE];
     };
 
 }
