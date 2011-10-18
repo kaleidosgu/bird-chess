@@ -12,7 +12,6 @@
 
 const unsigned int cSEND_QUEUE_SIZE = 4096;
 const unsigned int cMAX_RECV_BUFFER_SIZE = cMAX_MSG_SIZE * 2;
-const unsigned int cMAX_SEND_DATA_BUFFER_SIZE = cMAX_COMPRESSED_DATA_SIZE;
 
 #ifndef EPOLLRDHUP
 #define EPOLLRDHUP              0x2000
@@ -91,6 +90,10 @@ namespace net
         CSocketSlot();
         virtual ~CSocketSlot();
         void _Reset();
+        void _SetEncrypt(bool bEncrypt);
+        void _SetCompress(bool bCompress);
+        void _SetSendDataBuffer(unsigned char * pSendDataBuffer);
+        void _SetUncompressBuffer(unsigned char * pUncompressBuffer);
         void _SetSlotIndex(unsigned int nSlotIndex);
         void _SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
         void _SetSocketMgr(CSocketMgr * pSocketMgr)
@@ -119,15 +122,10 @@ namespace net
         bool _SetState(SocketState eSrcState, SocketState eDesState);
         bool _SetState(SocketState eSrcState, SocketState eDesState, int nReason);
 
-        bool m_bConnectSuccess;
         char m_ClientPublicKey[cMAX_CLIENT_PUBLIC_KEY_LEN];
         char m_EncryptKey[cMAX_SECRETKEY_LEN];
         char m_DecryptKey[cMAX_SECRETKEY_LEN];
 
-        bool m_bEncrypt;
-        bool m_bCompress;
-        unsigned char m_SendDataBuffer[cMAX_SEND_DATA_BUFFER_SIZE];
-        unsigned char m_UncompressBuffer[cMAX_COMPRESSED_DATA_SIZE];
         int m_nFd;
         unsigned short m_nPort;
         in_addr m_addr;
@@ -138,6 +136,13 @@ namespace net
 
         CSocketSlot * m_next;
         Mutex m_MutexForSend;
+
+        bool m_bConnectSuccess;
+
+        bool m_bEncrypt;
+        bool m_bCompress;
+        unsigned char * m_pSendDataBuffer;
+        unsigned char * m_pUncompressBuffer;
 
         // for recv
         char m_RecvBuffer[cMAX_RECV_BUFFER_SIZE];
@@ -183,7 +188,7 @@ namespace net
         CSocketSlotMgr();
         ~CSocketSlotMgr();
 
-        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr);
+        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer);
         CSocketSlot * GetFreeSlot();
         bool ReleaseSlot(unsigned int nSlotIndex);
         bool ReleaseSlot(CSocketSlot & rSocketSlot);

@@ -4,7 +4,6 @@
 #include <new>
 #include <assert.h>
 
-const unsigned short cMAX_PACKET_SIZE = 65530;
 const unsigned short cMAX_MSG_SIZE = 65530;
 const unsigned short cMAX_LOGIC_MSG_SIZE = 64512;
 
