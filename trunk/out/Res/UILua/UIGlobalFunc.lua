@@ -42,3 +42,23 @@ function IsFileExist( strFile )
 	end
 	return bExist
 end
+
+function get_days_in_month(month, year)
+	local days_in_month = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }   
+	local d = days_in_month[month]
+
+	-- check for leap year
+	if (month == 2) then
+		if (math.mod(year,4) == 0) then
+			if (math.mod(year,100) == 0)then                
+				if (math.mod(year,400) == 0) then                    
+					d = 29
+				end
+			else                
+				d = 29
+			end
+		end
+	end
+
+	return d  
+end

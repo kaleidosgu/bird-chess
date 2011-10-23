@@ -45,7 +45,7 @@ public:
 	bool m_bDrawBox;
 };
 
-class CWndPicture 
+class CWndPicture : public CWndBase
 {
 public:
 	CWndPicture(void);
@@ -53,13 +53,13 @@ public:
 	virtual bool Create( int x, int y, const char* pKey, CWndBase* pParent, int nID );
 };
 
-class CWndDesktop
+class CWndDesktop : public CWndBase
 {
 public:
 	CWndDesktop(void);
 	virtual ~CWndDesktop(void);
 };
-class CUIExportWndBase 
+class CUIExportWndBase : public CWndBase
 {
 public:
 	CUIExportWndBase(void);
@@ -70,7 +70,7 @@ public:
 };
 
 
-class CWndLoadPicture
+class CWndLoadPicture : public CWndBase
 {
 public:
 	CWndLoadPicture(void);
@@ -81,7 +81,7 @@ public:
 };
 
 
-class CWndStatic
+class CWndStatic : public CWndBase
 {
 public:
 	CWndStatic(void);
@@ -92,9 +92,10 @@ public:
 	const char* GetText() const;
 	float GetStringWidth( const char* pChar, bool bMulti );
 	void AddText( const char* pText );
+	void SetScale(float scale);
 };
 
-class CWndEdit
+class CWndEdit : public CWndBase
 {
 public:
 	CWndEdit(void);
@@ -107,7 +108,7 @@ public:
 	void SetMask( const char* pMask );
 };
 
-class CWndButton
+class CWndButton : public CWndBase
 {
 public:
 	CWndButton(void);

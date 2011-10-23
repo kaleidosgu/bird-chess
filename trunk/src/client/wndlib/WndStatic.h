@@ -16,6 +16,7 @@ public:
 	void AddText( const char* pText );
 
 	float GetStringWidth( const char* pChar, bool bMulti );
+	void SetScale(float scale);
 private:
 	hgeFont*		m_pFont;
 	std::string		m_strText;

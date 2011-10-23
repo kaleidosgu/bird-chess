@@ -73,3 +73,11 @@ void CWndStatic::AddText( const char* pText )
 {
 	m_strText = m_strText + "\n" + pText ;
 }
+
+void CWndStatic::SetScale( float scale )
+{
+	if( m_pHgeFont )
+	{
+		m_pHgeFont->SetScale(scale);
+	}
+}

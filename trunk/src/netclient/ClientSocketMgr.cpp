@@ -1,6 +1,6 @@
 //#include <errno.h>
 
-#include <zlib.h>
+//#include <zlib.h>
 #include "ClientSocketMgr.h"
 #include "../net/systemmsg.h"
 #include "../net/socketutil.h"
@@ -93,6 +93,7 @@ bool CClientSocketMgr::_AddRecvData(const unsigned char * pData, int nLen)
 }
 bool CClientSocketMgr::_DisposeRecvMsg(const MSG_BASE & rMsg)
 {
+	/*
     switch (rMsg.nMsg)
     {
         case MSGID_SYSTEM_S2C_SecretKey:
@@ -247,6 +248,7 @@ bool CClientSocketMgr::_DisposeRecvMsg(const MSG_BASE & rMsg)
             _AddRecvMsg(rMsg);
             break;
     }
+	*/
 	return true;
 }
 
@@ -710,13 +712,15 @@ bool CClientSocketMgr::_EncryptDataToSend(const unsigned char * pData, int nLen)
 
 bool CClientSocketMgr::_CompressDataToSend(const unsigned char * pData, int nLen)
 {
+	/*
 	unsigned long nNewLen = compressBound(nLen);
 	//ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_BOUND);
 
     MSG_SYSTEM_Compressed * pCompressedMsg = CreateDynamicLengthMsg(nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1, (MSG_SYSTEM_Compressed *)0);
     pCompressedMsg->nCheckSum = net::CheckSum(pData, nLen);
     int nRet = compress(pCompressedMsg->data, &nNewLen, pData, nLen);
-    if (nRet == Z_OK)
+    //if (nRet == Z_OK)
+	if (nRet == 1)
     {
         pCompressedMsg->nSize = nNewLen + sizeof(MSG_SYSTEM_Compressed) - 1;
         pCompressedMsg->nSrcDataSize = nLen;
@@ -752,9 +756,12 @@ bool CClientSocketMgr::_CompressDataToSend(const unsigned char * pData, int nLen
         //}
     }
     //return true;
+	*/
+	return true;
 }
 bool CClientSocketMgr::_CompressAndEncryptDataToSend(const unsigned char * pData, int nLen)
 {
+	/*
 	unsigned long nNewLen = compressBound(nLen);
 	//ASSERT(nNewLen <= cMAX_COMPRESSED_DATA_SIZE_BOUND);
 
@@ -776,6 +783,8 @@ bool CClientSocketMgr::_CompressAndEncryptDataToSend(const unsigned char * pData
 
 		return _EncryptDataToSend(pData, nLen);
 	}
+	*/
+	return true;
 }
 
 bool CClientSocketMgr::_DisposeSendBuffer(unsigned char * pData, int nLen)
