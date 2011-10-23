@@ -47,7 +47,7 @@ void CWndLoadPicture::ResetRes( const char* pPath, bool bDrawSprite, int ptDrawX
 	{
 		m_Texture = m_pDevice->hge->Texture_Load( pPath );
 
-		if( bDrawSprite )
+		if( bDrawSprite || (m_Texture == 0) )
 		{
 			cx		= ptDrawW;
 			cy		= ptDrawH;

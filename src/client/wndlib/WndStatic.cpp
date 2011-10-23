@@ -13,6 +13,10 @@ CWndStatic::~CWndStatic(void)
 
 void CWndStatic::OnDraw()
 {
+	if (!IsVisible())
+	{
+		return;
+	}
 	CWndBase::OnDraw();
  	m_pFont->SetColor(m_crColor);
  	m_pFont->Render(m_rcAbsWnd.left,m_rcAbsWnd.top,m_nAlign,m_strText.c_str());
