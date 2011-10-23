@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/17/11 14:49:39.
+** Generated automatically by tolua++-1.0.92 on 10/23/11 15:55:17.
 */
 
 #ifndef __cplusplus
@@ -1679,6 +1679,39 @@ static int tolua_WndLibExport_CWndStatic_AddText00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: SetScale of class  CWndStatic */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndStatic_SetScale00
+static int tolua_WndLibExport_CWndStatic_SetScale00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndStatic",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndStatic* self = (CWndStatic*)  tolua_tousertype(tolua_S,1,0);
+  float scale = ((float)  tolua_tonumber(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetScale'", NULL);
+#endif
+  {
+   self->SetScale(scale);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetScale'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndEdit */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndEdit_new00
 static int tolua_WndLibExport_CWndEdit_new00(lua_State* tolua_S)
@@ -2317,9 +2350,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_variable(tolua_S,"m_bDrawBox",tolua_get_CWndBase_m_bDrawBox,tolua_set_CWndBase_m_bDrawBox);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndPicture","CWndPicture","",tolua_collect_CWndPicture);
+  tolua_cclass(tolua_S,"CWndPicture","CWndPicture","CWndBase",tolua_collect_CWndPicture);
   #else
-  tolua_cclass(tolua_S,"CWndPicture","CWndPicture","",NULL);
+  tolua_cclass(tolua_S,"CWndPicture","CWndPicture","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CWndPicture");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CWndPicture_new00);
@@ -2329,9 +2362,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"Create",tolua_WndLibExport_CWndPicture_Create00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","",tolua_collect_CWndDesktop);
+  tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","CWndBase",tolua_collect_CWndDesktop);
   #else
-  tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","",NULL);
+  tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CWndDesktop");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CWndDesktop_new00);
@@ -2340,9 +2373,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"delete",tolua_WndLibExport_CWndDesktop_delete00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CUIExportWndBase","CUIExportWndBase","",tolua_collect_CUIExportWndBase);
+  tolua_cclass(tolua_S,"CUIExportWndBase","CUIExportWndBase","CWndBase",tolua_collect_CUIExportWndBase);
   #else
-  tolua_cclass(tolua_S,"CUIExportWndBase","CUIExportWndBase","",NULL);
+  tolua_cclass(tolua_S,"CUIExportWndBase","CUIExportWndBase","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CUIExportWndBase");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CUIExportWndBase_new00);
@@ -2354,9 +2387,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetPath",tolua_WndLibExport_CUIExportWndBase_SetPath00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndLoadPicture","CWndLoadPicture","",tolua_collect_CWndLoadPicture);
+  tolua_cclass(tolua_S,"CWndLoadPicture","CWndLoadPicture","CWndBase",tolua_collect_CWndLoadPicture);
   #else
-  tolua_cclass(tolua_S,"CWndLoadPicture","CWndLoadPicture","",NULL);
+  tolua_cclass(tolua_S,"CWndLoadPicture","CWndLoadPicture","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CWndLoadPicture");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CWndLoadPicture_new00);
@@ -2368,9 +2401,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetFlip",tolua_WndLibExport_CWndLoadPicture_SetFlip00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndStatic","CWndStatic","",tolua_collect_CWndStatic);
+  tolua_cclass(tolua_S,"CWndStatic","CWndStatic","CWndBase",tolua_collect_CWndStatic);
   #else
-  tolua_cclass(tolua_S,"CWndStatic","CWndStatic","",NULL);
+  tolua_cclass(tolua_S,"CWndStatic","CWndStatic","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CWndStatic");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CWndStatic_new00);
@@ -2383,11 +2416,12 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"GetText",tolua_WndLibExport_CWndStatic_GetText00);
    tolua_function(tolua_S,"GetStringWidth",tolua_WndLibExport_CWndStatic_GetStringWidth00);
    tolua_function(tolua_S,"AddText",tolua_WndLibExport_CWndStatic_AddText00);
+   tolua_function(tolua_S,"SetScale",tolua_WndLibExport_CWndStatic_SetScale00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndEdit","CWndEdit","",tolua_collect_CWndEdit);
+  tolua_cclass(tolua_S,"CWndEdit","CWndEdit","CWndBase",tolua_collect_CWndEdit);
   #else
-  tolua_cclass(tolua_S,"CWndEdit","CWndEdit","",NULL);
+  tolua_cclass(tolua_S,"CWndEdit","CWndEdit","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CWndEdit");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CWndEdit_new00);
@@ -2402,9 +2436,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetMask",tolua_WndLibExport_CWndEdit_SetMask00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndButton","CWndButton","",tolua_collect_CWndButton);
+  tolua_cclass(tolua_S,"CWndButton","CWndButton","CWndBase",tolua_collect_CWndButton);
   #else
-  tolua_cclass(tolua_S,"CWndButton","CWndButton","",NULL);
+  tolua_cclass(tolua_S,"CWndButton","CWndButton","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CWndButton");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CWndButton_new00);

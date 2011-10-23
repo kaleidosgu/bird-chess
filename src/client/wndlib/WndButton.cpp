@@ -96,6 +96,13 @@ void CWndButton::SetBtnState( int nBtnState )
 			m_pPicture->ResetRes(m_strPath.c_str(),true,m_nDrawX,m_nDrawY,m_nDrawCX,m_nDrawCY);
 		}
 	}
+	
+	/*
+	if ( m_nBtnState != nBtnState )
+	{
+		m_pPicture->ResetRes(m_strPath.c_str(),true,0,378,33,34);
+	}
+	*/
 }
 
 void CWndButton::OnDraw()
