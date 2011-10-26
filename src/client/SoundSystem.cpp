@@ -44,6 +44,7 @@ SoundSystem::SoundSystem(void):m_pBg(NULL)
 
 	m_mapMusic[1] = m_pHge->Effect_Load("Res/GameSound/BGMusic.mp3");
 	m_mapMusic[2] = m_pHge->Effect_Load("Res/GameSound/ReadyBGMusic.mp3");
+	m_mapMusic[3] = m_pHge->Effect_Load("Res/GameSound/she_sailed_away.mp3");
 }
 
 SoundSystem::~SoundSystem(void)

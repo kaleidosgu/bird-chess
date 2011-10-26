@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 10/23/11 15:55:17.
+** Generated automatically by tolua++-1.0.92 on 10/26/11 10:39:46.
 */
 
 #ifndef __cplusplus
@@ -1157,6 +1157,74 @@ static int tolua_WndLibExport_CUIExportWndBase_SetPath00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'SetPath'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: Playsound of class  CUIExportWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CUIExportWndBase_Playsound00
+static int tolua_WndLibExport_CUIExportWndBase_Playsound00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CUIExportWndBase",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CUIExportWndBase* self = (CUIExportWndBase*)  tolua_tousertype(tolua_S,1,0);
+  int nID = ((int)  tolua_tonumber(tolua_S,2,0));
+  int nPer = ((int)  tolua_tonumber(tolua_S,3,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Playsound'", NULL);
+#endif
+  {
+   self->Playsound(nID,nPer);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Playsound'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: PlayMusic of class  CUIExportWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CUIExportWndBase_PlayMusic00
+static int tolua_WndLibExport_CUIExportWndBase_PlayMusic00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CUIExportWndBase",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CUIExportWndBase* self = (CUIExportWndBase*)  tolua_tousertype(tolua_S,1,0);
+  int nID = ((int)  tolua_tonumber(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'PlayMusic'", NULL);
+#endif
+  {
+   self->PlayMusic(nID);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'PlayMusic'.",&tolua_err);
  return 0;
 #endif
 }
@@ -2385,6 +2453,8 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"Create",tolua_WndLibExport_CUIExportWndBase_Create00);
    tolua_function(tolua_S,"SetScript",tolua_WndLibExport_CUIExportWndBase_SetScript00);
    tolua_function(tolua_S,"SetPath",tolua_WndLibExport_CUIExportWndBase_SetPath00);
+   tolua_function(tolua_S,"Playsound",tolua_WndLibExport_CUIExportWndBase_Playsound00);
+   tolua_function(tolua_S,"PlayMusic",tolua_WndLibExport_CUIExportWndBase_PlayMusic00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndLoadPicture","CWndLoadPicture","CWndBase",tolua_collect_CWndLoadPicture);
