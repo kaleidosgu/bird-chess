@@ -3,6 +3,7 @@
 #include <hge.h>
 #include "UIDefine/UILuaScriptDefine.h"
 #include "../wndlib/wnddatadefine.h"
+#include "../SoundSystem.h"
 CUIExportWndBase::CUIExportWndBase(void)
 :m_pState(NULL),m_nCurTime(0)
 {
@@ -184,4 +185,14 @@ int CUIExportWndBase::OnWndMessage( const int& nUIEvent, const int& nID )
 void CUIExportWndBase::SetPath( const char* pChar )
 {
 	m_strPath = pChar;
+}
+
+void CUIExportWndBase::Playsound( int nID, int nPer )
+{
+	SoundSystem::Instance().PlaySound(nID,nPer);
+}
+
+void CUIExportWndBase::PlayMusic( int nID )
+{
+	SoundSystem::Instance().PlayMusic(nID);
 }

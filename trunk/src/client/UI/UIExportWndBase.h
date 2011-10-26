@@ -20,6 +20,8 @@ public:
 	virtual bool Destroy();
 	int m_nCurTime;
 	void SetPath( const char* pChar );
+	void Playsound( int nID, int nPer );
+	void PlayMusic( int nID);
 private:
 	bool _IsUIEventExist( int& nCallIndex, const char* pChar );
 private:

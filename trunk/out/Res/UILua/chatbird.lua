@@ -8,17 +8,18 @@ local function OnMessage(self,nUIEvent,nDlgID)
 		if nDlgID == 115 then
 			--consoleAddText("btnClick")
 			--self.fly = (not self.fly)
-			local bShow = self.pWndBirdChat:IsVisible()
-			if bShow == true then
-				self.pWndBirdChat:ShowWindow(false)
-				keyres = WND_RESULT_YES
-			else
-				self.pWndBirdChat:ShowWindow(true)
-				keyres = WND_RESULT_YES
+			-- local bShow = self.pWndBirdChat:IsVisible()
+			-- if bShow == true then
+				-- self.pWndBirdChat:ShowWindow(false)
+				-- keyres = WND_RESULT_YES
+			-- else
+				-- self.pWndBirdChat:ShowWindow(true)
+				-- keyres = WND_RESULT_YES
 				
-				local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
-				bseEdit:SetFocus(bseEdit)
-			end
+				-- local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
+				-- bseEdit:SetFocus(bseEdit)
+			-- end
+			-- self:PlayMusic(3)
 		end
 	elseif nUIEvent == WND_ONCHAR then
 		if nDlgID == 333 then
@@ -31,10 +32,25 @@ local function OnMessage(self,nUIEvent,nDlgID)
 end
 --consoleAddText
 local function OnUpdate(self,e)
+	if self.playmusic == false then
+		self.tickTime = self.tickTime + e
+		if self.tickTime > 2 then
+			-- consoleClear()
+			consoleAddText(self.tickCount )
+			local ltime = os.time(os.date("*t"))
+			if ltime >= self.tmpTime then
+				self:PlayMusic(3)
+				self.playmusic = true
+			end
+			self.tickTime = 0
+		end
+	end
 	if self.fly == true then
 		self.tickCount = self.tickCount + e
 		--consoleAddText(tostring(self.tickCount))
 		if self.tickCount > 0.0001 then
+			consoleClear()
+			consoleAddText(self.tickCount )
 			self.tickCount = self.tickCount - 0.0001
 			local x = self.ptReturnbse:GetClientPos().x
 			local y = 0
@@ -70,13 +86,15 @@ function createTmpUI(strFile)
 		local ptReturnbse = basewnd.toObject(ptReturn,"CWndBase")
 		local pChatBird = CWndButton:new();
 		pChatBird:Create(0,0,0,0,"res/pic/EntityPic.png",ptReturnbse,115);		
-		pChatBird:AddRes(0,378,33,34)
-		pChatBird:AddRes(0,410,33,34)
-		pChatBird:AddRes(0,505,33,34)
-		pChatBird:AddRes(0,543,33,34)
+		pChatBird:AddRes(0,378,33,33)
+		pChatBird:AddRes(0,410,33,33)
+		pChatBird:AddRes(0,505,33,33)
+		pChatBird:AddRes(0,543,33,33)
 		
 		ptReturn.ptReturnbse = ptReturnbse
 		ptReturn.tickCount = 0
+		ptReturn.tickTime = 0
+		ptReturn.playmusic = false
 		ptReturn.bsey = ptReturnbse:GetClientPos().y
 		regEvent(ptReturn)
 		ptReturn.fly = false
@@ -95,6 +113,9 @@ function createTmpUI(strFile)
 		ptReturn.stEdit = stEdit
 		stEdit:SetNotifyParent(true)
 		stEdit:SetText("")
+		local tmpt = os.date("*t")
+		tmpt.min = tmpt.min + 1
+		ptReturn.tmpTime = os.time(tmpt)
 	end
 	ptReturn.myindex = 1
 end
