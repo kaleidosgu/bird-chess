@@ -5,6 +5,8 @@
 #include <WinSock2.h>
 #include <string>
 #include <list>
+#include "../base/rsa.h"
+#include "../base/rc4.h"
 
 #ifndef UM_MSG
 #define UM_MSG (WM_USER + 1023)
@@ -89,6 +91,10 @@ namespace clinetnet
 		DWORD m_nSendThreadID;
 		HANDLE m_hRecvThread;
 		DWORD m_nRecvThreadID;
+                CRSA m_ClientRSA;
+                CRSA m_ServerRSA;
+                CRC4 m_EncryptRC4;
+                CRC4 m_DecryptRC4;
     };
 
 }
