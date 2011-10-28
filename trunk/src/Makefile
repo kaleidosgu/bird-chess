@@ -57,10 +57,10 @@
 ##==========================================================================
 
 # The pre-processor and compiler options.
-MY_CFLAGS =
+MY_CFLAGS = -I /usr/local/ssl/include
 
 # The linker options.
-MY_LIBS   = -L /usr/lib/mysql/ -lpthread -lmysqlclient
+MY_LIBS   = -L /usr/local/ssl/lib/ -L /usr/lib/mysql/ -lpthread -lmysqlclient -lcrypto
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall -g

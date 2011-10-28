@@ -7,7 +7,7 @@
 const unsigned short MSGID_TYPE_SYSTEM                    = 0x0000;
 //const unsigned short MSGID_SYSTEM_SocketConnectSuccess    = 0x0001;
 const unsigned short MSGID_SYSTEM_ClientPublicKey         = 0x0002;
-const unsigned short MSGID_SYSTEM_C2S_SecretKey           = 0x0003;
+//const unsigned short MSGID_SYSTEM_C2S_SecretKey           = 0x0003;
 const unsigned short MSGID_SYSTEM_S2C_SecretKey           = 0x0004;
 const unsigned short MSGID_SYSTEM_S2C_UpdateSecretKey     = 0x0005;
 const unsigned short MSGID_SYSTEM_ConnectSuccess          = 0x0006;
@@ -32,39 +32,36 @@ struct MSG_SYSTEM_SocketConnectSuccess : public MSG_BASE
 };
 */
 
-const unsigned int cMAX_CLIENT_PUBLIC_KEY_LEN = 512;
+const unsigned int cMAX_ENCRYPTED_PUBLIC_KEY_LEN = 64;
+const unsigned int cMAX_HALF_OF_PUBLIC_KEY_LEN = 48;
 struct MSG_SYSTEM_ClientPublicKey : public MSG_BASE
 {
     MSG_SYSTEM_ClientPublicKey()
     {
         nMsg = MSGID_SYSTEM_ClientPublicKey;
         nSize = sizeof(MSG_SYSTEM_ClientPublicKey);
-        memset(key, 0, cMAX_CLIENT_PUBLIC_KEY_LEN);
+        nSrcKeySize1 = 0;
+        memset(key1, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
+        nSrcKeySize2 = 0;
+        memset(key2, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
     }
-    char key[cMAX_CLIENT_PUBLIC_KEY_LEN];
+    unsigned int nSrcKeySize1;
+    unsigned char key1[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
+    unsigned int nSrcKeySize2;
+    unsigned char key2[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
 };
 
-const unsigned int cMAX_SECRETKEY_LEN = 16;
-struct MSG_SYSTEM_C2S_SecretKey : public MSG_BASE
-{
-    MSG_SYSTEM_C2S_SecretKey()
-    {
-        nMsg = MSGID_SYSTEM_C2S_SecretKey;
-        nSize = sizeof(MSG_SYSTEM_C2S_SecretKey);
-        memset(key, 0, cMAX_SECRETKEY_LEN);
-    }
-    char key[cMAX_SECRETKEY_LEN];
-};
-
+const unsigned int cSECRET_KEY_LEN = 4;
+const unsigned int cENCRYPTED_SECRET_KEY_LEN = 128;
 struct MSG_SYSTEM_S2C_SecretKey : public MSG_BASE
 {
     MSG_SYSTEM_S2C_SecretKey()
     {
         nMsg = MSGID_SYSTEM_S2C_SecretKey;
         nSize = sizeof(MSG_SYSTEM_S2C_SecretKey);
-        memset(key, 0, cMAX_SECRETKEY_LEN);
+        memset(key, 0, cENCRYPTED_SECRET_KEY_LEN);
     }
-    char key[cMAX_SECRETKEY_LEN];
+    unsigned char key[cENCRYPTED_SECRET_KEY_LEN];
 };
 
 struct MSG_SYSTEM_S2C_UpdateSecretKey : public MSG_BASE
@@ -73,9 +70,9 @@ struct MSG_SYSTEM_S2C_UpdateSecretKey : public MSG_BASE
     {
         nMsg = MSGID_SYSTEM_S2C_UpdateSecretKey;
         nSize = sizeof(MSG_SYSTEM_S2C_UpdateSecretKey);
-        memset(key, 0, cMAX_SECRETKEY_LEN);
+        memset(key, 0, cENCRYPTED_SECRET_KEY_LEN);
     }
-    char key[cMAX_SECRETKEY_LEN];
+    unsigned char key[cENCRYPTED_SECRET_KEY_LEN];
 };
 
 struct MSG_SYSTEM_ConnectSuccess : public MSG_BASE

@@ -62,6 +62,8 @@ CSocketMgr::CSocketMgr()
     m_bCompress = false;
     memset(m_SendDataBuffer, 0, cMAX_SEND_DATA_BUFFER_SIZE);
     memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
+
+    m_ServerRSA.InitKey();
 }
 
 CSocketMgr::~CSocketMgr()

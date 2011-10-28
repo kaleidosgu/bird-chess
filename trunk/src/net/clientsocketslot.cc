@@ -31,15 +31,6 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
         WriteLog(LEVEL_WARNING, "CClientSocketSlot::OnConnect. Send client public key failed.\n");
     }
 
-    _GenerateSecretKey();
-    // TODO : Encrypt
-
-    MSG_SYSTEM_C2S_SecretKey * pSKMsg = new MSG_SYSTEM_C2S_SecretKey();
-    if (!_SendMsgDirectly(pSKMsg))
-    {
-        WriteLog(LEVEL_WARNING, "CClientSocketSlot::OnConnect. Send secret key failed.\n");
-    }
-
     /*
     // Add SocketConnectSuccessMsg to Recv queue
     MSG_SYSTEM_SocketConnectSuccess * pSCSMsg = new MSG_SYSTEM_SocketConnectSuccess();

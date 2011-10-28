@@ -3,6 +3,7 @@
 
 #include "../base/thread.h"
 #include "../base/loopqueue.h"
+#include "../base/rsa.h"
 #include "socketslot.h"
 #include "recvdataelement.h"
 //#include "recvdataelementqueue.h"
@@ -82,6 +83,8 @@ namespace net
 
         unsigned char m_SendDataBuffer[cMAX_SEND_DATA_BUFFER_SIZE];
         unsigned char m_UncompressBuffer[cMAX_COMPRESSED_DATA_SIZE];
+
+        CRSA m_ServerRSA;
     };
 
 }

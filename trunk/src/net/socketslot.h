@@ -4,6 +4,8 @@
 #include "msgbasic.h"
 #include "../base/mutex.h"
 #include "../base/loopqueue.h"
+#include "../base/rsa.h"
+#include "../base/rc4.h"
 #include "senddataelement.h"
 //#include "recvdataelementqueue.h"
 #include "recvdataelement.h"
@@ -122,10 +124,6 @@ namespace net
         bool _SetState(SocketState eSrcState, SocketState eDesState);
         bool _SetState(SocketState eSrcState, SocketState eDesState, int nReason);
 
-        char m_ClientPublicKey[cMAX_CLIENT_PUBLIC_KEY_LEN];
-        char m_EncryptKey[cMAX_SECRETKEY_LEN];
-        char m_DecryptKey[cMAX_SECRETKEY_LEN];
-
         int m_nFd;
         unsigned short m_nPort;
         in_addr m_addr;
@@ -180,6 +178,9 @@ namespace net
         // check alive
         time_t m_tLatestAliveTime;
         CSocketMgr * m_pSocketMgr;
+        CRSA m_ClientRSA;
+        CRC4 m_EncryptRC4;
+        CRC4 m_DecryptRC4;
     };
 
     class CSocketSlotMgr
