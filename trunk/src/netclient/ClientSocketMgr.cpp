@@ -7,18 +7,18 @@
 #include <time.h>
 
 using namespace clinetnet;
-void EncryptData(unsigned char * pData, unsigned int nLen)
+void CClientSocketMgr::EncryptData(unsigned char * pData, unsigned int nLen)
 {
     unsigned char szData[65535] = {0};
-    memcpy(szData, nLen, pData);
-    m_EncryptRC4(szData, nLen, pData);
+    memcpy(szData, pData, nLen);
+    m_EncryptRC4.Encrypt(szData, nLen, pData);
 }
 
-void DecryptData(unsigned char * pData, unsigned int nLen)
+void CClientSocketMgr::DecryptData(unsigned char * pData, unsigned int nLen)
 {
     unsigned char szData[65535] = {0};
-    memcpy(szData, nLen, pData);
-    m_DecryptRC4(szData, nLen, pData);
+    memcpy(szData, pData, nLen);
+    m_DecryptRC4.Decrypt(szData, nLen, pData);
 }
 
 CClientSocketMgr::CClientSocketMgr()
@@ -113,28 +113,30 @@ bool CClientSocketMgr::_DisposeRecvMsg(const MSG_BASE & rMsg)
             {
                 MSG_SYSTEM_S2C_SecretKey rSKMsg = (MSG_SYSTEM_S2C_SecretKey &)rMsg;
 
-                unsigned char szPublicKey1[64]
-                unsigned char szPublicKey2[64]
-                int nKeySize1 = m_ServerRSA.DecrypPublic(rSKMsg.key, 64, szPublicKey1);
+                unsigned char szPublicKey1[64];
+                unsigned char szPublicKey2[64];
+                int nKeySize1 = m_ServerRSA.PublicDecrypt(rSKMsg.key, 64, szPublicKey1);
                 if (nKeySize1 != 32)
                 {
                     return false;
                 }
-                int nKeySize2 = m_ServerRSA.DecrypPublic(rSKMsg.key + 64, 64, szPublicKey2);
+                int nKeySize2 = m_ServerRSA.PublicDecrypt(rSKMsg.key + 64, 64, szPublicKey2);
                 if (nKeySize2 != 32)
                 {
                     return false;
                 }
+                unsigned char szPublicKey[64];
+                memcpy(szPublicKey, szPublicKey1, 32);
+                memcpy(szPublicKey, szPublicKey2, 32);
                 unsigned char key[64];
-                memcpy(key, szPublicKey1, 32);
-                memcpy(key, szPublicKey2, 32);
-                int nKeySize = m_ClientRSA.DecryptPrivate(szPublicKey, 64, key);
+                int nKeySize = m_ClientRSA.PrivateDecrypt(szPublicKey, 64, key);
                 if (nKeySize != cSECRET_KEY_LEN)
                 {
                     return false;
                 }
 
-                m_RC4.RC4_Init(nSrcKeySize, key);
+				m_EncryptRC4.SetKey(key, nKeySize);
+				m_DecryptRC4.SetKey(key, nKeySize);
 
 
                 m_eSocketState = SocketState_Normal;
@@ -464,11 +466,10 @@ bool CClientSocketMgr::Reconnect()
         int nKeySize = m_ClientRSA.GetPublicKey(&pPublicKey);
         // ASSERT(nKeySize > cMAX_HALF_OF_PUBLIC_KEY_LEN);
         MSG_SYSTEM_ClientPublicKey * pCPKMsg = new MSG_SYSTEM_ClientPublicKey();
-        pCPKMsg.nSrcKeySize = nKeySize;
-        pCPKMsg.nSrcKeySize1 = cMAX_HALF_OF_PUBLIC_KEY_LEN;
-        m_ServerRSA.PublicEncrypt(pPublicKey, cMAX_HALF_OF_PUBLIC_KEY_LEN, pCPKMsg.szPublicKey1);
-        pCPKMsg.nSrcKeySize2 = nKeySize - cMAX_HALF_OF_PUBLIC_KEY_LEN;
-        m_ServerRSA.PublicEncrypt(pPublicKey + cMAX_HALF_OF_PUBLIC_KEY_LEN, nKeySize - cMAX_HALF_OF_PUBLIC_KEY_LEN, pCPKMsg.szPublicKey2);
+        pCPKMsg->nSrcKeySize1 = cMAX_HALF_OF_PUBLIC_KEY_LEN;
+        m_ServerRSA.PublicEncrypt(pPublicKey, cMAX_HALF_OF_PUBLIC_KEY_LEN, pCPKMsg->key1);
+        pCPKMsg->nSrcKeySize2 = nKeySize - cMAX_HALF_OF_PUBLIC_KEY_LEN;
+        m_ServerRSA.PublicEncrypt(pPublicKey + cMAX_HALF_OF_PUBLIC_KEY_LEN, nKeySize - cMAX_HALF_OF_PUBLIC_KEY_LEN, pCPKMsg->key2);
         _AddSendMsg(pCPKMsg);
         OPENSSL_free(pPublicKey);
 

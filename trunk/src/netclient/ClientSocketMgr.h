@@ -15,6 +15,7 @@
 const unsigned short cMAX_SEND_BUFFER_SIZE = cMAX_COMPRESSED_DATA_SIZE;
 const unsigned short cMAX_RECV_BUFFER_SIZE = cMAX_MSG_SIZE;
 using namespace std;
+using namespace base;
 
 namespace clinetnet
 {
@@ -59,6 +60,8 @@ namespace clinetnet
 		bool _CompressAndEncryptDataToSend(const unsigned char * pData, int nLen);
 		bool _DisposeSendBuffer(unsigned char * pData, int nLen);
 		
+		void EncryptData(unsigned char * pData, unsigned int nLen);
+		void DecryptData(unsigned char * pData, unsigned int nLen);
 
 		HWND m_hWndNotify;
         string m_strIP;
