@@ -999,7 +999,7 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
                 // get the client public key
                 MSG_SYSTEM_ClientPublicKey & rCPKMsg = (MSG_SYSTEM_ClientPublicKey &)rMsg;
                 //cMAX_HALF_OF_PUBLIC_KEY_LEN
-                unsigned char * szPublicKey = new unsigned char(rCPKMsg.nSrcKeySize1 + rCPKMsg.nSrcKeySize2);
+                unsigned char * szPublicKey = new unsigned char[rCPKMsg.nSrcKeySize1 + rCPKMsg.nSrcKeySize2];
                 unsigned char * pPublicKey1 = szPublicKey;
                 unsigned char * pPublicKey2 = szPublicKey + rCPKMsg.nSrcKeySize1;
                 int nSrcKeySize1 = m_pSocketMgr->m_ServerRSA.PrivateDecrypt(rCPKMsg.key1, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey1);
@@ -1008,7 +1008,7 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. rCPKMsg.nSrcKeySize1(%d) != nSrcKeySize1(%d).\n", m_nSlotIndex, rCPKMsg.nSrcKeySize1, nSrcKeySize1);
                     return false;
                 }
-                int nSrcKeySize2 = m_pSocketMgr->m_ServerRSA.PrivateDecrypt(rCPKMsg.key1, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey2);
+                int nSrcKeySize2 = m_pSocketMgr->m_ServerRSA.PrivateDecrypt(rCPKMsg.key2, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey2);
                 if (nSrcKeySize2 != rCPKMsg.nSrcKeySize2)
                 {
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. rCPKMsg.nSrcKeySize2(%d) != nSrcKeySize2(%d).\n", m_nSlotIndex, rCPKMsg.nSrcKeySize2, nSrcKeySize2);
