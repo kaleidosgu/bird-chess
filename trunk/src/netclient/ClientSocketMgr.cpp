@@ -127,7 +127,7 @@ bool CClientSocketMgr::_DisposeRecvMsg(const MSG_BASE & rMsg)
                 }
                 unsigned char szPublicKey[64];
                 memcpy(szPublicKey, szPublicKey1, 32);
-                memcpy(szPublicKey, szPublicKey2, 32);
+                memcpy(szPublicKey+32, szPublicKey2, 32);
                 unsigned char key[64];
                 int nKeySize = m_ClientRSA.PrivateDecrypt(szPublicKey, 64, key);
                 if (nKeySize != cSECRET_KEY_LEN)
