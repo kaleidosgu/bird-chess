@@ -141,6 +141,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
+				StringPooling="false"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -165,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="hge.lib hgehelp.lib"
+				AdditionalDependencies="hge.lib hgehelp.lib zlib1.lib libeay32.lib ssleay32.lib"
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -799,10 +800,6 @@
 		</Filter>
 		<File
 			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
-		<File
-			RelativePath=".\NetAdd\ClientSocketMgr.cpp"
 			>
 		</File>
 		<File
