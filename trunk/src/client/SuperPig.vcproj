@@ -166,7 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="hge.lib hgehelp.lib zlib1.lib libeay32.lib ssleay32.lib"
+				AdditionalDependencies="hge.lib hgehelp.lib zdll.lib libeay32.lib ssleay32.lib"
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
