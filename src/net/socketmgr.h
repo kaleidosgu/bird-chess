@@ -43,8 +43,8 @@ namespace net
 
     private:
         void _SendData();
-        bool _AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot);
-        bool _ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot);
+        //bool _AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot);
+        //bool _ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot);
         bool _InitServer();
         bool _AcceptConnection();
         bool _ProcessEpollEvent(struct epoll_event & rEv);

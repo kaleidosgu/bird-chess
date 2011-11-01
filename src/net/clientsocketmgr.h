@@ -4,6 +4,8 @@
 #include "msgbasic.h"
 #include "clientsocketslot.h"
 #include "socketmgr.h"
+#include "../base/rsa.h"
+#include "../base/rc4.h"
 
 using namespace base;
 
@@ -14,7 +16,7 @@ namespace net
     public:
         CClientSocketMgr();
         ~CClientSocketMgr();
-        bool Init(bool bGetMsgThreadSafety = false);
+        bool Init(bool bEncrypt = false, bool bCompress = false, bool bGetMsgThreadSafety = false);
         bool Connect(string strIP, unsigned short nPort);
         bool Reconnect();
         MSG_BASE * GetMsg();
@@ -23,8 +25,8 @@ namespace net
         bool IsDisconnected();
     private:
         virtual void Process();
-        bool _ModifyEvent(unsigned int nEvents, int nFd);
-        bool _AddEvent(int nFd, unsigned int nEvents);
+        //bool _ModifyEvent(unsigned int nEvents, int nFd);
+        //bool _AddEvent(int nFd, unsigned int nEvents);
 
         bool _InitClientSocketMgr();
         void _Pretreat(MSG_BASE * &pMsg);
@@ -45,6 +47,8 @@ namespace net
         Mutex m_MutextForGetMsg;
 
         bool m_bRunning;
+
+        CRSA m_ServerRSA;
     };
 
 }

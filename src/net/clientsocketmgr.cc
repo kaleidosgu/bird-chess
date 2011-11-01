@@ -16,11 +16,13 @@ const unsigned int cRECV_QUEUE_SIZE = 65536;
 using namespace net;
 using namespace base;
 
+extern bool ModifyEvent(int nEpollFd, unsigned int nEvents, CSocketSlot * pSocketSlot);
+extern bool AddEvent(int nEpollFd, unsigned int nEvents, int nFd, CSocketSlot * pSocketSlot);
+
 CClientSocketMgr::CClientSocketMgr()
 {
     m_bGetMsgThreadSafety = false;
     m_pRecvQueue = new LoopQueue< CRecvDataElement * >(cRECV_QUEUE_SIZE);
-    m_ClientSocketSlot.SetRecvQueue(m_pRecvQueue);
 
     // create epoll
     m_nEpollFd = epoll_create(cMAX_EPOLL_QUEUE_FOR_CLIENT);
@@ -29,12 +31,14 @@ CClientSocketMgr::CClientSocketMgr()
     m_nPort = 0;
     m_nFd = -1;
 
+    m_ServerRSA.InitKey();
 }
 
 CClientSocketMgr::~CClientSocketMgr()
 {
 }
 
+/*
 bool CClientSocketMgr::_ModifyEvent(unsigned int nEvents, int nFd)
 {
     struct epoll_event ev;
@@ -47,7 +51,9 @@ bool CClientSocketMgr::_ModifyEvent(unsigned int nEvents, int nFd)
     }
     return true;
 }
+*/
 
+/*
 bool CClientSocketMgr::_AddEvent(int nFd, unsigned int nEvents)
 {
     struct epoll_event ev;
@@ -60,11 +66,13 @@ bool CClientSocketMgr::_AddEvent(int nFd, unsigned int nEvents)
     }
     return true;
 }
+*/
 
-bool CClientSocketMgr::Init(bool bGetMsgThreadSafety)
+bool CClientSocketMgr::Init(bool bEncrypt, bool bCompress, bool bGetMsgThreadSafety)
 {
     bool bRes = true;
     m_bGetMsgThreadSafety = bGetMsgThreadSafety;
+    m_ClientSocketSlot.Init(&m_ServerRSA, bEncrypt, bCompress, m_pRecvQueue);
     return bRes;
 }
 
@@ -103,7 +111,8 @@ bool CClientSocketMgr::Reconnect()
     }
     else
     {
-        if (!_AddEvent(m_nFd, EPOLLIN | EPOLLRDHUP | EPOLLET))
+        //if (!_AddEvent(m_nFd, EPOLLIN | EPOLLRDHUP | EPOLLET))
+        if (!AddEvent(m_nEpollFd, EPOLLIN | EPOLLRDHUP | EPOLLET, m_nFd, &m_ClientSocketSlot))
         {
             WriteLog(LEVEL_ERROR, "epoll add event failed. fd=%d.\n", m_nFd);
             close(m_nFd);
@@ -223,7 +232,8 @@ void CClientSocketMgr::Disconnect()
     if (m_ClientSocketSlot.GetState() == SocketState_Normal)
     {
         m_ClientSocketSlot.Disconnect(DisconnectReason_Unkown);
-        _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+        //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+        ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, &m_ClientSocketSlot);
     }
     else
     {
@@ -256,7 +266,7 @@ void CClientSocketMgr::Process()
         }
         for(int i = 0; i < nfds; ++i)
         {
-            if(events[i].data.fd == m_nFd)
+            if(events[i].data.ptr == &m_ClientSocketSlot)
             {
                 _ProcessEpollEvent(events[i].events);
             }
@@ -270,7 +280,8 @@ void CClientSocketMgr::Process()
             {
                 if (m_ClientSocketSlot.GetState() == SocketState_Accepting || m_ClientSocketSlot.GetState() == SocketState_Normal)
                 {
-                    _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+                    //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+                    ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, &m_ClientSocketSlot);
                 }
             }
         }
@@ -339,7 +350,8 @@ bool CClientSocketMgr::_ProcessEpollEvent(unsigned int nEvents)
 
         if (m_ClientSocketSlot.SendData())
         {
-            _ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+            //_ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
+            ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLRDHUP | EPOLLET, &m_ClientSocketSlot);
         }
         else
         {

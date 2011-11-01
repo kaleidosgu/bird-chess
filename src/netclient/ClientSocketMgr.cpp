@@ -461,7 +461,7 @@ bool CClientSocketMgr::Reconnect()
         //MSG_SYSTEM_SocketConnectSuccess msg;
         //_AddRecvMsg(msg);
 
-        // TODO : Generate public key
+        // Generate public key
         unsigned char * pPublicKey = NULL;
         int nKeySize = m_ClientRSA.GetPublicKey(&pPublicKey);
         // ASSERT(nKeySize > cMAX_HALF_OF_PUBLIC_KEY_LEN);

@@ -21,6 +21,8 @@ const unsigned int cRECV_QUEUE_SIZE = 65536;
 using namespace net;
 
 extern bool SetNonBlocking(int nFd);
+extern bool ModifyEvent(int nEpollFd, unsigned int nEvents, CSocketSlot * pSocketSlot);
+extern bool AddEvent(int nEpollFd, unsigned int nEvents, int nFd, CSocketSlot * pSocketSlot);
 
 void SetFileLimit(unsigned int nMaxClient)
 {
@@ -76,6 +78,7 @@ CSocketMgr::~CSocketMgr()
     }
 }
 
+/*
 bool CSocketMgr::_AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot)
 {
     int nTmpFd = nFd;
@@ -97,7 +100,9 @@ bool CSocketMgr::_AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketS
     }
     return true;
 }
+*/
 
+/*
 bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
 {
     if (pSocketSlot == NULL)
@@ -115,6 +120,7 @@ bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
     }
     return true;
 }
+*/
 
 bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bEncrypt, bool bCompress, unsigned int nAliveCheckInterval, unsigned int nAliveTimeOut, bool bGetMsgThreadSafety)
 {
@@ -166,15 +172,16 @@ bool CSocketMgr::_InitServer()
        }
      */
 
+    // create epoll
+    m_nEpollFd = epoll_create(m_nMaxClient);
+
     //m_RecvQueue.Init(cRECV_QUEUE_SIZE);
     //m_RecvArray.Init(cRECV_QUEUE_SIZE);
     m_pRecvQueue = new LoopQueue< CRecvDataElement * >(cRECV_QUEUE_SIZE);
-    m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue, this, m_bEncrypt, m_bCompress, m_SendDataBuffer, m_UncompressBuffer);
+    //m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue, this, &m_ServerRSA, m_bEncrypt, m_bCompress, m_SendDataBuffer, m_UncompressBuffer);
+    m_SocketSlotMgr.Init(m_nMaxClient, m_pRecvQueue, m_nEpollFd, &m_ServerRSA, m_bEncrypt, m_bCompress, m_SendDataBuffer, m_UncompressBuffer);
 
     SetFileLimit(m_nMaxClient);
-
-    // create epoll
-    m_nEpollFd = epoll_create(m_nMaxClient);
 
     //socket
     struct sockaddr_in saServer;
@@ -202,7 +209,8 @@ bool CSocketMgr::_InitServer()
     saServer.sin_port = htons(m_nPort);
 
     // add listener fd to epoll
-    if (!_AddEvent(m_nListenerFd, EPOLLIN | EPOLLET | EPOLLRDHUP, NULL))
+    //if (!_AddEvent(m_nListenerFd, EPOLLIN | EPOLLET | EPOLLRDHUP, NULL))
+    if (!AddEvent(m_nEpollFd, EPOLLIN | EPOLLET | EPOLLRDHUP, m_nListenerFd, NULL))
     {
         WriteLog(LEVEL_ERROR, "Add Listener FD to Epoll Failed. FD=%d.\n", m_nListenerFd);
         return false;
@@ -241,7 +249,8 @@ void CSocketMgr::_SendData()
                 if (pSocketSlot->GetState() == SocketState_Accepting || pSocketSlot->GetState() == SocketState_Normal)
                 {
                     WriteLog(LEVEL_DEBUG, "The system buffer is full. SlotIndex=%d.\n", pSocketSlot->GetSlotIndex());
-                    _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                    //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                    ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
                 }
             }
             /*
@@ -347,7 +356,8 @@ bool CSocketMgr::_AcceptConnection()
     pFreeSlot->OnAccept(nConnectFd, saClient);
 
     // add new fd to epoll
-    if (!_AddEvent(nConnectFd, EPOLLIN | EPOLLRDHUP | EPOLLET, pFreeSlot))
+    //if (!_AddEvent(nConnectFd, EPOLLIN | EPOLLRDHUP | EPOLLET, pFreeSlot))
+    if (!AddEvent(m_nEpollFd, EPOLLIN | EPOLLRDHUP | EPOLLET, nConnectFd, pFreeSlot))
     {
         WriteLog(LEVEL_ERROR, "epoll add event failed. fd=%d.\n", nConnectFd);
         m_SocketSlotMgr.ReleaseSlot(*pFreeSlot);
@@ -417,7 +427,8 @@ bool CSocketMgr::_ProcessEpollEvent(struct epoll_event & rEv)
 
         if (pSocketSlot->SendData())
         {
-            _ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, pSocketSlot);
+            //_ModifyEvent(EPOLLIN | EPOLLRDHUP | EPOLLET, pSocketSlot);
+            ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLRDHUP | EPOLLET, pSocketSlot);
         }
         else
         {
@@ -533,7 +544,8 @@ void CSocketMgr::_CheckAlive()
                     if (tNow - pSocketSlot->GetLatestAliveTime() > (int)m_nAliveTimeOut)
                     {
                         pSocketSlot->Disconnect(DisconnectReason_AliveTimeOut);
-                        _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                        //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                        ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
                         pSocketSlot = NULL;
                         continue;
                     }
@@ -656,7 +668,8 @@ void CSocketMgr::DisconnectClient(unsigned int nSlotIndex, int nDisconnectReason
         if (pSocketSlot->GetState() == SocketState_Normal)
         {
             pSocketSlot->Disconnect(nDisconnectReason);
-            _ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+            //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+            ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
         }
     }
     else

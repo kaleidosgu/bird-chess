@@ -34,6 +34,46 @@ bool net::SetNonBlocking(int nFd)
     return true;
 }
 
+bool net::AddEvent(int nEpollFd, unsigned int nEvents, int nFd, CSocketSlot * pSocketSlot)
+{
+    int nTmpFd = nFd;
+    struct epoll_event ev;
+    ev.events = nEvents;
+    if (pSocketSlot != NULL)
+    {
+        ev.data.ptr = pSocketSlot;
+        nTmpFd = pSocketSlot->GetFd();
+    }
+    else
+    {
+        ev.data.fd = nFd;
+    }
+    if (epoll_ctl(nEpollFd, EPOLL_CTL_ADD, nTmpFd, &ev) < 0)
+    {
+        WriteLog(LEVEL_ERROR, "epoll add event failed: fd=%d.\n", nTmpFd);
+        return false;
+    }
+    return true;
+}
+
+bool net::ModifyEvent(int nEpollFd, unsigned int nEvents, CSocketSlot * pSocketSlot)
+{
+    if (pSocketSlot == NULL)
+    {
+        WriteLog(LEVEL_ERROR, "epoll set modification failed. pSocketSlot == NULL.\n");
+        return false;
+    }
+    struct epoll_event ev;
+    ev.events = nEvents;
+    ev.data.ptr = pSocketSlot;
+    if (epoll_ctl(nEpollFd, EPOLL_CTL_MOD, pSocketSlot->GetFd(), &ev) < 0)
+    {
+        WriteLog(LEVEL_ERROR, "epoll set modification failed: fd=%d.\n", pSocketSlot->GetFd());
+        return false;
+    }
+    return true;
+}
+
 CSocketSlot::CSocketSlot() :
     m_SendQueue(cSEND_QUEUE_SIZE)
 {
@@ -57,7 +97,8 @@ CSocketSlot::CSocketSlot() :
     m_State = SocketState_Closed;
     m_pLastBuffer = &m_RecvBuffer[cMAX_RECV_BUFFER_SIZE - cMAX_MSG_SIZE];
     m_tLatestAliveTime = time(NULL);
-    m_pSocketMgr = NULL;
+    //m_pSocketMgr = NULL;
+    m_nEpollFd = -1;
     m_pRecvQueue = NULL;
     m_bEncrypt = false;
     m_bCompress = false;
@@ -688,8 +729,15 @@ bool CSocketSlot::_SendMsgDirectly(MSG_BASE * pMsg)
         if (m_State == SocketState_Accepting || m_State == SocketState_Normal)
         {
             // Modify event
+            /*
+            if (m_pSocketMgr)
+            {
+                WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_SendMsgDirectly. The system buffer is full.\n", m_nSlotIndex);
+                m_pSocketMgr->_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
+            }
+            */
             WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_SendMsgDirectly. The system buffer is full.\n", m_nSlotIndex);
-            m_pSocketMgr->_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
+            ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
         }
         else
         {
@@ -1002,13 +1050,13 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
                 unsigned char * szPublicKey = new unsigned char[rCPKMsg.nSrcKeySize1 + rCPKMsg.nSrcKeySize2];
                 unsigned char * pPublicKey1 = szPublicKey;
                 unsigned char * pPublicKey2 = szPublicKey + rCPKMsg.nSrcKeySize1;
-                int nSrcKeySize1 = m_pSocketMgr->m_ServerRSA.PrivateDecrypt(rCPKMsg.key1, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey1);
+                int nSrcKeySize1 = m_pServerRSA->PrivateDecrypt(rCPKMsg.key1, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey1);
                 if (nSrcKeySize1 != rCPKMsg.nSrcKeySize1)
                 {
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. rCPKMsg.nSrcKeySize1(%d) != nSrcKeySize1(%d).\n", m_nSlotIndex, rCPKMsg.nSrcKeySize1, nSrcKeySize1);
                     return false;
                 }
-                int nSrcKeySize2 = m_pSocketMgr->m_ServerRSA.PrivateDecrypt(rCPKMsg.key2, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey2);
+                int nSrcKeySize2 = m_pServerRSA->PrivateDecrypt(rCPKMsg.key2, cMAX_ENCRYPTED_PUBLIC_KEY_LEN, pPublicKey2);
                 if (nSrcKeySize2 != rCPKMsg.nSrcKeySize2)
                 {
                     WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_DisposeRecvMsg. rCPKMsg.nSrcKeySize2(%d) != nSrcKeySize2(%d).\n", m_nSlotIndex, rCPKMsg.nSrcKeySize2, nSrcKeySize2);
@@ -1033,10 +1081,10 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
                 WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_DisposeRecvMsg. nCEKeySize=%d.\n", m_nSlotIndex, nCEKeySize);
                 ASSERT(nCEKeySize == 64);
                 unsigned char szSEKey[128];
-                int nSEKeySize1 = m_pSocketMgr->m_ServerRSA.PrivateEncrypt(szCEKey, 32, szSEKey);
+                int nSEKeySize1 = m_pServerRSA->PrivateEncrypt(szCEKey, 32, szSEKey);
                 WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_DisposeRecvMsg. nSEKeySize1=%d.\n", m_nSlotIndex, nSEKeySize1);
                 ASSERT(nSEKeySize1 == 64);
-                int nSEKeySize2 = m_pSocketMgr->m_ServerRSA.PrivateEncrypt(szCEKey + 32, 32, szSEKey+64);
+                int nSEKeySize2 = m_pServerRSA->PrivateEncrypt(szCEKey + 32, 32, szSEKey+64);
                 WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_DisposeRecvMsg. nSEKeySize2=%d.\n", m_nSlotIndex, nSEKeySize2);
                 ASSERT(nSEKeySize2 == 64);
 
@@ -1340,18 +1388,21 @@ CSocketSlotMgr::~CSocketSlotMgr()
     m_pFreeSlot = NULL;
 }
 
-bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer)
+//bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr, CRSA * pServerRSA, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer)
+bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, int nEpollFd, CRSA * pServerRSA, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer)
 {
     if (!pRecvQueue)
     {
         WriteLog(LEVEL_ERROR, "CSocketSlotMgr::Init. Receive queue is NULL.\n");
         return false;
     }
+    /*
     if (!pSocketMgr)
     {
         WriteLog(LEVEL_ERROR, "CSocketSlotMgr::Init. pSocketMgr is NULL.\n");
         return false;
     }
+    */
     m_nMaxSlotNum = nMaxSlotNum;
     m_aSlot = new CSocketSlot[m_nMaxSlotNum];
     if (m_aSlot == NULL)
@@ -1364,7 +1415,9 @@ bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement 
         m_aSlot[i].m_next = m_pFreeSlot;
         m_aSlot[i]._SetSlotIndex(i);
         m_aSlot[i]._SetRecvQueue(pRecvQueue);
-        m_aSlot[i]._SetSocketMgr(pSocketMgr);
+        //m_aSlot[i]._SetSocketMgr(pSocketMgr);
+        m_aSlot[i]._SetEpollFd(nEpollFd);
+        m_aSlot[i]._SetServerRSA(pServerRSA);
         m_aSlot[i]._SetEncrypt(bEncrypt);
         m_aSlot[i]._SetCompress(bCompress);
         m_aSlot[i]._SetSendDataBuffer(pSendDataBuffer);
