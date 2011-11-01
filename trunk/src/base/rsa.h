@@ -7,7 +7,6 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <openssl/bn.h>
-#include <openssl/rsa.h>
 #include <string.h>
 
 #define PUBLIC_EXPONENT RSA_F4
