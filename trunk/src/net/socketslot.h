@@ -98,9 +98,19 @@ namespace net
         void _SetUncompressBuffer(unsigned char * pUncompressBuffer);
         void _SetSlotIndex(unsigned int nSlotIndex);
         void _SetRecvQueue(LoopQueue< CRecvDataElement * > * pRecvQueue);
+        /*
         void _SetSocketMgr(CSocketMgr * pSocketMgr)
         {
             m_pSocketMgr = pSocketMgr;
+        }
+        */
+        void _SetEpollFd(int nEpollFd)
+        {
+            m_nEpollFd = nEpollFd;
+        }
+        void _SetServerRSA(CRSA * pServerRSA)
+        {
+            m_pServerRSA = pServerRSA;
         }
         bool _SendMsgDirectly(MSG_BASE * pMsg);
         bool _AddMsgToWSQ(MSG_BASE * pMsg);
@@ -177,7 +187,9 @@ namespace net
 
         // check alive
         time_t m_tLatestAliveTime;
-        CSocketMgr * m_pSocketMgr;
+        //CSocketMgr * m_pSocketMgr;
+        int m_nEpollFd;
+        CRSA * m_pServerRSA;
         CRSA m_ClientRSA;
         CRC4 m_EncryptRC4;
         CRC4 m_DecryptRC4;
@@ -189,7 +201,8 @@ namespace net
         CSocketSlotMgr();
         ~CSocketSlotMgr();
 
-        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer);
+        //bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, CSocketMgr * pSocketMgr, CRSA * pServerRSA, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer);
+        bool Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement * > * pRecvQueue, int nEpollFd, CRSA * pServerRSA, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer);
         CSocketSlot * GetFreeSlot();
         bool ReleaseSlot(unsigned int nSlotIndex);
         bool ReleaseSlot(CSocketSlot & rSocketSlot);
@@ -207,6 +220,8 @@ namespace net
     };
 
     bool SetNonBlocking(int nFd);
+    bool ModifyEvent(int nEpollFd, unsigned int nEvents, CSocketSlot * pSocketSlot);
+    bool AddEvent(int nEpollFd, unsigned int nEvents, int nFd, CSocketSlot * pSocketSlot);
 
 }
 
