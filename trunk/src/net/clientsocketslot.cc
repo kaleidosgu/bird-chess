@@ -53,12 +53,15 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
      */
 }
 
-void CClientSocketSlot::Init(CRSA * pServerRSA, bool bEncrypt, bool bCompress, LoopQueue< CRecvDataElement * > * pRecvQueue)
+void CClientSocketSlot::Init(LoopQueue< CRecvDataElement * > * pRecvQueue, int nEpollFd, CRSA * pServerRSA, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer)
 {
+    _SetRecvQueue(pRecvQueue);
+    _SetEpollFd(nEpollFd);
     _SetServerRSA(pServerRSA);
     _SetEncrypt(bEncrypt);
     _SetCompress(bCompress);
-    _SetRecvQueue(pRecvQueue);
+    _SetSendDataBuffer(pSendDataBuffer);
+    _SetUncompressBuffer(pUncompressBuffer);
 }
 
 void CClientSocketSlot::Reset()

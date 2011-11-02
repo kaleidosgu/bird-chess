@@ -235,22 +235,18 @@ bool CSocketSlot::Close()
     WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::Close. State %d -> %d.\n", m_nSlotIndex, m_State, SocketState_Closed);
     m_State = SocketState_Closed;
     m_MutexForState.Unlock();
-    if (m_bConnectSuccess)
+    MSG_SYSTEM_Disconnect * pDisconnectMsg = new MSG_SYSTEM_Disconnect();
+    if (_AddRecvMsg(pDisconnectMsg))
     {
-        MSG_SYSTEM_Disconnect * pDisconnectMsg = new MSG_SYSTEM_Disconnect();
-        if (_AddRecvMsg(pDisconnectMsg))
-        {
-            return true;
-        }
-        else
-        {
-            WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::Close. Add Disconnect Msg Failed.\n");
-            delete pDisconnectMsg;
-            pDisconnectMsg = NULL;
-            return false;
-        }
+        return true;
     }
-    return true;
+    else
+    {
+        WriteLog(LEVEL_ERROR, "CSocketSlot(%d)::Close. Add Disconnect Msg Failed.\n");
+        delete pDisconnectMsg;
+        pDisconnectMsg = NULL;
+        return false;
+    }
 }
 
 void CSocketSlot::SetInSendQueue()
@@ -730,12 +726,12 @@ bool CSocketSlot::_SendMsgDirectly(MSG_BASE * pMsg)
         {
             // Modify event
             /*
-            if (m_pSocketMgr)
-            {
-                WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_SendMsgDirectly. The system buffer is full.\n", m_nSlotIndex);
-                m_pSocketMgr->_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
-            }
-            */
+               if (m_pSocketMgr)
+               {
+               WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_SendMsgDirectly. The system buffer is full.\n", m_nSlotIndex);
+               m_pSocketMgr->_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
+               }
+             */
             WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_SendMsgDirectly. The system buffer is full.\n", m_nSlotIndex);
             ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
         }
@@ -1397,12 +1393,12 @@ bool CSocketSlotMgr::Init(unsigned int nMaxSlotNum, LoopQueue< CRecvDataElement 
         return false;
     }
     /*
-    if (!pSocketMgr)
-    {
-        WriteLog(LEVEL_ERROR, "CSocketSlotMgr::Init. pSocketMgr is NULL.\n");
-        return false;
-    }
-    */
+       if (!pSocketMgr)
+       {
+       WriteLog(LEVEL_ERROR, "CSocketSlotMgr::Init. pSocketMgr is NULL.\n");
+       return false;
+       }
+     */
     m_nMaxSlotNum = nMaxSlotNum;
     m_aSlot = new CSocketSlot[m_nMaxSlotNum];
     if (m_aSlot == NULL)
