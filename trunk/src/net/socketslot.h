@@ -131,7 +131,7 @@ namespace net
         void _Pretreat(MSG_BASE * &pMsg);
         bool _AddRecvMsg(MSG_BASE * pMsg);
         //void _Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen);
-        void _GenerateSecretKey();
+        //void _GenerateSecretKey();
         bool _AddRecvData(const unsigned char * pData, int nLen);
         virtual bool _DisposeRecvMsg(MSG_BASE & rMsg);
         bool _DisposeRecvBuffer();

@@ -81,13 +81,6 @@ CSocketSlot::CSocketSlot() :
     m_nSlotIndex = 0;
     m_next = NULL;
 
-    /*
-       m_pBeginWSQ = &m_aWaintingSendQueue[0];
-       m_pEndWSQ = &m_aWaintingSendQueue[0];
-       m_pHeadWSQ = m_pBeginWSQ;
-       m_pTailWSQ = m_pBeginWSQ;
-     */
-
     m_pMsgCache = NULL;
     m_nSeek = 0;
 
@@ -353,50 +346,6 @@ bool CSocketSlot::_CompressDataToWSQ(const unsigned char * pData, int nLen)
         pCompressedMsg = NULL;
         return false;
     }
-    /*
-       else
-       {
-       WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CompressDataToWSQ. Compress error. nRet=%d, nLen=%lu, nNewLen=%lu.\n", m_nSlotIndex, nRet, nLen, nNewLen);
-       delete pCompressedMsg;
-       pCompressedMsg = NULL;
-
-    // if only one msg
-    const unsigned char * pHeader = pData;
-    MSG_BASE * pHeaderMsg = (MSG_BASE *)pHeader;
-    if (pHeaderMsg->nSize == nLen)
-    {
-    if (!_AddMsgToWSQ(pHeaderMsg))
-    {
-    return false;
-    }
-    else
-    {
-    rbNotDelete = true;
-    return true;
-    }
-    }
-
-    MSG_BASE * pMsg = NULL;
-    while (pHeader - pData < nLen)
-    {
-    pHeaderMsg = (MSG_BASE *)pHeader;
-    pMsg = CreateDynamicLengthMsg(pHeaderMsg->nSize, (MSG_BASE *)0);
-    if (!_AddMsgToWSQ(pMsg))
-    {
-    pMsg = NULL;
-    return false;
-    }
-    pMsg = NULL;
-    pHeader += pHeaderMsg->nSize;
-    }
-    if (pHeader - pData != nLen)
-    {
-    WriteLog(LEVEL_WARNING, "CSocketSlot(%d)::_CompressDataToWSQ. pData is error. pHeader=%p, pData=%p, nLen=%lu.\n", m_nSlotIndex, pHeader, pData, nLen);
-    return false;
-    }
-    }
-    return true;
-     */
 }
 bool CSocketSlot::_CompressAndEncryptDataToWSQ(const unsigned char * pData, int nLen)
 {
@@ -532,6 +481,20 @@ bool CSocketSlot::_DisposeSendQueue()
                     // need compress
                     if (m_bEncrypt)
                     {
+                        if (!_CompressAndEncryptDataToWSQ((unsigned char *)pFirstMsg, pFirstMsg->nSize))
+                        {
+                            if (!_EncryptDataToWSQ((unsigned char *)pFirstMsg, pFirstMsg->nSize))
+                            {
+                                delete pFirstMsg;
+                                pFirstMsg = NULL;
+                                return false;
+                            }
+                        }
+                        delete pFirstMsg;
+                        pFirstMsg = NULL;
+                    }
+                    else
+                    {
                         if (_CompressDataToWSQ((const unsigned char *)pFirstMsg, pFirstMsg->nSize))
                         {
                             if (!_AddMsgToWSQ(pFirstMsg))
@@ -545,20 +508,6 @@ bool CSocketSlot::_DisposeSendQueue()
                             delete pFirstMsg;
                             pFirstMsg = NULL;
                         }
-                    }
-                    else
-                    {
-                        if (!_CompressAndEncryptDataToWSQ((unsigned char *)pFirstMsg, pFirstMsg->nSize))
-                        {
-                            if (!_EncryptDataToWSQ((unsigned char *)pFirstMsg, pFirstMsg->nSize))
-                            {
-                                delete pFirstMsg;
-                                pFirstMsg = NULL;
-                                return false;
-                            }
-                        }
-                        delete pFirstMsg;
-                        pFirstMsg = NULL;
                     }
                 }
             }
@@ -992,12 +941,12 @@ bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
    void CSocketSlot::_Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen)
    {
    }
- */
 void CSocketSlot::_GenerateSecretKey()
 {
     //memcpy(m_EncryptKey, "kjkl!@#$ADFWQ$R%", cMAX_SECRETKEY_LEN);
 }
 
+ */
 bool CSocketSlot::_AddRecvData(const unsigned char * pData, int nLen)
 {
     const unsigned char * pHeader = pData;
@@ -1065,9 +1014,13 @@ bool CSocketSlot::_DisposeRecvMsg(MSG_BASE & rMsg)
                 pPublicKey1 = NULL;
                 pPublicKey2 = NULL;
 
-                //_GenerateSecretKey();
-                unsigned char szSecretKey[cSECRET_KEY_LEN + 1] = "no";
-                //_GenerateSecretKey(szSecretKey);
+                //Generate SecretKey
+                unsigned char szSecretKey[cSECRET_KEY_LEN + 1] = {0};
+                for (int i=0; i<cSECRET_KEY_LEN; i++)
+                {
+                    szSecretKey[i] = rand()%256;
+                }
+                szSecretKey[cSECRET_KEY_LEN] = '\0';
                 m_EncryptRC4.SetKey(szSecretKey, cSECRET_KEY_LEN);
                 m_DecryptRC4.SetKey(szSecretKey, cSECRET_KEY_LEN);
 

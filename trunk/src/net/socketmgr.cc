@@ -66,6 +66,7 @@ CSocketMgr::CSocketMgr()
     memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
 
     m_ServerRSA.InitKey();
+    srand(time(NULL)); // for rand the secret key.
 }
 
 CSocketMgr::~CSocketMgr()
