@@ -12,7 +12,7 @@ namespace net
         virtual ~CClientSocketSlot();
         void OnConnect(int nFd, const sockaddr_in &rSaClient);
         //void SetRecvQueue(CRecvDataElementQueue * pRecvQueue);
-        void Init(CRSA * pServerRSA, bool bEncrypt, bool bCompress, LoopQueue< CRecvDataElement * > * pRecvQueue);
+        void Init(LoopQueue< CRecvDataElement * > * pRecvQueue, int nEpollFd, CRSA * pServerRSA, bool bEncrypt, bool bCompress, unsigned char * pSendDataBuffer, unsigned char * pUncompressBuffer);
         void Reset();
         bool NeedSendData();
     protected:

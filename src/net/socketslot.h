@@ -87,6 +87,10 @@ namespace net
         {
             return m_tLatestAliveTime;
         }
+        bool IsConnectSuccess()
+        {
+            return m_bConnectSuccess;
+        }
 
     protected:
         CSocketSlot();

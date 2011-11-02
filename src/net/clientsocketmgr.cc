@@ -31,6 +31,9 @@ CClientSocketMgr::CClientSocketMgr()
     m_nPort = 0;
     m_nFd = -1;
 
+    memset(m_SendDataBuffer, 0, cMAX_SEND_DATA_BUFFER_SIZE);
+    memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
+
     m_ServerRSA.InitKey();
 }
 
@@ -72,7 +75,7 @@ bool CClientSocketMgr::Init(bool bEncrypt, bool bCompress, bool bGetMsgThreadSaf
 {
     bool bRes = true;
     m_bGetMsgThreadSafety = bGetMsgThreadSafety;
-    m_ClientSocketSlot.Init(&m_ServerRSA, bEncrypt, bCompress, m_pRecvQueue);
+    m_ClientSocketSlot.Init(m_pRecvQueue, m_nEpollFd, &m_ServerRSA, bEncrypt, bCompress, m_SendDataBuffer, m_UncompressBuffer);
     return bRes;
 }
 
@@ -111,15 +114,15 @@ bool CClientSocketMgr::Reconnect()
     }
     else
     {
+        m_ClientSocketSlot.OnConnect(m_nFd, sockAddr);
         //if (!_AddEvent(m_nFd, EPOLLIN | EPOLLRDHUP | EPOLLET))
         if (!AddEvent(m_nEpollFd, EPOLLIN | EPOLLRDHUP | EPOLLET, m_nFd, &m_ClientSocketSlot))
         {
-            WriteLog(LEVEL_ERROR, "epoll add event failed. fd=%d.\n", m_nFd);
+            WriteLog(LEVEL_ERROR, "CClientSocketMgr::Reconnect. epoll add event failed. fd=%d.\n", m_nFd);
             close(m_nFd);
             return false;
         }
     }
-    m_ClientSocketSlot.OnConnect(m_nFd, sockAddr);
 
     return bRes;
 }
@@ -200,12 +203,12 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
                 delete pMsg;
                 pMsg = NULL;
             }
+            */
         case MSGID_SYSTEM_ConnectSuccess:
             {
-                m_ClientSocketSlot.SetStateConnected();
+                //m_ClientSocketSlot.SetStateConnected();
             }
             break;
-            */
         case MSGID_SYSTEM_Disconnect:
             {
                 m_ClientSocketSlot.Reset();
@@ -215,6 +218,8 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
             {
                 MSG_SYSTEM_CheckAliveReply checkAliveReplyMsg;
                 SendMsg(checkAliveReplyMsg);
+                delete pMsg;
+                pMsg = NULL;
             }
             break;
         default:

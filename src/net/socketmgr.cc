@@ -652,6 +652,12 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
             break;
         case MSGID_SYSTEM_Disconnect:
             {
+                CSocketSlot * pSocketSlot = m_SocketSlotMgr.GetSocketSlot(nSlotIndex);
+                if (pSocketSlot && !pSocketSlot->IsConnectSuccess())
+                {
+                    delete pMsg;
+                    pMsg = NULL;
+                }
                 m_SocketSlotMgr.ReleaseSlot(nSlotIndex);
             }
             break;
