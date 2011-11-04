@@ -74,7 +74,7 @@ SRCDIRS   = cardgame base net core db cardgame/dbquery
 
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
-PROGRAM   = server
+PROGRAM   = bin/server
 
 ## Implicit Section: change the following only when necessary.
 ##==========================================================================
