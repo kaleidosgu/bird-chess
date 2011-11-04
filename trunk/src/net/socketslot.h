@@ -82,7 +82,7 @@ namespace net
         void SetNotInSendQueue();
 
         void SendAliveMsg();
-        //void SetStateNotAlive();
+        void SetStateNotAlive();
         time_t GetLatestAliveTime()
         {
             return m_tLatestAliveTime;

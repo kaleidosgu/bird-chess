@@ -38,7 +38,7 @@ class CCardGame : public CServerCirculator
 {
 public:
     CCardGame();
-    ~CCardGame();
+    virtual ~CCardGame();
 protected:
     virtual bool Initialize();
     virtual void Pump();
