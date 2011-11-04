@@ -89,7 +89,7 @@ bool CClientSocketMgr::Reconnect()
 {
     if (m_nPort == 0 || m_strIP == "")
     {
-        WriteLog(LEVEL_ERROR,"CClientSocketMgr::Connect. You may have not initialized the clientsocketmgr.\n");
+        WriteLog(LEVEL_ERROR,"CClientSocketMgr::Reconnect. You may have not initialized the clientsocketmgr. IP=%s, Port=%d.\n", m_strIP.c_str(), m_nPort);
         return false;
     }
     bool bRes = true;
@@ -98,7 +98,7 @@ bool CClientSocketMgr::Reconnect()
     m_nFd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (m_nFd == -1)
     {
-        WriteLog(LEVEL_ERROR,"CClientSocketMgr::Connect. socket() error.\n");
+        WriteLog(LEVEL_ERROR,"CClientSocketMgr::Reconnect. socket() error.\n");
         return false;
     }
     sockAddr.sin_family = AF_INET;
@@ -108,7 +108,7 @@ bool CClientSocketMgr::Reconnect()
     if (nConnect < 0)
     {
         int nErr = errno;
-        WriteLog(LEVEL_ERROR,"CClientSocketMgr::Connect. connect() error(%d).\n", nErr);
+        WriteLog(LEVEL_ERROR,"CClientSocketMgr::Reconnect. connect(%s, %d) error(%d).\n", m_strIP.c_str(), m_nPort, nErr);
         close(m_nFd);
         return false;
     }
@@ -206,16 +206,19 @@ void CClientSocketMgr::_Pretreat(MSG_BASE * &pMsg)
             */
         case MSGID_SYSTEM_ConnectSuccess:
             {
+                //WriteLog(LEVEL_DEBUG, "CClientSocketMgr::_Pretreat. Connect Success.\n");
                 //m_ClientSocketSlot.SetStateConnected();
             }
             break;
         case MSGID_SYSTEM_Disconnect:
             {
                 m_ClientSocketSlot.Reset();
+                //WriteLog(LEVEL_DEBUG, "CClientSocketMgr::_Pretreat. Disconnect.\n");
             }
             break;
         case MSGID_SYSTEM_CheckAlive:
             {
+                //WriteLog(LEVEL_DEBUG, "CClientSocketMgr::_Pretreat. Get CheckAlive Msg.\n");
                 MSG_SYSTEM_CheckAliveReply checkAliveReplyMsg;
                 SendMsg(checkAliveReplyMsg);
                 delete pMsg;
@@ -238,7 +241,7 @@ void CClientSocketMgr::Disconnect()
     {
         m_ClientSocketSlot.Disconnect(DisconnectReason_Unkown);
         //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, m_ClientSocketSlot.GetFd());
-        ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, &m_ClientSocketSlot);
+        //ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, &m_ClientSocketSlot);
     }
     else
     {
@@ -302,6 +305,7 @@ void CClientSocketMgr::Process()
 
 bool CClientSocketMgr::_ProcessEpollEvent(unsigned int nEvents)
 {
+    //WriteLog(LEVEL_DEBUG, "CClientSocketMgr::_ProcessEpollEvent. Events=%u.\n", nEvents);
     if (nEvents & (EPOLLERR))
     {
         //WriteLog(LEVEL_DEBUG, "Received EPOLLERR event. Slot=%d\n", m_ClientSocketSlot.GetSlotIndex());

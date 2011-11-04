@@ -14,7 +14,7 @@ namespace core
     {
     public:
         CServerCirculator(string strServerName);
-        ~CServerCirculator();
+        virtual ~CServerCirculator();
         bool SendMsg(MSG_BASE & rMsg, unsigned int nSlotIndex);
 
     protected:

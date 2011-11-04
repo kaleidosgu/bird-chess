@@ -80,48 +80,48 @@ CSocketMgr::~CSocketMgr()
 }
 
 /*
-bool CSocketMgr::_AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot)
-{
-    int nTmpFd = nFd;
-    struct epoll_event ev;
-    ev.events = nEvents;
-    if (pSocketSlot != NULL)
-    {
-        ev.data.ptr = pSocketSlot;
-        nTmpFd = pSocketSlot->GetFd();
-    }
-    else
-    {
-        ev.data.fd = nFd;
-    }
-    if (epoll_ctl(m_nEpollFd, EPOLL_CTL_ADD, nTmpFd, &ev) < 0)
-    {
-        WriteLog(LEVEL_ERROR, "epoll add event failed: fd=%d.\n", nTmpFd);
-        return false;
-    }
-    return true;
-}
-*/
+   bool CSocketMgr::_AddEvent(int nFd, unsigned int nEvents, CSocketSlot * pSocketSlot)
+   {
+   int nTmpFd = nFd;
+   struct epoll_event ev;
+   ev.events = nEvents;
+   if (pSocketSlot != NULL)
+   {
+   ev.data.ptr = pSocketSlot;
+   nTmpFd = pSocketSlot->GetFd();
+   }
+   else
+   {
+   ev.data.fd = nFd;
+   }
+   if (epoll_ctl(m_nEpollFd, EPOLL_CTL_ADD, nTmpFd, &ev) < 0)
+   {
+   WriteLog(LEVEL_ERROR, "epoll add event failed: fd=%d.\n", nTmpFd);
+   return false;
+   }
+   return true;
+   }
+ */
 
 /*
-bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
-{
-    if (pSocketSlot == NULL)
-    {
-        WriteLog(LEVEL_ERROR, "epoll set modification failed. pSocketSlot == NULL.\n");
-        return false;
-    }
-    struct epoll_event ev;
-    ev.events = nEvents;
-    ev.data.ptr = pSocketSlot;
-    if (epoll_ctl(m_nEpollFd, EPOLL_CTL_MOD, pSocketSlot->GetFd(), &ev) < 0)
-    {
-        WriteLog(LEVEL_ERROR, "epoll set modification failed: fd=%d.\n", pSocketSlot->GetFd());
-        return false;
-    }
-    return true;
-}
-*/
+   bool CSocketMgr::_ModifyEvent(unsigned int nEvents, CSocketSlot * pSocketSlot)
+   {
+   if (pSocketSlot == NULL)
+   {
+   WriteLog(LEVEL_ERROR, "epoll set modification failed. pSocketSlot == NULL.\n");
+   return false;
+   }
+   struct epoll_event ev;
+   ev.events = nEvents;
+   ev.data.ptr = pSocketSlot;
+   if (epoll_ctl(m_nEpollFd, EPOLL_CTL_MOD, pSocketSlot->GetFd(), &ev) < 0)
+   {
+   WriteLog(LEVEL_ERROR, "epoll set modification failed: fd=%d.\n", pSocketSlot->GetFd());
+   return false;
+   }
+   return true;
+   }
+ */
 
 bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bEncrypt, bool bCompress, unsigned int nAliveCheckInterval, unsigned int nAliveTimeOut, bool bGetMsgThreadSafety)
 {
@@ -540,13 +540,11 @@ void CSocketMgr::_CheckAlive()
             pSocketSlot = m_SocketSlotMgr.GetSocketSlot(i);
             if (pSocketSlot)
             {
-                if (pSocketSlot->GetState() == SocketState_Normal)
+                if (pSocketSlot->GetState() == SocketState_Normal || pSocketSlot->GetState() == SocketState_Accepting)
                 {
                     if (tNow - pSocketSlot->GetLatestAliveTime() > (int)m_nAliveTimeOut)
                     {
-                        pSocketSlot->Disconnect(DisconnectReason_AliveTimeOut);
-                        //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
-                        ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
+                        pSocketSlot->SetStateNotAlive();
                         pSocketSlot = NULL;
                         continue;
                     }
@@ -576,11 +574,11 @@ bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
 {
     pMsg = NULL;
     /*
-    if (m_bGetMsgThreadSafety)
-    {
-        m_MutextForGetMsg.Lock();
-    }
-    */
+       if (m_bGetMsgThreadSafety)
+       {
+       m_MutextForGetMsg.Lock();
+       }
+     */
     while (true)
     {
         CRecvDataElement * pRecvData = NULL;
@@ -610,11 +608,11 @@ bool CSocketMgr::GetMsg(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
         }
     }
     /*
-    if (m_bGetMsgThreadSafety)
-    {
-        m_MutextForGetMsg.Unlock();
-    }
-    */
+       if (m_bGetMsgThreadSafety)
+       {
+       m_MutextForGetMsg.Unlock();
+       }
+     */
     return pMsg != NULL;
 }
 
@@ -623,19 +621,19 @@ void CSocketMgr::_Pretreat(MSG_BASE * &pMsg, unsigned int & nSlotIndex)
     switch (pMsg->nMsg)
     {
         /*
-        case MSGID_SYSTEM_SocketConnectSuccess:
-            {
-                delete pMsg;
-                pMsg = NULL;
-            }
-            break;
-        case MSGID_SYSTEM_SocketDisconnect:
-            {
-                delete pMsg;
-                pMsg = NULL;
-            }
-            break;
-            */
+           case MSGID_SYSTEM_SocketConnectSuccess:
+           {
+           delete pMsg;
+           pMsg = NULL;
+           }
+           break;
+           case MSGID_SYSTEM_SocketDisconnect:
+           {
+           delete pMsg;
+           pMsg = NULL;
+           }
+           break;
+         */
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 /*
@@ -675,8 +673,6 @@ void CSocketMgr::DisconnectClient(unsigned int nSlotIndex, int nDisconnectReason
         if (pSocketSlot->GetState() == SocketState_Normal)
         {
             pSocketSlot->Disconnect(nDisconnectReason);
-            //_ModifyEvent(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
-            ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, pSocketSlot);
         }
     }
     else

@@ -13,7 +13,7 @@ namespace core
     {
     public:
         Circulator();
-        ~Circulator();
+        virtual ~Circulator();
         bool Start(bool bCreateThread = false);
     protected:
         void SetPeriod(unsigned int nPeriodMS);

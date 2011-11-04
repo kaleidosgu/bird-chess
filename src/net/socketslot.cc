@@ -185,6 +185,7 @@ bool CSocketSlot::Disconnect(int nDisconnectReason)
     else
     {
         _SetState(SocketState_Normal, SocketState_Disconnecting, nDisconnectReason);
+        ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
         return true;
     }
 }
@@ -899,12 +900,13 @@ break;
 bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
 {
     ASSERT(pMsg != NULL);
+    //WriteLog(LEVEL_DEBUG, "CSocketSlot::_AddRecvMsg. MSGID=%d.\n", pMsg->nMsg);
 
     // check alive, as the check alive reply msg may be compressed and encrypted, so check it here
     if (pMsg->nMsg == MSGID_SYSTEM_CheckAliveReply)
     {
         m_tLatestAliveTime = time(NULL);
-        WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_AddRecvMsg. Get the check alive reply msg, time=%u.\n", m_nSlotIndex, (unsigned int)m_tLatestAliveTime);
+        //WriteLog(LEVEL_DEBUG, "CSocketSlot(%d)::_AddRecvMsg. Get the check alive reply msg, time=%u.\n", m_nSlotIndex, (unsigned int)m_tLatestAliveTime);
         delete pMsg;
         pMsg = NULL;
         return true;
@@ -941,9 +943,9 @@ bool CSocketSlot::_AddRecvMsg(MSG_BASE * pMsg)
    void CSocketSlot::_Uncompress(unsigned char * pDes, unsigned int nNewLen, const unsigned char * pSrc, unsigned int nLen)
    {
    }
-void CSocketSlot::_GenerateSecretKey()
-{
-    //memcpy(m_EncryptKey, "kjkl!@#$ADFWQ$R%", cMAX_SECRETKEY_LEN);
+   void CSocketSlot::_GenerateSecretKey()
+   {
+//memcpy(m_EncryptKey, "kjkl!@#$ADFWQ$R%", cMAX_SECRETKEY_LEN);
 }
 
  */
@@ -1316,12 +1318,11 @@ void CSocketSlot::SendAliveMsg()
     }
 }
 
-/*
-   void CSocketSlot::SetStateNotAlive()
-   {
-   _SetState(SocketState_Normal, SocketState_Disconnecting, DisconnectReason_AliveTimeOut);
-   }
- */
+void CSocketSlot::SetStateNotAlive()
+{
+    _SetState(m_State == SocketState_Normal ? SocketState_Normal : SocketState_Accepting, SocketState_Disconnecting, DisconnectReason_AliveTimeOut);
+    ModifyEvent(m_nEpollFd, EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET, this);
+}
 
 CSocketSlotMgr::CSocketSlotMgr()
 {
