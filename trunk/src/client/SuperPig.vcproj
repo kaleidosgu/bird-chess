@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;;&quot;$(ThirdLibDir)zlib123\inlcude\&quot;;&quot;$(ThirdLibDir)openssl\include\&quot;;&quot;$(ThirdLibDir)lua\include\&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;;&quot;$(SolutionDir)..\third\zlib123\inlcude\&quot;;&quot;$(SolutionDir)..\third\openssl\include\&quot;;&quot;$(SolutionDir)..\third\lua\include\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				StringPooling="false"
 				MinimalRebuild="true"
@@ -170,7 +170,7 @@
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)lua\lua&quot;;&quot;$(ThirdLibDir)zlib123\lib&quot;;&quot;$(ThirdLibDir)openssl\lib&quot;;&quot;$(ThirdLibDir)lua\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)lua\lua&quot;;&quot;$(SolutionDir)..\third\zlib123\lib&quot;;&quot;$(SolutionDir)..\third\openssl\lib&quot;;&quot;$(SolutionDir)..\third\lua\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib;libci.lib;LIBCMTD.lib"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
