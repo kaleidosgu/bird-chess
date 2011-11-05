@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./lua/lua.hpp"
+#include "lua.hpp"
 #pragma comment(lib, "lua5.1.lib")
 #pragma comment(lib, "lua51.lib")
 
