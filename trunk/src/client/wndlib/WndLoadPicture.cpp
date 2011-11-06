@@ -79,3 +79,19 @@ void CWndLoadPicture::SetFlip(bool bX,bool bY,bool bHotSpot )
 		m_pSprite->SetFlip( bX, bY, bHotSpot );
 	}
 }
+
+void CWndLoadPicture::SetColor( DWORD col, int i/*= -1 */ )
+{
+	if( m_pSprite )
+	{
+		m_pSprite->SetColor( col, i );
+	}
+}
+
+void CWndLoadPicture::SetBlendMode( int blend )
+{
+	if ( m_pSprite )
+	{
+		m_pSprite->SetBlendMode( blend );
+	}
+}

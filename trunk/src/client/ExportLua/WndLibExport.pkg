@@ -80,6 +80,8 @@ public:
 	virtual bool Create( int x, int y, const char* pPath, CWndBase* pParent, int nID, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
 	void ResetRes( const char* pPath, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
 	void SetFlip(bool bX,bool bY,bool bHotSpot);
+	void SetColor( DWORD col, int i= -1 );
+	void SetBlendMode(int blend);
 };
 
 
@@ -123,6 +125,7 @@ public:
 CUIExportWndBase* CreateBaseExportWnd( lua_State* pState );
 bool CreateUI( lua_State* pState, const char* pFileName );
 void Login2Server( const char* pName, const char* pPassword);
+unsigned long GetARGB( int a, int r, int g, int b );
 
 $[
 

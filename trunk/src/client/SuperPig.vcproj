@@ -166,11 +166,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="hge.lib hgehelp.lib zlib1.lib libeay32.lib ssleay32.lib"
+				AdditionalDependencies="hge.lib hgehelp.lib zlib1.lib libeay32.lib ssleay32.lib lua51.lib lua5.1.lib"
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)lua\lua&quot;;&quot;$(SolutionDir)..\third\zlib123\lib&quot;;&quot;$(SolutionDir)..\third\openssl\lib&quot;;&quot;$(SolutionDir)..\third\lua\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\third\otherlib&quot;;&quot;$(SolutionDir)..\third\zlib123\lib&quot;;&quot;$(SolutionDir)..\third\openssl\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib;libci.lib;LIBCMTD.lib"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"

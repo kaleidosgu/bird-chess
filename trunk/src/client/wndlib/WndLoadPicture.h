@@ -13,6 +13,8 @@ public:
 	virtual void OnDraw();
 	void ResetRes( const char* pPath, bool bDrawSprite, int ptDrawX, int ptDrawY, int ptDrawW, int ptDrawH );
 	void SetFlip(bool bX,bool bY,bool bHotSpot = false );
+	void SetColor( DWORD col, int i= -1 );
+	void SetBlendMode(int blend);
 private:
 	HTEXTURE m_Texture;
 	hgeSprite* m_pSprite;

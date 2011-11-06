@@ -5,6 +5,7 @@ class CUIExportWndBase;
 CUIExportWndBase* CreateBaseExportWnd( lua_State* pState );
 bool CreateUI( lua_State* pState, const char* pFileName );
 void Login2Server( const char* pName, const char* pPassword);
+unsigned long GetARGB( int a, int r, int g, int b );
 #endif
 
 

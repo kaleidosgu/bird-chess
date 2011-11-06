@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ThirdLibDir)lua\include\&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third\lua\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,10 +61,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Lua51.lib lua5.1.lib"
+				AdditionalDependencies="Lua5.1.lib "
 				OutputFile="$(SolutionDir)bin\$(ProjectName).exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(ThirdLibDir)otherlib\&quot;"
+				AdditionalLibraryDirectories="$(SolutionDir)..\third\otherlib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

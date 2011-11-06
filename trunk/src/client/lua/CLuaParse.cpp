@@ -17,7 +17,7 @@ CLuaParse::~CLuaParse(void)
 
 bool CLuaParse::initLua()
 {
-	m_pLuaState = lua_open();
+	m_pLuaState = luaL_newstate();
 	if(!m_pLuaState )
 	{
 		return false;
@@ -122,7 +122,7 @@ bool CLuaParse::GetLuaIntByIndex(char* cName,int nIndex,int& nOut)
 	if(cName&&m_pLuaState)
 	{
 		lua_getglobal(m_pLuaState,cName);
-		lua_pushinteger(m_pLuaState,nIndex);
+		lua_pushnumber(m_pLuaState,nIndex);
 
 		int nRes = lua_pcall(m_pLuaState,1,LUA_MULTRET,-1);
 		if(nRes == 0)
@@ -134,6 +134,9 @@ bool CLuaParse::GetLuaIntByIndex(char* cName,int nIndex,int& nOut)
 			}
 			else
 			{
+				int ntop = lua_gettop( m_pLuaState );
+				int nIdx = -1;
+				const char* pChar = lua_tostring( m_pLuaState, nIdx );
 				int p = lua_type(m_pLuaState,-1);
 				p = NULL;
 			}
