@@ -74,3 +74,8 @@ void Login2Server( const char* pName, const char* pPassword)
 	strcpy_s(msg.szPassword,cMAX_PASSWORD_LEN,pPassword);
 	g_CSM.SendMsg(msg);
 }
+
+unsigned long GetARGB( int a, int r, int g, int b )
+{
+	return ARGB( a, r, g, b );
+}

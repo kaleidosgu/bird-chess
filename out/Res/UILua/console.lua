@@ -56,6 +56,7 @@ local function OnMessage(self,nUIEvent,nDlgID)
 				if firstStr[1] == "create" then
 					local ends = string.find(kdString," ")
 					local substr = string.sub(kdString,ends + 1,string.len(kdString))
+					substr = string.format("\\res\\uilua\\%s.lua",substr)
 					local strFile = g_UIcurDir .. substr
 					local bExist = IsFileExist(strFile)
 					if bExist == true then
@@ -63,7 +64,7 @@ local function OnMessage(self,nUIEvent,nDlgID)
 						dofile(strFile)
 						createTmpUI(strFile)
 					else
-						consoleAddText("File not exist!")
+						consoleAddText(strFile .. " File not exist!")
 					end
 				elseif firstStr[1] == "cls" then
 					consoleClear()

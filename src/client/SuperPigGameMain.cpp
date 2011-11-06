@@ -1223,8 +1223,10 @@ void LoadResource()
 #endif
 
 	//±³¾°
-	bgspr1=new hgeSprite(bgtex,0,0,4800,1200);
+	//bgspr1=new hgeSprite(bgtex,0,0,4800,1200);
 	//bgspr1->SetZ(0.9);
+	//±³¾°
+	bgspr1=new hgeSprite(bgtex,0,0,4800,1200);
 	bgspr2=EntityFactory::Instance().CreateSprite("BGCloud2");//new hgeSprite(tex,47,0,480,50);
 	bgspr3=EntityFactory::Instance().CreateSprite("BGCloud3");
 	bgspr4=EntityFactory::Instance().CreateSprite("BGCloud4");

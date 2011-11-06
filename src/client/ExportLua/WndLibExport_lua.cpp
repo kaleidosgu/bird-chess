@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/01/11 11:33:36.
+** Generated automatically by tolua++-1.0.92 on 11/06/11 19:10:25.
 */
 
 #ifndef __cplusplus
@@ -1448,6 +1448,74 @@ static int tolua_WndLibExport_CWndLoadPicture_SetFlip00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: SetColor of class  CWndLoadPicture */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndLoadPicture_SetColor00
+static int tolua_WndLibExport_CWndLoadPicture_SetColor00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndLoadPicture",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,1,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndLoadPicture* self = (CWndLoadPicture*)  tolua_tousertype(tolua_S,1,0);
+  unsigned long col = (( unsigned long)  tolua_tonumber(tolua_S,2,0));
+  int i = ((int)  tolua_tonumber(tolua_S,3,-1));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetColor'", NULL);
+#endif
+  {
+   self->SetColor(col,i);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetColor'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetBlendMode of class  CWndLoadPicture */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndLoadPicture_SetBlendMode00
+static int tolua_WndLibExport_CWndLoadPicture_SetBlendMode00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndLoadPicture",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndLoadPicture* self = (CWndLoadPicture*)  tolua_tousertype(tolua_S,1,0);
+  int blend = ((int)  tolua_tonumber(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetBlendMode'", NULL);
+#endif
+  {
+   self->SetBlendMode(blend);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetBlendMode'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndStatic */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndStatic_new00
 static int tolua_WndLibExport_CWndStatic_new00(lua_State* tolua_S)
@@ -2369,6 +2437,41 @@ static int tolua_WndLibExport_Login2Server00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: GetARGB */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_GetARGB00
+static int tolua_WndLibExport_GetARGB00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isnumber(tolua_S,1,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,5,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  int a = ((int)  tolua_tonumber(tolua_S,1,0));
+  int r = ((int)  tolua_tonumber(tolua_S,2,0));
+  int g = ((int)  tolua_tonumber(tolua_S,3,0));
+  int b = ((int)  tolua_tonumber(tolua_S,4,0));
+  {
+   unsigned long tolua_ret = (unsigned long)  GetARGB(a,r,g,b);
+   tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'GetARGB'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* Open function */
 TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
 {
@@ -2469,6 +2572,8 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"Create",tolua_WndLibExport_CWndLoadPicture_Create00);
    tolua_function(tolua_S,"ResetRes",tolua_WndLibExport_CWndLoadPicture_ResetRes00);
    tolua_function(tolua_S,"SetFlip",tolua_WndLibExport_CWndLoadPicture_SetFlip00);
+   tolua_function(tolua_S,"SetColor",tolua_WndLibExport_CWndLoadPicture_SetColor00);
+   tolua_function(tolua_S,"SetBlendMode",tolua_WndLibExport_CWndLoadPicture_SetBlendMode00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndStatic","CWndStatic","CWndBase",tolua_collect_CWndStatic);
@@ -2522,6 +2627,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
   tolua_function(tolua_S,"CreateBaseExportWnd",tolua_WndLibExport_CreateBaseExportWnd00);
   tolua_function(tolua_S,"CreateUI",tolua_WndLibExport_CreateUI00);
   tolua_function(tolua_S,"Login2Server",tolua_WndLibExport_Login2Server00);
+  tolua_function(tolua_S,"GetARGB",tolua_WndLibExport_GetARGB00);
 
   { /* begin embedded lua code */
    int top = lua_gettop(tolua_S);
