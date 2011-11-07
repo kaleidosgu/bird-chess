@@ -22,7 +22,7 @@ bool CWndBase::m_bRReleased = false;
 POINT CWndBase::m_ptMouse = {0,0};
 
 CWndBase::CWndBase(void)
-:m_nDlgID( 0 ),m_bDrawBox(true),m_bVisible(true),m_bDragWithParent(true),m_pParent(NULL)
+:m_nDlgID( 0 ),m_bDrawBox(false),m_bVisible(true),m_bDragWithParent(true),m_pParent(NULL)
 ,m_bNeedMouseInput(true)
 {
 	SetRectEmpty(&m_rcRect);
@@ -557,4 +557,9 @@ int CWndBase::SendMessageToParent( const int& nUIEvent, const int& nID )
 		nRes = m_pParent->SendMessage( nUIEvent, nID );
 	}
 	return nRes;
+}
+
+void CWndBase::ShowBox( bool bShow )
+{
+	m_bDrawBox = bShow;
 }

@@ -20,6 +20,10 @@ local function OnMessage(self,nUIEvent,nDlgID)
 				-- bseEdit:SetFocus(bseEdit)
 			-- end
 			-- self:PlayMusic(3)
+			math.randomseed(os.time())
+			local nRandom = math.random(1,4)
+			nRandom = math.random(1,4)
+			consoleAddText("random is = " .. nRandom)
 		end
 	elseif nUIEvent == WND_ONCHAR then
 		if nDlgID == 333 then
@@ -114,8 +118,9 @@ function createTmpUI(strFile)
 		stEdit:SetNotifyParent(true)
 		stEdit:SetText("")
 		local tmpt = os.date("*t")
-		tmpt.min = tmpt.min + 1
+		-- tmpt.min = tmpt.min + 1
 		ptReturn.tmpTime = os.time(tmpt)
+		ptReturn.tmpTime = ptReturn.tmpTime + 20 * 60
 	end
 	ptReturn.myindex = 1
 end

@@ -15,6 +15,7 @@ public:
 	virtual bool IsVisible();
 	virtual void DrawBox();
 	virtual bool Destroy();
+	void ShowBox( bool bShow );
 
 	virtual void OnUpdate( float ft );
 

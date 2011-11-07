@@ -119,6 +119,7 @@ local stEdit = CWndEdit:new();
 stEdit:CreateNoFont(0,280,100,28,movewnd,35)
 stEdit:SetNotifyParent(true)
 stEdit:SetText("")
+stEdit:ShowBox(true)
 expwnd.myedit = stEdit
 local bseEdit = basewnd.toObject(stEdit,"CWndBase")
 bseEdit:SetFocus(bseEdit)
