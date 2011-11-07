@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/06/11 19:41:38.
+** Generated automatically by tolua++-1.0.92 on 11/07/11 10:06:32.
 */
 
 #ifndef __cplusplus
@@ -747,6 +747,39 @@ static int tolua_set_CWndBase_m_bDrawBox(lua_State* tolua_S)
   self->m_bDrawBox = ((bool)  tolua_toboolean(tolua_S,2,0))
 ;
  return 0;
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: ShowBox of class  CWndBase */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndBase_ShowBox00
+static int tolua_WndLibExport_CWndBase_ShowBox00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndBase",0,&tolua_err) ||
+     !tolua_isboolean(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndBase* self = (CWndBase*)  tolua_tousertype(tolua_S,1,0);
+  bool bShow = ((bool)  tolua_toboolean(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'ShowBox'", NULL);
+#endif
+  {
+   self->ShowBox(bShow);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'ShowBox'.",&tolua_err);
+ return 0;
+#endif
 }
 #endif //#ifndef TOLUA_DISABLE
 
@@ -2519,6 +2552,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"Destroy",tolua_WndLibExport_CWndBase_Destroy00);
    tolua_function(tolua_S,"SetTabWnd",tolua_WndLibExport_CWndBase_SetTabWnd00);
    tolua_variable(tolua_S,"m_bDrawBox",tolua_get_CWndBase_m_bDrawBox,tolua_set_CWndBase_m_bDrawBox);
+   tolua_function(tolua_S,"ShowBox",tolua_WndLibExport_CWndBase_ShowBox00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndPicture","CWndPicture","CWndBase",tolua_collect_CWndPicture);
