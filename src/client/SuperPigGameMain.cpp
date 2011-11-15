@@ -27,13 +27,12 @@
 #include "GEState.h"
 #include "UILoginGame.h"
 #include "UIGround.h"
-#include "hgedevice/HGEDevice.h"
-#include "wndlib/WndBase.h"
-#include "wndlib/WndPicture.h"
-#include "wndlib/WndDesktop.h"
-#include "wndlib/WndStatic.h"
-#include "wndlib/WndEdit.h"
-#include "wndlib/WndLoadPicture.h"
+#include "HGEDevice.h"
+#include "WndBase.h"
+#include "WndDesktop.h"
+#include "WndStatic.h"
+#include "WndEdit.h"
+#include "WndLoadPicture.h"
 #include <tolua++.h>
 char g_chUICurDir[256] = {'/0'};
 
@@ -74,8 +73,6 @@ list<ItemBase*> G_ItemList;
 HGE* hge= 0;
 CWndBase* m_pWnd = 0;
 CWndDesktop* m_pDesktop = 0;
-CWndPicture* m_pPicture = 0;
-CWndPicture* m_pPicture2 = 0;
 HGEDevice* m_pHgeDevice = 0;
 
 hgeFont				*fnt;  //×ÖÌå

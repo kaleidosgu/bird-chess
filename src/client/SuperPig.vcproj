@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;;&quot;$(SolutionDir)..\third\zlib123\inlcude\&quot;;&quot;$(SolutionDir)..\third\openssl\include\&quot;;&quot;$(SolutionDir)..\third\lua\include\&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;;&quot;$(SolutionDir)..\third\zlib123\inlcude\&quot;;&quot;$(SolutionDir)..\third\openssl\include\&quot;;&quot;$(SolutionDir)..\third\lua\include\&quot;;&quot;$(SolutionDir)..\third\wndlib\src&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				StringPooling="false"
 				MinimalRebuild="true"
@@ -649,90 +649,6 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Wndlib"
-			>
-			<File
-				RelativePath=".\wndlib\WndBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndButton.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndButton.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\wnddatadefine.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndDesktop.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndDesktop.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndEdit.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndEdit.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndLoadPicture.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndLoadPicture.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndPicture.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndPicture.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndStatic.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\wndlib\WndStatic.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Hgedevice"
-			>
-			<File
-				RelativePath=".\hgedevice\HGEDevice.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\hgedevice\HGEDevice.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="GraphicDefine"
-			>
-			<File
-				RelativePath=".\GraphicDefine\datadefine.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Project"

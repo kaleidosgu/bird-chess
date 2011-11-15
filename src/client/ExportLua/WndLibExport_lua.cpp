@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/07/11 10:06:32.
+** Generated automatically by tolua++-1.0.92 on 11/15/11 23:17:49.
 */
 
 #ifndef __cplusplus
@@ -13,13 +13,12 @@
 /* Exported function */
 TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 
-#include "../wndlib/WndBase.h"
-#include "../wndlib/wndpicture.h"
-#include "../wndlib/wnddesktop.h"
-#include "../wndlib/wndloadpicture.h"
-#include "../wndlib/wndstatic.h"
-#include "../wndlib/wndedit.h"
-#include "../wndlib/wndbutton.h"
+#include "WndBase.h"
+#include "wnddesktop.h"
+#include "wndloadpicture.h"
+#include "wndstatic.h"
+#include "wndedit.h"
+#include "wndbutton.h"
 #include "../UI/UIExportWndBase.h"
 #include "../ExportLua/UIGlobalExport.h"
 #include "wtypes.h"
@@ -27,16 +26,16 @@ TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 /* function to release collected object via destructor */
 #ifdef __cplusplus
 
-static int tolua_collect_CWndDesktop (lua_State* tolua_S)
+static int tolua_collect_SIZE (lua_State* tolua_S)
 {
- CWndDesktop* self = (CWndDesktop*) tolua_tousertype(tolua_S,1,0);
+ SIZE* self = (SIZE*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
 
-static int tolua_collect_CWndBase (lua_State* tolua_S)
+static int tolua_collect_CWndEdit (lua_State* tolua_S)
 {
- CWndBase* self = (CWndBase*) tolua_tousertype(tolua_S,1,0);
+ CWndEdit* self = (CWndEdit*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
@@ -51,13 +50,6 @@ static int tolua_collect_CWndStatic (lua_State* tolua_S)
 static int tolua_collect_CWndLoadPicture (lua_State* tolua_S)
 {
  CWndLoadPicture* self = (CWndLoadPicture*) tolua_tousertype(tolua_S,1,0);
-	Mtolua_delete(self);
-	return 0;
-}
-
-static int tolua_collect_CWndPicture (lua_State* tolua_S)
-{
- CWndPicture* self = (CWndPicture*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
@@ -83,16 +75,16 @@ static int tolua_collect_POINT (lua_State* tolua_S)
 	return 0;
 }
 
-static int tolua_collect_CWndEdit (lua_State* tolua_S)
+static int tolua_collect_CWndDesktop (lua_State* tolua_S)
 {
- CWndEdit* self = (CWndEdit*) tolua_tousertype(tolua_S,1,0);
+ CWndDesktop* self = (CWndDesktop*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
 
-static int tolua_collect_SIZE (lua_State* tolua_S)
+static int tolua_collect_CWndBase (lua_State* tolua_S)
 {
- SIZE* self = (SIZE*) tolua_tousertype(tolua_S,1,0);
+ CWndBase* self = (CWndBase*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
@@ -102,16 +94,15 @@ static int tolua_collect_SIZE (lua_State* tolua_S)
 /* function to register type */
 static void tolua_reg_types (lua_State* tolua_S)
 {
- tolua_usertype(tolua_S,"CWndDesktop");
- tolua_usertype(tolua_S,"CWndBase");
+ tolua_usertype(tolua_S,"SIZE");
+ tolua_usertype(tolua_S,"CWndEdit");
  tolua_usertype(tolua_S,"CWndStatic");
  tolua_usertype(tolua_S,"CWndLoadPicture");
- tolua_usertype(tolua_S,"CWndPicture");
  tolua_usertype(tolua_S,"CUIExportWndBase");
  tolua_usertype(tolua_S,"CWndButton");
  tolua_usertype(tolua_S,"POINT");
- tolua_usertype(tolua_S,"CWndEdit");
- tolua_usertype(tolua_S,"SIZE");
+ tolua_usertype(tolua_S,"CWndDesktop");
+ tolua_usertype(tolua_S,"CWndBase");
 }
 
 /* get function: cx of class  SIZE */
@@ -778,134 +769,6 @@ static int tolua_WndLibExport_CWndBase_ShowBox00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'ShowBox'.",&tolua_err);
- return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: new of class  CWndPicture */
-#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndPicture_new00
-static int tolua_WndLibExport_CWndPicture_new00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
-     !tolua_isusertable(tolua_S,1,"CWndPicture",0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,2,&tolua_err)
- )
-  goto tolua_lerror;
- else
-#endif
- {
-  {
-   CWndPicture* tolua_ret = (CWndPicture*)  Mtolua_new((CWndPicture)());
-    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CWndPicture");
-  }
- }
- return 1;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
- return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: new_local of class  CWndPicture */
-#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndPicture_new00_local
-static int tolua_WndLibExport_CWndPicture_new00_local(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
-     !tolua_isusertable(tolua_S,1,"CWndPicture",0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,2,&tolua_err)
- )
-  goto tolua_lerror;
- else
-#endif
- {
-  {
-   CWndPicture* tolua_ret = (CWndPicture*)  Mtolua_new((CWndPicture)());
-    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CWndPicture");
-    tolua_register_gc(tolua_S,lua_gettop(tolua_S));
-  }
- }
- return 1;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
- return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: delete of class  CWndPicture */
-#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndPicture_delete00
-static int tolua_WndLibExport_CWndPicture_delete00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
-     !tolua_isusertype(tolua_S,1,"CWndPicture",0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,2,&tolua_err)
- )
-  goto tolua_lerror;
- else
-#endif
- {
-  CWndPicture* self = (CWndPicture*)  tolua_tousertype(tolua_S,1,0);
-#ifndef TOLUA_RELEASE
-  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'delete'", NULL);
-#endif
-  Mtolua_delete(self);
- }
- return 0;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'delete'.",&tolua_err);
- return 0;
-#endif
-}
-#endif //#ifndef TOLUA_DISABLE
-
-/* method: Create of class  CWndPicture */
-#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndPicture_Create00
-static int tolua_WndLibExport_CWndPicture_Create00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
-     !tolua_isusertype(tolua_S,1,"CWndPicture",0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
-     !tolua_isstring(tolua_S,4,0,&tolua_err) ||
-     !tolua_isusertype(tolua_S,5,"CWndBase",0,&tolua_err) ||
-     !tolua_isnumber(tolua_S,6,0,&tolua_err) ||
-     !tolua_isnoobj(tolua_S,7,&tolua_err)
- )
-  goto tolua_lerror;
- else
-#endif
- {
-  CWndPicture* self = (CWndPicture*)  tolua_tousertype(tolua_S,1,0);
-  int x = ((int)  tolua_tonumber(tolua_S,2,0));
-  int y = ((int)  tolua_tonumber(tolua_S,3,0));
-  const char* pKey = ((const char*)  tolua_tostring(tolua_S,4,0));
-  CWndBase* pParent = ((CWndBase*)  tolua_tousertype(tolua_S,5,0));
-  int nID = ((int)  tolua_tonumber(tolua_S,6,0));
-#ifndef TOLUA_RELEASE
-  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Create'", NULL);
-#endif
-  {
-   bool tolua_ret = (bool)  self->Create(x,y,pKey,pParent,nID);
-   tolua_pushboolean(tolua_S,(bool)tolua_ret);
-  }
- }
- return 1;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'Create'.",&tolua_err);
  return 0;
 #endif
 }
@@ -2553,18 +2416,6 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetTabWnd",tolua_WndLibExport_CWndBase_SetTabWnd00);
    tolua_variable(tolua_S,"m_bDrawBox",tolua_get_CWndBase_m_bDrawBox,tolua_set_CWndBase_m_bDrawBox);
    tolua_function(tolua_S,"ShowBox",tolua_WndLibExport_CWndBase_ShowBox00);
-  tolua_endmodule(tolua_S);
-  #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CWndPicture","CWndPicture","CWndBase",tolua_collect_CWndPicture);
-  #else
-  tolua_cclass(tolua_S,"CWndPicture","CWndPicture","CWndBase",NULL);
-  #endif
-  tolua_beginmodule(tolua_S,"CWndPicture");
-   tolua_function(tolua_S,"new",tolua_WndLibExport_CWndPicture_new00);
-   tolua_function(tolua_S,"new_local",tolua_WndLibExport_CWndPicture_new00_local);
-   tolua_function(tolua_S,".call",tolua_WndLibExport_CWndPicture_new00_local);
-   tolua_function(tolua_S,"delete",tolua_WndLibExport_CWndPicture_delete00);
-   tolua_function(tolua_S,"Create",tolua_WndLibExport_CWndPicture_Create00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","CWndBase",tolua_collect_CWndDesktop);

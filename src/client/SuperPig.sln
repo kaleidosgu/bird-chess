@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpuerPig", "SuperPig.vcproj", "{C7779FB7-6C39-4161-ADCA-8DAA87D89C26}"
 	ProjectSection(ProjectDependencies) = postProject
+		{B21A0953-005B-435E-B915-ED594995AF52} = {B21A0953-005B-435E-B915-ED594995AF52}
 		{3D2DF582-560E-481D-A58F-9BDC0C1E8835} = {3D2DF582-560E-481D-A58F-9BDC0C1E8835}
 		{B53219CB-AADD-4EDF-9F2C-32AF4711EA9E} = {B53219CB-AADD-4EDF-9F2C-32AF4711EA9E}
 	EndProjectSection
@@ -15,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tolua++exe", "project\tolua
 	ProjectSection(ProjectDependencies) = postProject
 		{3D2DF582-560E-481D-A58F-9BDC0C1E8835} = {3D2DF582-560E-481D-A58F-9BDC0C1E8835}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WndLib", "project\WndLib\WndLib.vcproj", "{B21A0953-005B-435E-B915-ED594995AF52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +37,10 @@ Global
 		{B53219CB-AADD-4EDF-9F2C-32AF4711EA9E}.Debug|Win32.Build.0 = Debug|Win32
 		{B53219CB-AADD-4EDF-9F2C-32AF4711EA9E}.Release|Win32.ActiveCfg = Release|Win32
 		{B53219CB-AADD-4EDF-9F2C-32AF4711EA9E}.Release|Win32.Build.0 = Release|Win32
+		{B21A0953-005B-435E-B915-ED594995AF52}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B21A0953-005B-435E-B915-ED594995AF52}.Debug|Win32.Build.0 = Debug|Win32
+		{B21A0953-005B-435E-B915-ED594995AF52}.Release|Win32.ActiveCfg = Release|Win32
+		{B21A0953-005B-435E-B915-ED594995AF52}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,5 +48,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{3D2DF582-560E-481D-A58F-9BDC0C1E8835} = {A0DE05DB-4C70-4F07-9E64-CE310765EA40}
 		{B53219CB-AADD-4EDF-9F2C-32AF4711EA9E} = {A0DE05DB-4C70-4F07-9E64-CE310765EA40}
+		{B21A0953-005B-435E-B915-ED594995AF52} = {A0DE05DB-4C70-4F07-9E64-CE310765EA40}
 	EndGlobalSection
 EndGlobal
