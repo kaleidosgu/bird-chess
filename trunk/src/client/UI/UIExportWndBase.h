@@ -1,6 +1,6 @@
 #ifndef _UIExportWndBase_H_
 #define _UIExportWndBase_H_
-#include "../wndlib/WndBase.h"
+#include "WndBase.h"
 #include <tolua++.h>
 #include <map>
 #include <string>

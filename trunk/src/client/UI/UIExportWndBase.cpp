@@ -2,7 +2,7 @@
 #include <lua.hpp>
 #include <hge.h>
 #include "UIDefine/UILuaScriptDefine.h"
-#include "../wndlib/wnddatadefine.h"
+#include "wnddatadefine.h"
 #include "../SoundSystem.h"
 CUIExportWndBase::CUIExportWndBase(void)
 :m_pState(NULL),m_nCurTime(0)
