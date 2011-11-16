@@ -1267,8 +1267,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	CWndBase::SetDevice( m_pHgeDevice );
 	m_pHgeDevice->hge = hgeCreate(HGE_VERSION);
 	hge = m_pHgeDevice->hge;
-
-	hge = hgeCreate(HGE_VERSION);
 	// Set desired system states and initialize HGE
 	hge->System_SetState(HGE_LOGFILE, "SuperPig.log");
 	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
