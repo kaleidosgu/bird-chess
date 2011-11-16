@@ -170,7 +170,7 @@
 				OutputFile="$(SolutionDir)\..\..\out\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\third\otherlib&quot;;&quot;$(SolutionDir)..\third\zlib123\lib&quot;;&quot;$(SolutionDir)..\third\openssl\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)..\third\otherlib&quot;;&quot;$(SolutionDir)..\third\zlib123\lib&quot;;&quot;$(SolutionDir)..\third\openssl\lib&quot;;&quot;$(SolutionDir)..\third\lua\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib;libci.lib;LIBCMTD.lib"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
