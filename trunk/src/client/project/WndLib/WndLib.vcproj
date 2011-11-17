@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="d:\sourcecode\hge181\include\"
+				AdditionalIncludeDirectories="$(SolutionDir)..\third\otherlib\hgeInclude\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_WNDLIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
