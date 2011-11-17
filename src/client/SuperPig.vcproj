@@ -139,7 +139,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;;&quot;$(SolutionDir)..\third\zlib123\inlcude\&quot;;&quot;$(SolutionDir)..\third\openssl\include\&quot;;&quot;$(SolutionDir)..\third\lua\include\&quot;;&quot;$(SolutionDir)..\third\wndlib\src&quot;;d:\sourcecode\hge181\include\"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)tolua++\tolua++exe\&quot;;&quot;$(SolutionDir)..\third\zlib123\inlcude\&quot;;&quot;$(SolutionDir)..\third\openssl\include\&quot;;&quot;$(SolutionDir)..\third\lua\include\&quot;;&quot;$(SolutionDir)..\third\wndlib\src&quot;;&quot;$(SolutionDir)..\third\otherlib\hgeInclude\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				StringPooling="false"
 				MinimalRebuild="true"
