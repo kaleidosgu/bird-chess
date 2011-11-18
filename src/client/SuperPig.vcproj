@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="SpuerPig"
+	Name="FlyingBirds"
 	ProjectGUID="{C7779FB7-6C39-4161-ADCA-8DAA87D89C26}"
 	RootNamespace="SpuerPig"
 	TargetFrameworkVersion="0"
@@ -214,27 +214,7 @@
 			Filter=".h"
 			>
 			<File
-				RelativePath=".\BombBullet.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BombBullet.h"
-				>
-			</File>
-			<File
-				RelativePath=".\BulletBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BulletBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\EntityBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\EntityBase.h"
+				RelativePath=".\ClientNetMsgProcess.h"
 				>
 			</File>
 			<File
@@ -250,139 +230,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\HeroPig.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\HeroPig.h"
-				>
-			</File>
-			<File
 				RelativePath=".\SoundSystem.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\SoundSystem.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Item"
-			>
-			<File
-				RelativePath=".\AddLifeItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\AddLifeItem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\AddPlayerSpeedItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\AddPlayerSpeedItem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\BecomeBirdItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BecomeBirdItem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ItemBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ItemBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\QueenKissItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\QueenKissItem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RealPigItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RealPigItem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SlowBirdItem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SlowBirdItem.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Bird"
-			>
-			<File
-				RelativePath=".\CreateEggBird.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\CreateEggBird.h"
-				>
-			</File>
-			<File
-				RelativePath=".\EggBird.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\EggBird.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MonsterBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MonsterBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RushAngryBird.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RushAngryBird.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SmallBird.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SmallBird.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SmartAngryBird.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SmartAngryBird.h"
-				>
-			</File>
-			<File
-				RelativePath=".\StrongAngryBird.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\StrongAngryBird.h"
 				>
 			</File>
 		</Filter>
@@ -427,82 +279,6 @@
 			</File>
 			<File
 				RelativePath=".\lua\UILuaState.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Movement"
-			>
-			<File
-				RelativePath=".\ActHeroPig.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ActHeroPig.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IMoveable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IMovementEx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Movement.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MovementDefined.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MovementEX.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MovementEX.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MovementEX_DrivenByKeyBoard.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MovementEX_DrivenByKeyBoard.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TimeRoute.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TimeRouteFactory.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="FSM"
-			>
-			<File
-				RelativePath=".\FiniteState.h"
-				>
-			</File>
-			<File
-				RelativePath=".\FSM.h"
-				>
-			</File>
-			<File
-				RelativePath=".\GEState.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GEState.h"
-				>
-			</File>
-			<File
-				RelativePath=".\InfoManagerTemplate.h"
 				>
 			</File>
 		</Filter>
@@ -631,10 +407,6 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="Project"
-			>
-		</Filter>
-		<Filter
 			Name="ExportLua"
 			>
 			<File
@@ -706,10 +478,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
 		<File
 			RelativePath=".\icon1.ico"
 			>

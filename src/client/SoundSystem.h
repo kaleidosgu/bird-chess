@@ -5,8 +5,6 @@
 
 using namespace std;
 
-#define PlaySoundByID(x,y) SoundSystem::Instance().PlaySound((x),(y))
-#define PlaySoundByID(x) SoundSystem::Instance().PlaySound((x))
 
 class SoundSystem
 {

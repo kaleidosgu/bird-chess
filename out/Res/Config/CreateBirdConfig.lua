@@ -4,7 +4,8 @@ LuaInt = {
 			60,  --G_nMaxBirdCount
 			10,  --G_nPerGroundCount
 			15,  --G_nPerGroundCreate
-			8888, --G_nPort
+			--7753, --G_nPort
+			8888,
 			}
 
 
@@ -13,6 +14,7 @@ luaBool = true
 LuaStr ={
 --	"172.18.10.50",  --IP 李剑机器
 	"58.247.205.20",  --公网机器
+	--"114.80.196.52",  --9C
 	"test",
 	"测试",
 	"E:\\test.lua"

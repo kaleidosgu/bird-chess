@@ -1,31 +1,6 @@
 #define SCREEN_WIDTH  1200 //窗口宽高
 #define SCREEN_HEIGHT 1200
 
-#define MIN_OBJECTS	100	   //怪物目标数量
-#define MAX_OBJECTS 2000   
-
-#define MAX_BULETS 200    //子弹最大个数
-#define MAX_SPEED_BULETS 1000 //子弹最大速度
-#define NORM_SPEED_BULETS 500 //子弹普通速度
-//#define MAX_PIG_SPEED 400  //主角移动最大速度
-#define NORM_PIG_SPEED 4  //主角移动普通速度
-
-#define MAX_ENTITYSPR_COUNT 30 //怪物动画最大帧数
-#define DESTORY_ENTITYSPR_COUNT 10//死亡特效
-#define BIRDS_COUNT 40//一次创建的鸟的数量
-#define RUSHBIRDS_MOUSESIZE 30 //冲锋鸟嘴巴大小
-#define PLAYER_MAX_POWER 100 //人物最大的能量
-
-const float cMainPlayAddSpeed= 10.0f;  //主角的加速系数
-const float friction=0.98f; //主角的减速系数
-const float nAddSpeed = 300.0f; //暴走的加速
-const int GAME_FPS = 100;
-const float DMGDelayTime = 0.7f; //伤害延时时间
-const int nDefaultLife = 3;
-
-extern int G_nCombo;
-extern bool G_bDebug;
-extern int G_bgPrintType;
 enum GAMESTAT_EUNM
 {
 	ENUM_GAME_STOP,

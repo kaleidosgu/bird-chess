@@ -104,7 +104,7 @@ void CBirdEntity::Update(float dt)
 			m_CanBirdMove = true;
 
 			int nDownSound = rand()%6+5;
-			PlaySoundByID(nDownSound);
+			SoundSystem::Instance().PlaySound(nDownSound);
 		}
 		CBirdEntity* pBird =  pNextBird;
 		float tempy = m_y - GetSprHeightBuSprID(BirdState_Up);
@@ -145,7 +145,7 @@ void CBirdEntity::MoveTo(float fx,float fy)//本质上是设置速度和时间
 	m_Ordery = fy;
 	m_CanBirdMove = false;
 	SetCurrentSprID(BirdState_Fly);
-	PlaySoundByID(m_nBirdType,70);
+	SoundSystem::Instance().PlaySound(m_nBirdType,70);
 }
 
 void CBirdEntity::ChangeSpr()
