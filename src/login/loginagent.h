@@ -23,10 +23,12 @@ public:
     UserSlot()
     {
         m_nSlotIndex = -1;
+        m_nSeqID = 0;
         m_State = State_Free;
     };
     ~UserSlot(){};
     int m_nSlotIndex;
+    long long m_nSeqID;
     State m_State;
 };
 
@@ -48,6 +50,7 @@ private:
     UserSlot * m_aUserSlot;
     CClientSocketMgr m_LoginCenterCSM;
     int m_nCheckLoginCenterPeriod;
+    long long m_nSeqID;
 };
 
 #endif // __login_loginagent_h_

@@ -75,7 +75,7 @@ void CLoginCenter::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                 string strPassword = rLRMsg.lrMsg.szPassword;
                 pDBQuery->m_strPassword = MD5String(strPassword);
                 long long nTaskID = DBQueryFactory::Instance().AddTask(CGDBQTT_LoginRequest, pDBQuery);
-                RequestInfo ri(nSlotIndex, rLRMsg.nSlotIndex);
+                RequestInfo ri(nSlotIndex, rLRMsg.nSeqID, rLRMsg.nSlotIndex);
                 m_TaskIDMapRequestInfo[nTaskID] = ri;
             }
             break;
@@ -135,6 +135,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                     {
                                         MSG_LOGIN_LC2LA_LoginResult lrMsg;
                                         lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                                        lrMsg.nSeqID = rRI.m_nSeqID;
                                         SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                                         m_UserIDMapRequestInfo[pLoginDBQuery->m_nDBUserID] = rRI;
                                     }
@@ -145,6 +146,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                         // the user has been in game.
                                         MSG_LOGIN_LC2LA_LoginResult lrMsg;
                                         lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                                        lrMsg.nSeqID = rRI.m_nSeqID;
                                         lrMsg.lrMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_Relogin;
                                         SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                                         WriteLog(LEVEL_DEBUG, "The user(%d) relogin the game.\n", pLoginDBQuery->m_nDBUserID);
@@ -154,6 +156,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                 {
                                     MSG_LOGIN_LC2LA_LoginResult lrMsg;
                                     lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                                    lrMsg.nSeqID = rRI.m_nSeqID;
                                     lrMsg.lrMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_Failed;
                                     SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                                 }
@@ -172,6 +175,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                         {
                             MSG_LOGIN_LC2LA_LoginResult lrMsg;
                             lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                            lrMsg.nSeqID = rRI.m_nSeqID;
                             lrMsg.lrMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_LoginRequestDBQueryIsNULL;
                             SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                             WriteLog(LEVEL_ERROR, "Dispose CGDBQTT_LoginRequest. The login dbquery is null.\n");
@@ -181,6 +185,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                     {
                         MSG_LOGIN_LC2LA_LoginResult lrMsg;
                         lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                        lrMsg.nSeqID = rRI.m_nSeqID;
                         lrMsg.lrMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_TheLoginRequestDBQueryNumberError;
                         SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                         WriteLog(LEVEL_ERROR, "The number of dbquery for loginrequest is not correct.\n");
@@ -216,6 +221,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                         {
                             MSG_LOGIN_LC2LA_LoginResult lrMsg;
                             lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                            lrMsg.nSeqID = rRI.m_nSeqID;
                             lrMsg.lrMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_CreateUserDBQueryIsNULL;
                             SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                             WriteLog(LEVEL_ERROR, "Dispose CGDBQTT_LoginRequest. The createplayer dbquery is null.\n");
@@ -225,6 +231,7 @@ void CLoginCenter::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                     {
                         MSG_LOGIN_LC2LA_LoginResult lrMsg;
                         lrMsg.nSlotIndex = rRI.m_nSlotIndex;
+                        lrMsg.nSeqID = rRI.m_nSeqID;
                         lrMsg.lrMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_TheCreateUserDBQueryNumberError;
                         SendMsg(lrMsg, rRI.m_nLoginAgentSlotIndex);
                         WriteLog(LEVEL_ERROR, "The number of dbquery for createplayer is not correct.\n");

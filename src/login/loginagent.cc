@@ -11,6 +11,7 @@ using namespace core;
 CLoginAgent::CLoginAgent() :
     CServerCirculator("LoginAgent")
 {
+    m_nSeqID = 1;
     m_nMaxClient = 0;
     m_aUserSlot = NULL;
     m_nCheckLoginCenterPeriod = 0;
@@ -92,15 +93,22 @@ void CLoginAgent::ProcessLoginCenterMsg(MSG_BASE & rMsg)
         case MSGID_LOGIN_LC2LA_LoginResult:
             {
                 MSG_LOGIN_LC2LA_LoginResult & rLRMsg = (MSG_LOGIN_LC2LA_LoginResult &)rMsg;
+                if (rLRMsg.nSeqID != m_aUserSlot[rLRMsg.nSlotIndex].m_nSeqID)
+                {
+                    WriteLog(LEVEL_DEBUG, "CLoginAgent::ProcessLoginCenterMsg. rLRMsg.nSeqID(%lld) != m_aUserSlot[rLRMsg.nSlotIndex(%d)].m_nSeqID(%lld).\n", rLRMsg.nSeqID, rLRMsg.nSlotIndex, m_aUserSlot[rLRMsg.nSlotIndex].m_nSeqID);
+                    return;
+                }
                 if (m_aUserSlot[rLRMsg.nSlotIndex].m_State == UserSlot::State_Logining)
                 {
                     SendMsg(rLRMsg.lrMsg, rLRMsg.nSlotIndex);
                     if (rLRMsg.lrMsg.nResult == MSG_LOGIN_S2C_LoginResult::Result_Success)
                     {
                         m_aUserSlot[rLRMsg.nSlotIndex].m_State = UserSlot::State_LoginSuccess;
+                        m_aUserSlot[rLRMsg.nSlotIndex].m_nSeqID = 0;
                     }
                     else
                     {
+                        m_aUserSlot[rLRMsg.nSlotIndex].m_nSeqID = 0;
                         m_aUserSlot[rLRMsg.nSlotIndex].m_State = UserSlot::State_Free;
                     }
                 }
@@ -124,10 +132,12 @@ void CLoginAgent::ProcessLoginCenterMsg(MSG_BASE & rMsg)
                         loginResultMsg.nResult = MSG_LOGIN_S2C_LoginResult::Result_DisconnectWithLoginCenter;
                         SendMsg(loginResultMsg, i);
                         m_aUserSlot[i].m_State = UserSlot::State_Free;
+                        m_aUserSlot[i].m_nSeqID = 0;
                     }
                     else if (m_aUserSlot[i].m_State == UserSlot::State_Disconnected)
                     {
                         m_aUserSlot[i].m_State = UserSlot::State_Free;
+                        m_aUserSlot[i].m_nSeqID = 0;
                     }
                 }
             }
@@ -148,14 +158,23 @@ void CLoginAgent::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
         case MSGID_SYSTEM_ConnectSuccess:
             {
                 WriteLog(LEVEL_DEBUG, "One client connnect to the server.(%u).\n", nSlotIndex);
+                if (m_aUserSlot[nSlotIndex].m_State != UserSlot::State_Free)
+                {
+                    WriteLog(LEVEL_WARNING, "CLoginAgent::ProcessMsg. One client connect success but the slot state(%d) is notfree(%d).\n", m_aUserSlot[nSlotIndex].m_State, nSlotIndex);
+                }
             }
             break;
         case MSGID_LOGIN_C2S_LoginRequest:
             {
-
+                if (m_aUserSlot[nSlotIndex].m_State != UserSlot::State_Free)
+                {
+                    WriteLog(LEVEL_WARNING, "CLoginAgent::ProcessMsg. Get login request when the state is not free(%d).\n", nSlotIndex);
+                    return;
+                }
                 MSG_LOGIN_C2S_LoginRequest & rLoginRequestMsg = (MSG_LOGIN_C2S_LoginRequest &)rMsg;
                 MSG_LOGIN_LA2LC_LoginRequest lrMsg;
                 lrMsg.nSlotIndex = nSlotIndex;
+                lrMsg.nSeqID = m_nSeqID++;
                 memcpy(&(lrMsg.lrMsg), &rLoginRequestMsg, rLoginRequestMsg.nSize);
                 if (!m_LoginCenterCSM.SendMsg(lrMsg))
                 {
@@ -174,10 +193,20 @@ void CLoginAgent::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
                 if (m_aUserSlot[nSlotIndex].m_State == UserSlot::State_Logining)
                 {
                     m_aUserSlot[nSlotIndex].m_State = UserSlot::State_Disconnected;
+                    m_aUserSlot[nSlotIndex].m_nSeqID = 0;
                 }
                 else if (m_aUserSlot[nSlotIndex].m_State == UserSlot::State_LoginSuccess)
                 {
                     m_aUserSlot[nSlotIndex].m_State = UserSlot::State_Free;
+                    m_aUserSlot[nSlotIndex].m_nSeqID = 0;
+                }
+                else if (m_aUserSlot[nSlotIndex].m_State == UserSlot::State_Free)
+                {
+                    if (m_aUserSlot[nSlotIndex].m_nSeqID != 0)
+                    {
+                        WriteLog(LEVEL_WARNING, "CLoginAgent::ProcessMsg. The state is free, but the SeqID != 0. SlotIndex(%d).\n", nSlotIndex);
+                    }
+                    m_aUserSlot[nSlotIndex].m_nSeqID = 0;
                 }
                 else
                 {
