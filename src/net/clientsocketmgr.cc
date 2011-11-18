@@ -1,6 +1,7 @@
 #include "clientsocketmgr.h"
 #include "recvdataelement.h"
 #include "../base/log.h"
+#include "../base/ini.h"
 #include "systemmsg.h"
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -33,8 +34,6 @@ CClientSocketMgr::CClientSocketMgr()
 
     memset(m_SendDataBuffer, 0, cMAX_SEND_DATA_BUFFER_SIZE);
     memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
-
-    m_ServerRSA.InitKey();
 }
 
 CClientSocketMgr::~CClientSocketMgr()
@@ -75,6 +74,11 @@ bool CClientSocketMgr::Init(bool bEncrypt, bool bCompress, bool bGetMsgThreadSaf
 {
     bool bRes = true;
     m_bGetMsgThreadSafety = bGetMsgThreadSafety;
+    string strn = "";
+    string stre = "";
+    GIni.GetString("Encrypt", "n", strn, "00AA36ABCE88ACFDFF55523C7FC4523F90EFA00DF3774A259F2E62B4C5D99CB5ADB300A0285E5301930E0C70FB6876939CE616CE624A11E0086D341EBCACA0A1F5");
+    GIni.GetString("Encrypt", "e", stre, "11");
+    m_ServerRSA.InitPublicKey(strn.c_str(), stre.c_str());
     m_ClientSocketSlot.Init(m_pRecvQueue, m_nEpollFd, &m_ServerRSA, bEncrypt, bCompress, m_SendDataBuffer, m_UncompressBuffer);
     return bRes;
 }
