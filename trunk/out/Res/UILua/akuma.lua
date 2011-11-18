@@ -6,7 +6,7 @@ local function OnKeyDown(self,eKey)
 	elseif eKey == 37 then
 		self.sbg:MoveWindow(self.sbg:GetClientPos().x - 5,self.sbg:GetClientPos().y)
 	end
-	consoleClear( )
+	--consoleClear( )
 	if self.faketable ~= nil then
 		for i,v in ipairs(self.faketable ) do
 			local xpos = self.sbg:GetClientPos().x +  (4 - i) * 80
@@ -17,7 +17,7 @@ local function OnKeyDown(self,eKey)
 		end
 	else
 	end
-	
+
 	return keyres
 end
 local function OnUpdate(self,e)
@@ -32,11 +32,11 @@ local function OnUpdate(self,e)
 					end
 					local ndiff = -5
 					v:MoveWindow(v:GetClientPos().x + ndiff, v:GetClientPos().y)
-					v.startpos = v:GetClientPos().x			
+					v.startpos = v:GetClientPos().x
 				end
 			end
 		end
-		
+
 		self.tickcounts = self.tickcounts - 0.03
 	end
 	self.tickcounts = self.tickcounts + e
@@ -61,8 +61,8 @@ function createTmpUI(strFile)
 	local pMain = basewnd.toObject(g_UIGlobal["ptMainClient"],"CWndBase")
 	local ptReturn = CreateUI(strFile,true,pMain,1,0)
 	if ptReturn ~= nil then
-		
-		consoleClear( )
+
+		--consoleClear( )
 		ptReturn.faketable = {}
 		local sPos = 850
 		local yPos = 500
@@ -74,13 +74,15 @@ function createTmpUI(strFile)
 			end
 		end
 		local sbg = CWndLoadPicture:new()
-		sbg:Create( sPos, yPos, "res/uilua/akuma.PNG", ptReturn, 0, false, 0,0,0,0 )		
+		sbg:Create( sPos, yPos, "res/uilua/akuma.PNG", ptReturn, 0, false, 0,0,0,0 )
 		ptReturn.sbg = sbg
-		
+
 		local xpos = sbg:GetClientPos().x
-		
+
 		ptReturn:SetFocus(nil)
 		ptReturn.tickcounts = 0
-		regEvent( ptReturn ) 
+		regEvent( ptReturn )
+		isUIExist("akuma")
+
 	end
 end

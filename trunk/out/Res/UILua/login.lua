@@ -16,23 +16,23 @@ local function regEvent( parent )
 	parent:SetScript( "OnKeyDown",OnKeyDown )
 end
 
-function createTmpUI(strFile)
+function createTmpUI(strFile,strSimple)
 	local pMain = basewnd.toObject(g_UIGlobal["ptMainClient"],"CWndBase")
-	local ptReturn = CreateUI(strFile,true,pMain,450,250)
+	local ptReturn = CreateUI(strFile,true,pMain,450,250,strSimple)
 	if ptReturn ~= nil then
 		consoleAddText("xixi")
 		local ptReturnbse = basewnd.toObject(ptReturn,"CWndBase")
-		
+
 		local pPicture = CWndLoadPicture:new();
 		pPicture:Create(0,0,"res/pic/UILoginBG.png",ptReturnbse,0,true,460,6,231,232);
-		
+
 		local stEdit1 = CWndEdit:new();
 		stEdit1:CreateNoFont(15,192,90,26,ptReturnbse,0)
 		stEdit1:SetNotifyParent(true)
 		stEdit1:SetText("")
 		local ptEdit1Bse = basewnd.toObject(stEdit1,"CWndBase")
 		ptEdit1Bse.m_bDrawBox = true
-		
+
 		local stEdit2 = CWndEdit:new();
 		stEdit2:CreateNoFont(120,192,90,26,ptReturnbse,0)
 		stEdit2:SetNotifyParent(true)
@@ -42,7 +42,7 @@ function createTmpUI(strFile)
 		ptReturn.stEditName 	= stEdit1
 		ptReturn.stEditPassword = stEdit2
 		regEvent(ptReturn)
-		
+
 		ptEdit1Bse:SetTabWnd(ptEdit2Bse)
 		ptEdit2Bse:SetTabWnd(ptEdit1Bse)
 		--ptEdit1Bse:SetFocus(ptEdit1Bse);

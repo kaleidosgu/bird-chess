@@ -202,12 +202,31 @@ bool FrameFunc()  //帧数逻辑
 			break;
 		case HGEK_F1:
 			{
-
 			}
 			break;
 		case HGEK_F2:
 			{
-
+				lua_getglobal(g_pGlobalState,"hideLoginWnd");
+				int nLuaRes = lua_isfunction(g_pGlobalState,-1);
+				if( nLuaRes == 1)
+				{
+					nLuaRes = lua_pcall(g_pGlobalState,0,1,0);
+					int nTop = lua_gettop( g_pGlobalState );
+					if( nLuaRes == 0 )
+					{
+						lua_toboolean( g_pGlobalState, -1 );
+					}
+					else
+					{
+						const char* pChar = lua_tostring(g_pGlobalState, -1 );
+						lua_settop(g_pGlobalState,0);
+					}
+					if( nTop > 0 )
+					{
+						const char* pChar = lua_tostring(g_pGlobalState, -1 );
+						lua_settop(g_pGlobalState,0);
+					}
+				}
 			}
 			break;
 		case HGEK_F3:
@@ -317,13 +336,13 @@ bool RenderFunc()
 		"\n"
 		"使用方法很简单，请参阅 <CN> 目录下的 Readme.txt 文件。\n";
 
-	// 使用像素字体输出
-	pGfxFont->Print(10,10,lpString);
-
-	pBlodFont->Print(10,100,"中文显示方案 演示“粗体”");		
-	pItalicFont->Print(10,150,"中文显示方案 演示“斜体”");
-	pNotAntialias->Print(10,200,"中文显示方案 演示“非平滑模式”");
-	pAntialias->Print(10,250,"中文显示方案 演示“平滑反锯齿模式”");
+// 	// 使用像素字体输出
+// 	pGfxFont->Print(10,10,lpString);
+// 
+// 	pBlodFont->Print(10,100,"中文显示方案 演示“粗体”");		
+// 	pItalicFont->Print(10,150,"中文显示方案 演示“斜体”");
+// 	pNotAntialias->Print(10,200,"中文显示方案 演示“非平滑模式”");
+// 	pAntialias->Print(10,250,"中文显示方案 演示“平滑反锯齿模式”");
 
 	m_pHgeDevice->hge->Gfx_EndScene();
 	hge->Gfx_EndScene();
