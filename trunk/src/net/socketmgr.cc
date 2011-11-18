@@ -2,6 +2,7 @@
 #include "recvdataelement.h"
 #include "systemmsg.h"
 #include "../base/log.h"
+#include "../base/ini.h"
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -65,7 +66,6 @@ CSocketMgr::CSocketMgr()
     memset(m_SendDataBuffer, 0, cMAX_SEND_DATA_BUFFER_SIZE);
     memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
 
-    m_ServerRSA.InitKey();
     srand(time(NULL)); // for rand the secret key.
 }
 
@@ -151,6 +151,25 @@ bool CSocketMgr::Init(unsigned short nPort, unsigned int nMaxClient, bool bEncry
         m_nMaxClient = 32;
     }
 
+    string strn = "";
+    string stre = "";
+    string strd = "";
+    string strp = "";
+    string strq = "";
+    string strdmp1 = "";
+    string strdmq1 = "";
+    string stripmq = "";
+    GIni.GetString("Encrypt", "n", strn, "00AA36ABCE88ACFDFF55523C7FC4523F90EFA00DF3774A259F2E62B4C5D99CB5ADB300A0285E5301930E0C70FB6876939CE616CE624A11E0086D341EBCACA0A1F5");
+    GIni.GetString("Encrypt", "e", stre, "11");
+    GIni.GetString("Encrypt", "d", strd, "0A033748626487695F5F30BC38B98B44C2CD2DFF434098CD20D8A138D090BF64797C3FA7A2CDCB3CD1E0BDBA2654B4F9DF8E8AE59D733D9F33B301624AFD1D51");
+
+    GIni.GetString("Encrypt", "p", strp, "00D840B41666B42E92EA0DA3B43204B5CFCE3352524D0416A5A441E700AF46120D");
+    GIni.GetString("Encrypt", "q", strq, "00C97FB1F027F453F6341233EAAAD1D9353F6C42D08866B1D05A0F2035028B9D89");
+    GIni.GetString("Encrypt", "dmp1", strdmp1, "590B9572A2C2A9C406059DC2AB2F1DAFEB7E8B4F10A7549E8EEDF5B4FCE09E05");
+    GIni.GetString("Encrypt", "dmq1", strdmq1, "008E3C0521FE15E0EA06A36FF0F10C9952C35B7A7514FD3238B80AAD5298628D51");
+    GIni.GetString("Encrypt", "ipmq", stripmq, "363FF7189DA8E90B1D341F71D09B76A8A943E11D10B24D249F2DEAFEF80C1826");
+
+    m_ServerRSA.InitPrivateKey(strn.c_str(), stre.c_str(), strd.c_str(), strp.c_str(), strq.c_str(), strdmp1.c_str(), strdmq1.c_str(), stripmq.c_str());
     if (_InitServer())
     {
         m_bInitSuccess = true;

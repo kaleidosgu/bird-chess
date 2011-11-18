@@ -48,8 +48,6 @@ CClientSocketMgr::CClientSocketMgr()
     m_bEncrypt = true;
     memset(m_SendBuffer, 0, cMAX_SEND_BUFFER_SIZE);
     memset(m_UncompressBuffer, 0, cMAX_COMPRESSED_DATA_SIZE);
-    m_ClientRSA.GenerateKey();
-    m_ServerRSA.InitKey();
 }
 
 CClientSocketMgr::~CClientSocketMgr()
@@ -315,6 +313,12 @@ bool CClientSocketMgr::Init(bool bCompress/* = true*/, bool bEncrypt/* = true*/,
     {
         return false;
     }
+    m_ClientRSA.GenerateKey();
+
+    const char n[] = "00AA36ABCE88ACFDFF55523C7FC4523F90EFA00DF3774A259F2E62B4C5D99CB5ADB300A0285E5301930E0C70FB6876939CE616CE624A11E0086D341EBCACA0A1F5";
+    const char e[] = "11";
+
+    m_ServerRSA.InitPublicKey(n, e);
     //ASSERT(m_hEventConnect == WSA_INVALID_EVENT);
     m_hSocketEvent = WSACreateEvent();
     TCHAR szName[MAX_PATH];
