@@ -11,8 +11,8 @@ const unsigned short cMAX_LOGIC_MSG_SIZE = 64512;
 
 typedef struct MSG_BASE
 {
-    unsigned short nMsg;
     unsigned short nSize;
+	unsigned short nMsg;
     MSG_BASE()
     {
         nMsg = 0;
