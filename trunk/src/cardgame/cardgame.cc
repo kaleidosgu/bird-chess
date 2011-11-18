@@ -90,6 +90,11 @@ void CCardGame::ProcessMsg(MSG_BASE & rMsg, unsigned int nSlotIndex)
             break;
         case MSGID_CARDGAME_C2S_LoginRequest:
             {
+                if (m_aCardSlot[nSlotIndex].m_State != CardSlot::State_Free)
+                {
+                    _DisconnectClient(&m_aCardSlot[nSlotIndex], 0);
+                    return;
+                }
                 m_aCardSlot[nSlotIndex].m_State = CardSlot::State_Logining;
 
                 MSG_CARDGAME_C2S_LoginRequest & rLoginRequestMsg = (MSG_CARDGAME_C2S_LoginRequest &)rMsg;

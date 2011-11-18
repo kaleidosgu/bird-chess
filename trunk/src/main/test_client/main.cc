@@ -1,6 +1,7 @@
 #include "../../net/clientsocketmgr.h"
 #include "../../base/log.h"
 #include "../../net/systemmsg.h"
+#include "../../login/loginmsg.h"
 #include <stdio.h>
 
 using namespace net;
@@ -9,23 +10,9 @@ int main()
 {
     CClientSocketMgr csm;
     csm.Init(true, true);
-    csm.Connect("127.0.0.1", 8888);
+    csm.Connect("127.0.0.1", 8887);
     csm.Run();
 
-    MSG_BASE msg1;
-    msg1.nMsg = 1111;
-    csm.SendMsg(msg1);
-    /*
-    int nNum = 0;
-    while (nNum < 2)
-    {
-        if (!csm.SendMsg(initmsg))
-        {
-            WriteLog("Send failed.\n");
-        }
-        nNum++;
-    }
-    */
     MSG_BASE * pMsg = NULL;
     int i=0;
     char szInput[1024];
@@ -46,10 +33,7 @@ int main()
         pMsg = csm.GetMsg();
         if (pMsg != NULL)
         {
-            //MSG_LOGIN_LoginRequest msg;
-            //csm.SendMsg(msg);
             WriteLog("Get the msg. msgid=%d.\n", pMsg->nMsg);
-
             delete pMsg;
             pMsg = NULL;
         }
@@ -77,68 +61,21 @@ int main()
         }
 
         string strInput = szInput;
-        if (strInput == "wd")
+        if (strInput == "a")
         {
-    MSG_BASE msg;
-    msg.nMsg = 1113;
-    csm.SendMsg(msg);
-        }
-        else if (strInput =="d")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1114;
-    csm.SendMsg(msg);
-        }
-        else if (strInput =="ds")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1115;
-    csm.SendMsg(msg);
-        }
-        else if (strInput =="s")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1116;
-    csm.SendMsg(msg);
-        }
-        else if (strInput=="as")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1117;
-    csm.SendMsg(msg);
-        }
-        else if (strInput=="a")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1118;
-    csm.SendMsg(msg);
-        }
-        else if (strInput=="aw")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1119;
-    csm.SendMsg(msg);
-        }
-        else if (strInput=="w")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1120;
-    csm.SendMsg(msg);
-        }
-        else if (strInput=="p")
-        {
-    MSG_BASE msg;
-    msg.nMsg = 1121;
-    csm.SendMsg(msg);
+            MSG_LOGIN_C2S_LoginRequest lrMsg;
+            memcpy(lrMsg.szUsername, "123", 3);
+            memcpy(lrMsg.szPassword, "123", 3);
+            csm.SendMsg(lrMsg);
         }
         else if (strInput =="q")
         {
             break;
         }
     }
-    MSG_BASE msg2;
-    msg2.nMsg = 1112;
-    csm.SendMsg(msg2);
+    MSG_BASE msg;
+    msg.nMsg = 1121;
+    csm.SendMsg(msg);
     csm.Disconnect();
     csm.Wait();
     return 0;

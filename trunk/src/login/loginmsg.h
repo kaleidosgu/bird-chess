@@ -58,8 +58,10 @@ struct MSG_LOGIN_LA2LC_LoginRequest : public MSG_BASE
         nMsg = MSGID_LOGIN_LA2LC_LoginRequest;
         nSize = sizeof(MSG_LOGIN_LA2LC_LoginRequest);
         nSlotIndex = 0;
+        nSeqID = 0;
     }
     unsigned int nSlotIndex; 
+    long long nSeqID;
     MSG_LOGIN_C2S_LoginRequest lrMsg;
 };
 
@@ -70,8 +72,10 @@ struct MSG_LOGIN_LC2LA_LoginResult : public MSG_BASE
         nMsg = MSGID_LOGIN_LC2LA_LoginResult;
         nSize = sizeof(MSG_LOGIN_LC2LA_LoginResult);
         nSlotIndex = 0;
+        nSeqID = 0;
     }
     unsigned int nSlotIndex; 
+    long long nSeqID;
     MSG_LOGIN_S2C_LoginResult lrMsg;
 };
 
