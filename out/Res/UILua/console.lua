@@ -46,7 +46,7 @@ local function OnMessage(self,nUIEvent,nDlgID)
 		if nDlgID == 35 then
 			if self.m_bShowEdit == true then
 				local kdString = self.myedit:GetText()
-				
+
 				local firstStr = {}
 				local ncount = 1
 				for w in string.gmatch(kdString, "%a+") do
@@ -56,13 +56,14 @@ local function OnMessage(self,nUIEvent,nDlgID)
 				if firstStr[1] == "create" then
 					local ends = string.find(kdString," ")
 					local substr = string.sub(kdString,ends + 1,string.len(kdString))
+					local strSimple = strFile
 					substr = string.format("\\res\\uilua\\%s.lua",substr)
 					local strFile = g_UIcurDir .. substr
 					local bExist = IsFileExist(strFile)
 					if bExist == true then
 						--consoleAddText(strFile)
 						dofile(strFile)
-						createTmpUI(strFile)
+						createTmpUI(strFile,strSimple)
 					else
 						consoleAddText(strFile .. " File not exist!")
 					end
