@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/17/11 14:10:13.
+** Generated automatically by tolua++-1.0.92 on 11/19/11 18:01:54.
 */
 
 #ifndef __cplusplus
@@ -20,22 +20,23 @@ TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 #include "wndedit.h"
 #include "wndbutton.h"
 #include "../UI/UIExportWndBase.h"
+#include "../cn/gfxfontwnd.h"
 #include "../ExportLua/UIGlobalExport.h"
 #include "wtypes.h"
 
 /* function to release collected object via destructor */
 #ifdef __cplusplus
 
-static int tolua_collect_SIZE (lua_State* tolua_S)
+static int tolua_collect_CWndDesktop (lua_State* tolua_S)
 {
- SIZE* self = (SIZE*) tolua_tousertype(tolua_S,1,0);
+ CWndDesktop* self = (CWndDesktop*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
 
-static int tolua_collect_CWndEdit (lua_State* tolua_S)
+static int tolua_collect_CWndBase (lua_State* tolua_S)
 {
- CWndEdit* self = (CWndEdit*) tolua_tousertype(tolua_S,1,0);
+ CWndBase* self = (CWndBase*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
@@ -50,6 +51,13 @@ static int tolua_collect_CWndStatic (lua_State* tolua_S)
 static int tolua_collect_CWndLoadPicture (lua_State* tolua_S)
 {
  CWndLoadPicture* self = (CWndLoadPicture*) tolua_tousertype(tolua_S,1,0);
+	Mtolua_delete(self);
+	return 0;
+}
+
+static int tolua_collect_CGfxFontWnd (lua_State* tolua_S)
+{
+ CGfxFontWnd* self = (CGfxFontWnd*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
@@ -75,16 +83,16 @@ static int tolua_collect_POINT (lua_State* tolua_S)
 	return 0;
 }
 
-static int tolua_collect_CWndDesktop (lua_State* tolua_S)
+static int tolua_collect_CWndEdit (lua_State* tolua_S)
 {
- CWndDesktop* self = (CWndDesktop*) tolua_tousertype(tolua_S,1,0);
+ CWndEdit* self = (CWndEdit*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
 
-static int tolua_collect_CWndBase (lua_State* tolua_S)
+static int tolua_collect_SIZE (lua_State* tolua_S)
 {
- CWndBase* self = (CWndBase*) tolua_tousertype(tolua_S,1,0);
+ SIZE* self = (SIZE*) tolua_tousertype(tolua_S,1,0);
 	Mtolua_delete(self);
 	return 0;
 }
@@ -94,15 +102,16 @@ static int tolua_collect_CWndBase (lua_State* tolua_S)
 /* function to register type */
 static void tolua_reg_types (lua_State* tolua_S)
 {
- tolua_usertype(tolua_S,"SIZE");
- tolua_usertype(tolua_S,"CWndEdit");
+ tolua_usertype(tolua_S,"CWndDesktop");
+ tolua_usertype(tolua_S,"CWndBase");
  tolua_usertype(tolua_S,"CWndStatic");
  tolua_usertype(tolua_S,"CWndLoadPicture");
+ tolua_usertype(tolua_S,"CGfxFontWnd");
  tolua_usertype(tolua_S,"CUIExportWndBase");
  tolua_usertype(tolua_S,"CWndButton");
  tolua_usertype(tolua_S,"POINT");
- tolua_usertype(tolua_S,"CWndDesktop");
- tolua_usertype(tolua_S,"CWndBase");
+ tolua_usertype(tolua_S,"CWndEdit");
+ tolua_usertype(tolua_S,"SIZE");
 }
 
 /* get function: cx of class  SIZE */
@@ -769,6 +778,276 @@ static int tolua_WndLibExport_CWndBase_ShowBox00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'ShowBox'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: new of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_new00
+static int tolua_WndLibExport_CGfxFontWnd_new00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  {
+   CGfxFontWnd* tolua_ret = (CGfxFontWnd*)  Mtolua_new((CGfxFontWnd)());
+    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CGfxFontWnd");
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: new_local of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_new00_local
+static int tolua_WndLibExport_CGfxFontWnd_new00_local(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  {
+   CGfxFontWnd* tolua_ret = (CGfxFontWnd*)  Mtolua_new((CGfxFontWnd)());
+    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CGfxFontWnd");
+    tolua_register_gc(tolua_S,lua_gettop(tolua_S));
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: delete of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_delete00
+static int tolua_WndLibExport_CGfxFontWnd_delete00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'delete'", NULL);
+#endif
+  Mtolua_delete(self);
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'delete'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: Create of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_Create00
+static int tolua_WndLibExport_CGfxFontWnd_Create00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,0,&tolua_err) ||
+     !tolua_isusertype(tolua_S,6,"CWndBase",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,7,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,8,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+  int x = ((int)  tolua_tonumber(tolua_S,2,0));
+  int y = ((int)  tolua_tonumber(tolua_S,3,0));
+  int cx = ((int)  tolua_tonumber(tolua_S,4,0));
+  int cy = ((int)  tolua_tonumber(tolua_S,5,0));
+  CWndBase* pParent = ((CWndBase*)  tolua_tousertype(tolua_S,6,0));
+  int nID = ((int)  tolua_tonumber(tolua_S,7,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Create'", NULL);
+#endif
+  {
+   bool tolua_ret = (bool)  self->Create(x,y,cx,cy,pParent,nID);
+   tolua_pushboolean(tolua_S,(bool)tolua_ret);
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Create'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetTextFont of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_SetTextFont00
+static int tolua_WndLibExport_CGfxFontWnd_SetTextFont00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,1,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,1,&tolua_err) ||
+     !tolua_isnumber(tolua_S,6,1,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,7,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+  const char* lpsFontName = ((const char*)  tolua_tostring(tolua_S,2,0));
+  int nFaceSize = ((int)  tolua_tonumber(tolua_S,3,0));
+   int bBold = ((  int)  tolua_tonumber(tolua_S,4,FALSE));
+   int bItalic = ((  int)  tolua_tonumber(tolua_S,5,FALSE));
+   int bAntialias = ((  int)  tolua_tonumber(tolua_S,6,TRUE));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetTextFont'", NULL);
+#endif
+  {
+   self->SetTextFont(lpsFontName,nFaceSize,bBold,bItalic,bAntialias);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetTextFont'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetText of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_SetText00
+static int tolua_WndLibExport_CGfxFontWnd_SetText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+  const char* pText = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetText'", NULL);
+#endif
+  {
+   self->SetText(pText);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetText'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetFontColor of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_SetFontColor00
+static int tolua_WndLibExport_CGfxFontWnd_SetFontColor00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+  unsigned long drColor = (( unsigned long)  tolua_tonumber(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetFontColor'", NULL);
+#endif
+  {
+   self->SetFontColor(drColor);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetFontColor'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: AddText of class  CGfxFontWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxFontWnd_AddText00
+static int tolua_WndLibExport_CGfxFontWnd_AddText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxFontWnd",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+  const char* pText = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'AddText'", NULL);
+#endif
+  {
+   self->AddText(pText);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'AddText'.",&tolua_err);
  return 0;
 #endif
 }
@@ -2416,6 +2695,22 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetTabWnd",tolua_WndLibExport_CWndBase_SetTabWnd00);
    tolua_variable(tolua_S,"m_bDrawBox",tolua_get_CWndBase_m_bDrawBox,tolua_set_CWndBase_m_bDrawBox);
    tolua_function(tolua_S,"ShowBox",tolua_WndLibExport_CWndBase_ShowBox00);
+  tolua_endmodule(tolua_S);
+  #ifdef __cplusplus
+  tolua_cclass(tolua_S,"CGfxFontWnd","CGfxFontWnd","",tolua_collect_CGfxFontWnd);
+  #else
+  tolua_cclass(tolua_S,"CGfxFontWnd","CGfxFontWnd","",NULL);
+  #endif
+  tolua_beginmodule(tolua_S,"CGfxFontWnd");
+   tolua_function(tolua_S,"new",tolua_WndLibExport_CGfxFontWnd_new00);
+   tolua_function(tolua_S,"new_local",tolua_WndLibExport_CGfxFontWnd_new00_local);
+   tolua_function(tolua_S,".call",tolua_WndLibExport_CGfxFontWnd_new00_local);
+   tolua_function(tolua_S,"delete",tolua_WndLibExport_CGfxFontWnd_delete00);
+   tolua_function(tolua_S,"Create",tolua_WndLibExport_CGfxFontWnd_Create00);
+   tolua_function(tolua_S,"SetTextFont",tolua_WndLibExport_CGfxFontWnd_SetTextFont00);
+   tolua_function(tolua_S,"SetText",tolua_WndLibExport_CGfxFontWnd_SetText00);
+   tolua_function(tolua_S,"SetFontColor",tolua_WndLibExport_CGfxFontWnd_SetFontColor00);
+   tolua_function(tolua_S,"AddText",tolua_WndLibExport_CGfxFontWnd_AddText00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","CWndBase",tolua_collect_CWndDesktop);

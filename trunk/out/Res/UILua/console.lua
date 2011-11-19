@@ -56,12 +56,12 @@ local function OnMessage(self,nUIEvent,nDlgID)
 				if firstStr[1] == "create" then
 					local ends = string.find(kdString," ")
 					local substr = string.sub(kdString,ends + 1,string.len(kdString))
-					local strSimple = strFile
+					local strSimple = substr
 					substr = string.format("\\res\\uilua\\%s.lua",substr)
 					local strFile = g_UIcurDir .. substr
 					local bExist = IsFileExist(strFile)
 					if bExist == true then
-						--consoleAddText(strFile)
+						consoleAddText(strFile)
 						dofile(strFile)
 						createTmpUI(strFile,strSimple)
 					else
@@ -111,10 +111,15 @@ local cy = bsebg:GetClientSize().cy
 movewnd:ResizeWindow(cx,cy)
 movewnd:MoveWindow(0,0 - cy )
 
-local stText = CWndStatic:new()
-expwnd.context = stText
-stText:CreateNoFont(0,0,100,28,"haha",movewnd,0)
-stText:SetText("")
+-- local stText = CWndStatic:new()
+-- expwnd.context = stText
+-- stText:CreateNoFont(0,0,100,28,"haha",movewnd,0)
+-- stText:SetText("")
+
+local gfxFont = CGfxFontWnd:new()
+expwnd.context = gfxFont
+gfxFont:Create(0,0,100,28,movewnd,0)
+gfxFont:SetTextFont("ËÎÌו",16,TRUE,TRUE,TRUE)
 
 local stEdit = CWndEdit:new();
 stEdit:CreateNoFont(0,280,100,28,movewnd,35)

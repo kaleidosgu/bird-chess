@@ -479,6 +479,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\CN\GfxFontWnd.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\CN\GfxFontWnd.h"
+			>
+		</File>
+		<File
 			RelativePath=".\icon1.ico"
 			>
 		</File>

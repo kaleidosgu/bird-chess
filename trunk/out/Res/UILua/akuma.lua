@@ -57,9 +57,9 @@ local function CreateFake( parent , a, r, g, b,x,y,startposX )
 	fake.startpos = startposX
 	return fake
 end
-function createTmpUI(strFile)
+function createTmpUI(strFile,simplestr)
 	local pMain = basewnd.toObject(g_UIGlobal["ptMainClient"],"CWndBase")
-	local ptReturn = CreateUI(strFile,true,pMain,1,0)
+	local ptReturn = CreateUI(strFile,true,pMain,1,0,simplestr)
 	if ptReturn ~= nil then
 
 		--consoleClear( )
@@ -83,6 +83,10 @@ function createTmpUI(strFile)
 		ptReturn.tickcounts = 0
 		regEvent( ptReturn )
 		isUIExist("akuma")
+		
+		local gfxFont = CGfxFontWnd:new()
+		gfxFont:Create(sPos,yPos,100,100,ptReturn,0)
+		gfxFont:SetTextFont("ËÎÌו",16)
 
 	end
 end
