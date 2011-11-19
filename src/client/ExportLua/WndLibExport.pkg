@@ -5,9 +5,12 @@ $#include "wndstatic.h"
 $#include "wndedit.h"
 $#include "wndbutton.h"
 $#include "../UI/UIExportWndBase.h"
+$#include "../cn/gfxfontwnd.h"
 $#include "../ExportLua/UIGlobalExport.h"
 $#include "wtypes.h"
 typedef 0 NULL;
+typedef FALSE 0;
+typedef TRUE 1;
 typedef int INT;
 typedef char CHAR;
 typedef int BOOL;
@@ -44,6 +47,19 @@ public:
 	bool m_bDrawBox;
 	void ShowBox( bool bShow );
 };
+
+class CGfxFontWnd
+{
+public:
+	CGfxFontWnd(void);
+	virtual ~CGfxFontWnd(void);
+	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
+	void SetTextFont( const char* lpsFontName, int nFaceSize, BOOL bBold = FALSE, BOOL bItalic = FALSE, BOOL bAntialias = TRUE );
+	void SetText( const char* pText );
+	void SetFontColor( DWORD drColor );
+	void AddText( const char* pText );
+};
+
 class CWndDesktop : public CWndBase
 {
 public:

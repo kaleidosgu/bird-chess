@@ -29,7 +29,7 @@ function CreateUI(strRes,bDestroy,pParent,ptx,pty,strsimple)
 		ptReturn = CreateLuaWnd(pParent,ptx,pty)
 		ptReturn:SetPath(strRes)
 		g_tUIMap[strsimple] = ptReturn
-		consoleAddText("haha" .. strRes)
+		-- consoleAddText("haha" .. strRes)
 	end
 	return ptReturn
 end
@@ -75,7 +75,7 @@ end
 function getUIPoint( str )
 	local substr = string.format("\/res\/uilua\/%s.lua",str)
 	substr = g_UIcurDir .. substr
-	consoleAddText("haha" .. substr)
+	-- consoleAddText("haha" .. substr)
 	return g_tUIMap[str],substr
 end
 function hideLoginWnd( )

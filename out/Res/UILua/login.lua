@@ -20,7 +20,6 @@ function createTmpUI(strFile,strSimple)
 	local pMain = basewnd.toObject(g_UIGlobal["ptMainClient"],"CWndBase")
 	local ptReturn = CreateUI(strFile,true,pMain,450,250,strSimple)
 	if ptReturn ~= nil then
-		consoleAddText("xixi")
 		local ptReturnbse = basewnd.toObject(ptReturn,"CWndBase")
 
 		local pPicture = CWndLoadPicture:new();
