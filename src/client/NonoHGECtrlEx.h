@@ -230,4 +230,61 @@ private:
 	std::string  m_strbufShow;
 };
 
+
+////////////////////////以下是中文控件//////////////
+#include ".\cn\GfxFont.h"
+
+template < typename _Fnt >
+class NONOGFXUIText : public hgeGUIObject
+{
+public:
+
+	NONOGFXUIText(int _id, float x, float y, float w, float h, _Fnt* fnt)
+	{
+		id=_id;
+		bStatic=true;
+		bVisible=true;
+		bEnabled=true;
+		rect.Set(x, y, x+w, y+h);
+
+		font=fnt;
+		tx=x;
+		ty=y+(h-fnt->GetHeight())/2.0f;
+
+		text[0]=0;
+	}
+	void			SetMode(int _align)
+	{
+		align=_align;
+		if(align==HGETEXT_RIGHT) tx=rect.x2;
+		else if(align==HGETEXT_CENTER) tx=(rect.x1+rect.x2)/2.0f;
+		else tx=rect.x1;
+	}
+	void			SetText(const char *_text)
+	{
+		strcpy(text, _text);
+	}
+	const char*		GetText(){return text;}
+	//void			printf(const char *format, ...);
+	virtual void	Render()
+	{
+		font->SetColor(color);
+		font->Render(tx,ty,align,text);
+	}
+	virtual void Render(float m_x,float m_y)
+	{
+		font->SetColor(color);
+		font->Render(m_x,m_y,align,text);
+	}
+
+
+private:
+	_Fnt*			font;
+	float			tx, ty;
+	int				align;
+	char			text[256];
+};
+
+
+
 #endif  

@@ -275,3 +275,9 @@ void NONOUIText::Render(float m_x,float m_y)
 	font->Render(m_x,m_y,align,text);
 }
 
+
+
+
+
+
+

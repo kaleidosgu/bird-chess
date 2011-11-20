@@ -71,6 +71,7 @@ private:
 	
 	int m_nStateID;
 	std::map<int,hgeSprite*> m_sprMap;    // 0-10 是正常帧数区域   10-20是死亡帧数区域  20-30是特殊区域
+	hgeSprite* m_curSpr;
 	//CBirdEntity* pPreBird;
 	CBirdEntity* pNextBird;
 
