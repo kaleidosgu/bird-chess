@@ -82,17 +82,25 @@ GfxFont::~GfxFont(void)
 }
 
 // äÖÈ¾ÎÄ±¾
-void GfxFont::Print( float x, float y, const char *format, ... )
+void GfxFont::Print( float x, float y,int align, const char *format, ... )
 {
 	char sBuffer[10240] = {0};
 	char *lpsArg=(char*)&format+sizeof(format);
 	vsprintf(sBuffer, format, lpsArg);
 
-	Render(x,y,CA2W(sBuffer));
+	Render(x,y,align,CA2W(sBuffer));
 }
 
-void GfxFont::Render(float x, float y, const wchar_t* text )
+void	GfxFont::Render(float x, float y, int align ,const char* text )
 {
+	char sBuffer[10240] = {0};
+	char *lpsArg=(char*)&text+sizeof(text);
+	vsprintf(sBuffer, text, lpsArg);
+	Render(x,y,align,CA2W(sBuffer));
+}
+void GfxFont::Render(float x, float y, int align,const wchar_t* text )
+{
+
 	float offsetX = x;
 	float offsetY = y;
 

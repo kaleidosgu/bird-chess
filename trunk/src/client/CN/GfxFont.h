@@ -11,8 +11,9 @@ public:
 
 public:
 	// 渲染文本
-	virtual void	Print( float x, float y, const char *format, ... );
-	virtual void	Render(float x, float y, const wchar_t* text );
+	virtual void	Print( float x, float y, int align,const char *format, ... );
+	virtual void	Render(float x, float y, int align ,const wchar_t* text );
+	virtual void	Render(float x, float y, int align ,const char* text );
 
 	// 设置与获取颜色
 	virtual void	SetColor( DWORD dwColor, int i = -1 );
@@ -34,6 +35,7 @@ public:
 
 	// 字体大小
 	virtual float	GetFontSize();
+	virtual float GetHeight(){ return  GetKerningHeight();};
 
 private:
 	// 根据字符获取轮廓

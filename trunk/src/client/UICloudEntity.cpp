@@ -14,9 +14,8 @@ using namespace std;
 
 float CCloudEntity::m_LogicOrdx =0;
 float CCloudEntity::m_LogicOrdy = 0;
-CCloudEntity::CCloudEntity(int nCloudIndex):m_x(0.0),m_y(0.0),m_CurrentSprID(0),m_fWidth(0.0),m_fHeight(0.0),m_nCloudIndex(nCloudIndex),pNextBird(NULL),m_MoveTime(0.0),m_Vx(300),m_Vy(0),m_Vyz(700)
+CCloudEntity::CCloudEntity(int nCloudIndex):m_x(0.0),m_y(0.0),m_CurrentSprID(0),m_fWidth(0.0),m_fHeight(0.0),m_nCloudIndex(nCloudIndex),pNextBird(NULL),m_MoveTime(0.0),m_Vx(300),m_Vy(0),m_Vyz(700),m_sprCur(NULL)
 {
-
 }
 
 CCloudEntity::~CCloudEntity()
@@ -51,6 +50,8 @@ void CCloudEntity::SetTexture(HTEXTURE tex,list<EntitySize*>& listEntitySize )
 			m_sprMap[pEntitySize->nIndex] = spr;
 		}
 	}
+	SetCurrentSprID(0);
+
 }
 
 void CCloudEntity::SetCurrentSprID(int nID) 
@@ -58,8 +59,9 @@ void CCloudEntity::SetCurrentSprID(int nID)
 	if(nID < nMAX_BIRDENTITYSPR_COUNT)	
 	{
 		m_CurrentSprID = nID;
-		if( GetCurrentSpr())
+		if( m_sprMap[m_CurrentSprID])
 		{
+			m_sprCur = m_sprMap[m_CurrentSprID];
 			m_fHeight = GetCurrentSpr()->GetHeight();
 			m_fWidth = GetCurrentSpr()->GetWidth();
 		}
@@ -69,11 +71,7 @@ void CCloudEntity::SetCurrentSprID(int nID)
 
 hgeSprite* CCloudEntity::GetCurrentSpr()
 {
-	if( m_sprMap[m_CurrentSprID])
-	{
-		return m_sprMap[m_CurrentSprID];
-	}
-	return NULL;
+	return m_sprCur;
 }
 
 void CCloudEntity::Update(float dt)

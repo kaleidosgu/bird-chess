@@ -241,6 +241,18 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 			//showmesage
 		}
 		break;
+	case MSGID_CARDGAME_X2X_ChatContent:
+		{
+			MSG_CARDGAME_X2X_ChatContent& rInfoMsg  =  (MSG_CARDGAME_X2X_ChatContent&)rMsg;
+			//UIShowMessage(rInfoMsg.pData);
+
+			g_UIGround->ShowChat(rInfoMsg.pData);
+
+		}
+		break;
+	default:
+		break;
 
 	}
+
 }

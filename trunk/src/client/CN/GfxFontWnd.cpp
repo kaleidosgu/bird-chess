@@ -46,7 +46,7 @@ void CGfxFontWnd::OnDraw()
 	CWndBase::OnDraw();
 	if( m_pGfxFont )
 	{
-		m_pGfxFont->Print( (float)m_rcAbsWnd.left,(float)m_rcAbsWnd.top,m_strText.c_str());
+		m_pGfxFont->Print( (float)m_rcAbsWnd.left,(float)m_rcAbsWnd.top,0,m_strText.c_str());
 	}
 }
 

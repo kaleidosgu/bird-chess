@@ -14,9 +14,8 @@ extern float G_OrderLogic;
 float CBirdEntity::m_LogicOrdx =0;
 float CBirdEntity::m_LogicOrdy = 0;
 bool CBirdEntity::m_CanBirdMove = true;
-CBirdEntity::CBirdEntity(int nBirdType):m_x(0.0),m_y(0.0),m_CurrentSprID(0),m_fWidth(0.0),m_fHeight(0.0),m_nBirdType(nBirdType),pNextBird(NULL),m_MoveTime(0.0),m_Vx(100),m_Vy(0),m_Vyz(1000),m_nCloudIndex(-1),m_bFaceRight(true),m_pCloud(NULL)
+CBirdEntity::CBirdEntity(int nBirdType):m_x(0.0),m_y(0.0),m_CurrentSprID(0),m_fWidth(0.0),m_fHeight(0.0),m_nBirdType(nBirdType),pNextBird(NULL),m_MoveTime(0.0),m_Vx(100),m_Vy(0),m_Vyz(1000),m_nCloudIndex(-1),m_bFaceRight(true),m_pCloud(NULL),m_curSpr(NULL)
 {
-
 }
 
 CBirdEntity::~CBirdEntity()
@@ -51,6 +50,8 @@ void CBirdEntity::SetTexture(HTEXTURE tex,list<EntitySize*>& listEntitySize )
 			m_sprMap[pEntitySize->nIndex] = spr;
 		}
 	}
+	SetCurrentSprID(0);
+
 }
 
 void CBirdEntity::SetCurrentSprID(int nID) 
@@ -58,23 +59,21 @@ void CBirdEntity::SetCurrentSprID(int nID)
 	if(nID < nMAX_BIRDENTITYSPR_COUNT)	
 	{
 		m_CurrentSprID = nID;
-		if( GetCurrentSpr())
+		if( m_sprMap[m_CurrentSprID])
 		{
+			m_curSpr =  m_sprMap[m_CurrentSprID];
 			m_fHeight = GetCurrentSpr()->GetHeight();
 			m_fWidth = GetCurrentSpr()->GetWidth();
 			GetCurrentSpr()->SetFlip(!m_bFaceRight,false,false);
 		}
+
 	}
 }
 
 
 hgeSprite* CBirdEntity::GetCurrentSpr()
 {
-	if( m_sprMap[m_CurrentSprID])
-	{
-		return m_sprMap[m_CurrentSprID];
-	}
-	return NULL;
+		return m_curSpr;
 }
 
 void CBirdEntity::Update(float dt)

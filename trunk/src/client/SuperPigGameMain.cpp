@@ -329,17 +329,17 @@ bool RenderFunc()
 
 
 
-	const char* lpString = ""
-		"演示中文显示新方案，支持平滑(无锯齿)模式\n"
-		"\n"
-		"不需要依赖任何图片字模，丰富多样的显示方法。\n"
-		"\n"
-		"使用方法很简单，请参阅 <CN> 目录下的 Readme.txt 文件。\n";
+	//const char* lpString = ""
+	//	"演示中文显示新方案，支持平滑(无锯齿)模式\n"
+	//	"\n"
+	//	"不需要依赖任何图片字模，丰富多样的显示方法。\n"
+	//	"\n"
+	//	"使用方法很简单，请参阅 <CN> 目录下的 Readme.txt 文件。\n";
 
 // 	// 使用像素字体输出
 // 	pGfxFont->Print(10,10,lpString);
 // 
-// 	pBlodFont->Print(10,100,"中文显示方案 演示“粗体”");		
+ 	//pBlodFont->Print(10,100,0,"中文显示方案 演示“粗体”");		
 // 	pItalicFont->Print(10,150,"中文显示方案 演示“斜体”");
 // 	pNotAntialias->Print(10,200,"中文显示方案 演示“非平滑模式”");
 // 	pAntialias->Print(10,250,"中文显示方案 演示“平滑反锯齿模式”");

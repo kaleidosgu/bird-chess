@@ -10,6 +10,8 @@
 #include "UIPlayer.h"
 #include "../cardgame/cardgamemsg.h"
 #include "UIShowMessage.h"
+#include ".\cn\GfxFont.h"
+
 
 const int nMaxBirdCount = 5;
 const int nMaxCloudCount = 10;
@@ -19,6 +21,8 @@ const int nBirdDisY = 100;
 const int nCloudY = 650;
 
 extern clinetnet::CClientSocketMgr g_CSM;
+GfxFont* G_GfxFnt;
+hgeFont* G_HgeFnt;
 using namespace std;
 
 
@@ -38,6 +42,10 @@ CUIGround::CUIGround():m_bReady(false)
 		pEntity->SetLocation(CloudDis*i,nCloudY);
 	}	
 	m_PlayerManager = new UIPlayerManage();
+	G_GfxFnt = new GfxFont("宋体",20,TRUE,FALSE,FALSE);// 宋书，粗体，非斜体，非平滑
+	m_Chat = new NONOGFXUIText<GfxFont>(1,800,900,100,100,G_GfxFnt);
+	G_GfxFnt->SetColor(0xFFFFF00F);	// 设置像素字体颜色
+	m_Chat->SetText("testTEST中文1321");
 }
 
 CUIGround::~CUIGround()
@@ -78,6 +86,7 @@ void CUIGround::Render()
 			(*itBeginCloud)->Render();
 		}
 		m_PlayerManager->Render();
+		//m_Chat->Render(900,688);
 	}
 
 	/*std::vector<CBirdEntity*> m_vecBird;
@@ -117,6 +126,7 @@ void CUIGround::Update(float dt)
 			}
 		}
 		m_PlayerManager->Update(dt);
+		m_Chat->Update(dt);
 	}
 
 }
@@ -152,6 +162,8 @@ void CUIGround::SetPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo)
 		{
 			rPlayerVec[1]->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);		//目前只支持两个人 0 和 1
 		}
+		SendChat("[聊天]Nono: 大家好");
+
 }
 
 void CUIGround::SetPlayerCardInfo(int nPosID,int nType,int nInstruction)
@@ -240,4 +252,18 @@ void CUIGround::SetWinner(int nPlayerID)
 	}
 	m_PlayerManager->GetMainPlayer()->SetWinGame()	;
 
+}
+
+void CUIGround::SendChat( const std::string& strChat,int nType /*= 0*/ )
+{
+	MSG_CARDGAME_X2X_ChatContent* msg;
+	int nSize =  strChat.size()+1;
+	msg = CreateDynamicLengthMsg(nSize+sizeof(MSG_CARDGAME_X2X_ChatContent),(MSG_CARDGAME_X2X_ChatContent*)0);
+	strcpy_s(msg->pData,nSize,strChat.c_str());
+	SendMsg(*msg);
+}
+
+void CUIGround::ShowChat(const  std::string& strChat,int nType /*= 0*/ )
+{
+	m_Chat->SetText(strChat.c_str());
 }
