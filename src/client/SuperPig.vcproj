@@ -471,6 +471,14 @@
 			Name="CNFont"
 			>
 			<File
+				RelativePath=".\CN\GfxEdit.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CN\GfxEdit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CN\GfxFont.cpp"
 				>
 			</File>

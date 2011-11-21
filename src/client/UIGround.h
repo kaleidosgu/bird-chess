@@ -19,6 +19,7 @@ class UIPlayerManage;
 class CardCmdBase;
 struct MSG_CARDGAME_S2C_PlayerInfo;
 struct MSG_BASE;
+class GfxEdit;
 
 class hgeFont;
 
@@ -40,16 +41,19 @@ public:
 	void SetRoomMater(int nID);
 	void PlayerLeave(int nID);
 	void SetCurrentTurnPlayer(int nPlayerID);
-	void SendMsg(MSG_BASE& pMsg);
+	
 	void SetReady(bool bReady){m_bReady = bReady;};
 	void SetGameState(bool bGameState);
 	void SetRoomID(int nRoomID);
 	void Init();
 	void SetWinner(int nPlayerID);
-	void SendChat(const std::string& strChat,int nType = 0);
 	void ShowChat(const std::string& strChat,int nType = 0);
 	//UIPlayerManage* GetPlayerManager(){return m_PlayerManager;}; //为了个提示这么改不好,有时间改掉.让提示是随处可用的
+	static void SendChat(const std::string& strChat,int nType = 0);
+	static void SendMsg(MSG_BASE& pMsg);
+	static void OnEnter(GfxEdit* m_Edit);
 private:
+	typedef  NONOGFXUIText<GfxFont> UIChatTxt ;
 	std::vector<CCloudEntity*> m_vecCloud;
 	std::vector<CBirdEntity*> m_vecBird;
 
@@ -57,6 +61,8 @@ private:
 	UIPlayerManage* m_PlayerManager;
 	std::deque<CardCmdBase* > m_vecCardCmd;
 	std::deque<CardCmdBase* > m_vecCardCmdback;
-	NONOGFXUIText<GfxFont>* m_Chat;
+	std::deque<UIChatTxt*> m_vecChat;
+	GfxEdit* m_Edit;
 	bool m_bReady;
+	static char m_mainPlayerName[128];
 };
