@@ -11,6 +11,7 @@
 #include "../cardgame/cardgamemsg.h"
 #include "UIShowMessage.h"
 #include ".\cn\GfxFont.h"
+#include ".\cn\GfxEdit.h"
 
 
 const int nMaxBirdCount = 5;
@@ -19,13 +20,13 @@ const int nFirstBirdY = 180;
 const int nFirstBirdX = 30;
 const int nBirdDisY = 100;
 const int nCloudY = 650;
-
+const int nMaxChatTxtShow = 4;
 extern clinetnet::CClientSocketMgr g_CSM;
 GfxFont* G_GfxFnt;
 hgeFont* G_HgeFnt;
 using namespace std;
 
-
+char CUIGround::m_mainPlayerName[128] = {0};
 CUIGround::CUIGround():m_bReady(false)
 {
 	for(int i = 0 ;i < nMaxBirdCount ; ++i)
@@ -42,10 +43,17 @@ CUIGround::CUIGround():m_bReady(false)
 		pEntity->SetLocation(CloudDis*i,nCloudY);
 	}	
 	m_PlayerManager = new UIPlayerManage();
-	G_GfxFnt = new GfxFont("宋体",20,TRUE,FALSE,FALSE);// 宋书，粗体，非斜体，非平滑
-	m_Chat = new NONOGFXUIText<GfxFont>(1,800,900,100,100,G_GfxFnt);
-	G_GfxFnt->SetColor(0xFFFFF00F);	// 设置像素字体颜色
-	m_Chat->SetText("testTEST中文1321");
+	G_GfxFnt = new GfxFont("微软雅黑",20,TRUE,FALSE,FALSE);// 宋书，粗体，非斜体，非平滑
+	for(int i=0 ;i < nMaxChatTxtShow;i++)
+	{
+		UIChatTxt* m_Chat = new UIChatTxt(1,800,900,100,100,G_GfxFnt);
+		//G_GfxFnt->SetColor(0xFFFFF00F);	// 设置像素字体颜色..貌似无效
+		m_vecChat.push_back(m_Chat);
+	}
+
+	m_Edit = new GfxEdit(600,0xFFFFFF00, "宋体", 20);// 编辑框字体指定 隶书
+	m_Edit->SetFocus();
+	m_Edit->SetCallback(&CUIGround::OnEnter);
 }
 
 CUIGround::~CUIGround()
@@ -65,7 +73,17 @@ CUIGround::~CUIGround()
 		delete *itBeginBird;
 	}
 	m_vecCloud.clear();
+
+	deque<UIChatTxt*>::iterator itBeginChat= m_vecChat.begin();
+	deque<UIChatTxt*>::iterator itEndChat = m_vecChat.end();
+	for(;itBeginChat!=itEndChat;++itBeginChat)
+	{
+		delete *itBeginChat;
+	}
+	m_vecChat.clear();
 	delete m_PlayerManager;m_PlayerManager =0;
+	delete G_GfxFnt;
+	delete m_Edit;
 }
 
 void CUIGround::Render()
@@ -86,13 +104,14 @@ void CUIGround::Render()
 			(*itBeginCloud)->Render();
 		}
 		m_PlayerManager->Render();
-		//m_Chat->Render(900,688);
+		deque<UIChatTxt*>::iterator itBeginChat= m_vecChat.begin();
+		deque<UIChatTxt*>::iterator itEndChat = m_vecChat.end();
+		for(int i = 0;itBeginChat!=itEndChat;++itBeginChat,++i)
+		{
+			(*itBeginChat)->Render(900,628+20*i);
+		}
+		m_Edit->Render(900,718);
 	}
-
-	/*std::vector<CBirdEntity*> m_vecBird;
-	std::vector<CCloudEntity*> m_vecCloud;
-	std::map<int,std::list<CBirdEntity*> > m_mapCloundState;
-	for(m_vecBird)*/
 }
 
 void CUIGround::Update(float dt)
@@ -126,7 +145,13 @@ void CUIGround::Update(float dt)
 			}
 		}
 		m_PlayerManager->Update(dt);
-		m_Chat->Update(dt);
+
+		deque<UIChatTxt*>::iterator itBeginChat= m_vecChat.begin();
+		deque<UIChatTxt*>::iterator itEndChat = m_vecChat.end();
+		for(;itBeginChat!=itEndChat;++itBeginChat)
+		{
+			(*itBeginChat)->Update(dt);
+		}
 	}
 
 }
@@ -141,6 +166,8 @@ void CUIGround::Response(int nCardType,int nCardInstruction,int nTargetCardType 
 void CUIGround::SetMainPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo)
 {
 	m_PlayerManager->GetMainPlayer()->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);
+	sprintf_s(m_mainPlayerName,"[%s]:",rPlayerInfo.szPlayerName);
+	m_Edit->InsertCookie(m_mainPlayerName);
 }
 
 void CUIGround::SetRoomMater(int nID)
@@ -162,7 +189,7 @@ void CUIGround::SetPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo)
 		{
 			rPlayerVec[1]->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);		//目前只支持两个人 0 和 1
 		}
-		SendChat("[聊天]Nono: 大家好");
+		SendChat("[聊天]");
 
 }
 
@@ -265,5 +292,22 @@ void CUIGround::SendChat( const std::string& strChat,int nType /*= 0*/ )
 
 void CUIGround::ShowChat(const  std::string& strChat,int nType /*= 0*/ )
 {
-	m_Chat->SetText(strChat.c_str());
+	deque<UIChatTxt*>::iterator itBeginChat= m_vecChat.begin();
+	deque<UIChatTxt*>::iterator itEndChat = m_vecChat.end();
+	for(int i = 0;itBeginChat!=itEndChat;++itBeginChat,++i)
+	{
+		if(i!=nMaxChatTxtShow-1)
+			(*itBeginChat)->SetText(m_vecChat[i+1]->GetText());
+		else
+			(*itBeginChat)->SetText(strChat.c_str());
+	}
+	
+}
+
+void CUIGround::OnEnter( GfxEdit* m_Edit )
+{
+	const char* nSend = m_Edit->GetCookie();
+	CUIGround::SendChat(nSend);
+	m_Edit->ClearCookie();
+	m_Edit->InsertCookie(m_mainPlayerName);
 }
