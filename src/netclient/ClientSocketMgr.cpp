@@ -475,13 +475,13 @@ bool CClientSocketMgr::Reconnect()
         // ASSERT(nKeySize > cMAX_HALF_OF_PUBLIC_KEY_LEN);
         MSG_SYSTEM_ClientPublicKey * pCPKMsg = new MSG_SYSTEM_ClientPublicKey();
         pCPKMsg->nSrcNSize1 = cMAX_PART_OF_PUBLIC_KEY_LEN;
-        m_ServerRSA->PublicEncrypt((unsigned char *)szN, cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n1);
+        m_ServerRSA.PublicEncrypt((unsigned char *)szN, cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n1);
         pCPKMsg->nSrcNSize2 = cMAX_PART_OF_PUBLIC_KEY_LEN;
-        m_ServerRSA->PublicEncrypt((unsigned char *)(szN + cMAX_PART_OF_PUBLIC_KEY_LEN), cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n2);
-        pCPKMsg->nSrcNSize3 = nNSize - 2 * cMAX_PART_OF_PUBLIC_KEY_LEN;
-        m_ServerRSA->PublicEncrypt((unsigned char *)(szN + 2 * cMAX_PART_OF_PUBLIC_KEY_LEN), nNSize - 2 * cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n3);
+        m_ServerRSA.PublicEncrypt((unsigned char *)(szN + cMAX_PART_OF_PUBLIC_KEY_LEN), cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n2);
+        pCPKMsg->nSrcNSize3 = nSize - 2 * cMAX_PART_OF_PUBLIC_KEY_LEN;
+        m_ServerRSA.PublicEncrypt((unsigned char *)(szN + 2 * cMAX_PART_OF_PUBLIC_KEY_LEN), nSize - 2 * cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n3);
         pCPKMsg->nSrcESize = strlen(szE);
-        m_ServerRSA->PublicEncrypt((unsigned char *)szE, pCPKMsg->nSrcESize, pCPKMsg->e);
+        m_ServerRSA.PublicEncrypt((unsigned char *)szE, pCPKMsg->nSrcESize, pCPKMsg->e);
 
         _AddSendMsg(pCPKMsg);
         //OPENSSL_free(pPublicKey);
