@@ -33,22 +33,30 @@ struct MSG_SYSTEM_SocketConnectSuccess : public MSG_BASE
 */
 
 const unsigned int cMAX_ENCRYPTED_PUBLIC_KEY_LEN = 64;
-const unsigned int cMAX_HALF_OF_PUBLIC_KEY_LEN = 48;
+const unsigned int cMAX_PART_OF_PUBLIC_KEY_LEN = 48;
 struct MSG_SYSTEM_ClientPublicKey : public MSG_BASE
 {
     MSG_SYSTEM_ClientPublicKey()
     {
         nMsg = MSGID_SYSTEM_ClientPublicKey;
         nSize = sizeof(MSG_SYSTEM_ClientPublicKey);
-        nSrcKeySize1 = 0;
-        memset(key1, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
-        nSrcKeySize2 = 0;
-        memset(key2, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
+        nSrcNSize1 = 0;
+        memset(n1, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
+        nSrcNSize2 = 0;
+        memset(n2, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
+        nSrcNSize3 = 0;
+        memset(n3, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
+        nSrcESize = 0;
+        memset(e, 0, cMAX_ENCRYPTED_PUBLIC_KEY_LEN);
     }
-    unsigned int nSrcKeySize1;
-    unsigned char key1[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
-    unsigned int nSrcKeySize2;
-    unsigned char key2[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
+    unsigned int nSrcNSize1;
+    unsigned char n1[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
+    unsigned int nSrcNSize2;
+    unsigned char n2[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
+    unsigned int nSrcNSize3;
+    unsigned char n3[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
+    unsigned int nSrcESize;
+    unsigned char e[cMAX_ENCRYPTED_PUBLIC_KEY_LEN];
 };
 
 const unsigned int cSECRET_KEY_LEN = 4;

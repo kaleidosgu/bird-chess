@@ -91,6 +91,19 @@ namespace base
                 SetKey(m_pRSAKey,n,e,d,p,q,dmp1,dmq1,iqmp);
             }
         }
+        void GetPublicKey(char ** szN, char ** szE)
+        {
+            if (m_pRSAKey)
+            {
+                *szN = BN_bn2hex(m_pRSAKey->n);
+                *szE = BN_bn2hex(m_pRSAKey->e);
+            }
+            else
+            {
+                *szN = NULL;
+                *szE = NULL;
+            }
+        }
         int GetPublicKey(unsigned char ** ppPublicKey)
         {
             int nLen(-1);
@@ -99,6 +112,17 @@ namespace base
                 nLen = i2d_RSAPublicKey(m_pRSAKey, ppPublicKey);
             }
             return nLen;
+        }
+        void SetPublicKey(const char * szN, const char * szE)
+        {
+            if (m_pRSAKey)
+            {
+                RSA_free(m_pRSAKey);
+                m_pRSAKey = NULL;
+            }
+            m_pRSAKey = RSA_new();
+            BN_hex2bn(&m_pRSAKey->n, szN);
+            BN_hex2bn(&m_pRSAKey->e, szE);
         }
         void SetPublicKey(const unsigned char * pPublicKey, int nSize)
         {
