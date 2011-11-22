@@ -26,20 +26,34 @@ void CClientSocketSlot::OnConnect(int nFd, const sockaddr_in &rSockAddr)
     _SetState(SocketState_Free, SocketState_Accepting);
 
     // Generate public key
-    unsigned char * pPublicKey = NULL;
-    int nKeySize = m_ClientRSA.GetPublicKey(&pPublicKey);
-    // ASSERT(nKeySize > cMAX_HALF_OF_PUBLIC_KEY_LEN);
+    //unsigned char * pPublicKey = NULL;
+    //int nKeySize = m_ClientRSA.GetPublicKey(&pPublicKey);
+    //char szN[3 * cMAX_PART_OF_PUBLIC_KEY_LEN] = {0};
+    //char szE[16] = {0};
+    char * szN = NULL;
+    char * szE = NULL;
+    m_ClientRSA.GetPublicKey(&szN, &szE);
+
+    unsigned int nNSize = strlen(szN);
+    // ASSERT(nKeySize > cMAX_PART_OF_PUBLIC_KEY_LEN);
     MSG_SYSTEM_ClientPublicKey * pCPKMsg = new MSG_SYSTEM_ClientPublicKey();
-    pCPKMsg->nSrcKeySize1 = cMAX_HALF_OF_PUBLIC_KEY_LEN;
-    m_pServerRSA->PublicEncrypt(pPublicKey, cMAX_HALF_OF_PUBLIC_KEY_LEN, pCPKMsg->key1);
-    pCPKMsg->nSrcKeySize2 = nKeySize - cMAX_HALF_OF_PUBLIC_KEY_LEN;
-    m_pServerRSA->PublicEncrypt(pPublicKey + cMAX_HALF_OF_PUBLIC_KEY_LEN, nKeySize - cMAX_HALF_OF_PUBLIC_KEY_LEN, pCPKMsg->key2);
+    pCPKMsg->nSrcNSize1 = cMAX_PART_OF_PUBLIC_KEY_LEN;
+    m_pServerRSA->PublicEncrypt((unsigned char *)szN, cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n1);
+    pCPKMsg->nSrcNSize2 = cMAX_PART_OF_PUBLIC_KEY_LEN;
+    m_pServerRSA->PublicEncrypt((unsigned char *)(szN + cMAX_PART_OF_PUBLIC_KEY_LEN), cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n2);
+    pCPKMsg->nSrcNSize3 = nNSize - 2 * cMAX_PART_OF_PUBLIC_KEY_LEN;
+    m_pServerRSA->PublicEncrypt((unsigned char *)(szN + 2 * cMAX_PART_OF_PUBLIC_KEY_LEN), nNSize - 2 * cMAX_PART_OF_PUBLIC_KEY_LEN, pCPKMsg->n3);
+    pCPKMsg->nSrcESize = strlen(szE);
+    m_pServerRSA->PublicEncrypt((unsigned char *)szE, pCPKMsg->nSrcESize, pCPKMsg->e);
+    WriteLog("szN=%s.strlen(szN)=%d. n1=%d, n2=%d, n3=%d. szE=%s, strlen(szE)=%d.\n", szN, nNSize, pCPKMsg->nSrcNSize1, pCPKMsg->nSrcNSize2, pCPKMsg->nSrcNSize3, szE, strlen(szE));
 
     if (!_SendMsgDirectly(pCPKMsg))
     {
         WriteLog(LEVEL_WARNING, "CClientSocketSlot::OnConnect. Send client public key failed.\n");
     }
-    OPENSSL_free(pPublicKey);
+    //OPENSSL_free(pPublicKey);
+    OPENSSL_free(szN);
+    OPENSSL_free(szE);
 
     /*
     // Add SocketConnectSuccessMsg to Recv queue
