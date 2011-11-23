@@ -11,6 +11,7 @@
 #include "../netclient/ClientSocketMgr.h"
 #include "../cardgame/cardgamemsg.h"
 extern int G_nGameStat;
+extern CUILoginGame* g_UILoginGame;
 extern CUIGround* g_UIGround;
 extern clinetnet::CClientSocketMgr g_CSM;
 extern lua_State*  g_pGlobalState;
@@ -57,6 +58,7 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 				G_nGameStat = ENUM_CARDGAME_BEGIN;
 				SoundSystem::Instance().PlayMusic(2);
 				g_UIGround->SetReady(true);
+				g_UILoginGame->SetEnable(false);
 			} 
 			else //给个提示
 			{
@@ -131,8 +133,14 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 			MSG_CARDGAME_S2C_EnterRoomResult& rInfoMsg  =  (MSG_CARDGAME_S2C_EnterRoomResult&)rMsg;
 			if(rInfoMsg.nResult != MSG_CARDGAME_S2C_EnterRoomResult::Result_Success )
 			{
-				UIShowMessage("EnterRoomResult fail!!");
+				if(rInfoMsg.nResult != MSG_CARDGAME_S2C_EnterRoomResult::Result_RoomNotExist )
+				{
+				}
+				else
+					UIShowMessage("EnterRoomResult fail!!");
 			}
+			
+			
 		}
 		break;
 	case MSGID_CARDGAME_S2C_PlayerEnter:

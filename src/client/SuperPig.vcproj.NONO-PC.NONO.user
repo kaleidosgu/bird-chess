@@ -10,7 +10,7 @@
 			>
 			<DebugSettings
 				Command="$(TargetPath)"
-				WorkingDirectory="E:\study\SVN\The9C\Nono\birdChess\BirdChess\debug"
+				WorkingDirectory="E:\study\SVN\bird-chess\out"
 				CommandArguments=""
 				Attach="false"
 				DebuggerType="3"

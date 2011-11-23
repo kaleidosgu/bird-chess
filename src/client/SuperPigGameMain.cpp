@@ -31,30 +31,7 @@
 #include "WndLoadPicture.h"
 #include ".\cn\GfxFont.h"
 #include "ClientNetMsgProcess.h"
-char g_chUICurDir[256] = {'/0'};
-GfxFont* pGfxFont		= NULL;	// 普通模式
-GfxFont* pBlodFont		= NULL;	// 粗体模式
-GfxFont* pItalicFont	= NULL;	// 斜体模式
-GfxFont* pNotAntialias	= NULL; // 非平滑模式
-GfxFont* pAntialias		= NULL; // 平滑模式
-
-void InitFont()
-{
-
-	pGfxFont		= new GfxFont("宋体",12,FALSE,FALSE,FALSE);// 宋书，非粗体，非斜体，非平滑
-	pBlodFont		= new GfxFont("宋体",18,TRUE,FALSE,FALSE);// 宋书，粗体，非斜体，非平滑
-	pItalicFont		= new GfxFont("黑体",26,TRUE,TRUE,FALSE);// 黑书，粗体，斜体，非平滑
-	pNotAntialias	= new GfxFont("隶书",36,TRUE,FALSE,FALSE);// 隶书，粗体，非斜体，非平滑
-	pAntialias		= new GfxFont("隶书",36,TRUE,FALSE,TRUE);// 隶书，粗体，非斜体，平滑
-
-	pGfxFont->SetColor(0xFF00FFFF);		// 设置像素字体颜色
-	pBlodFont->SetColor(0xFFFF0FF0);	// 设置像素字体颜色
-	pItalicFont->SetColor(0xFF0FF0FF);	// 设置像素字体颜色
-	pNotAntialias->SetColor(0xFFFFF00F);// 设置像素字体颜色
-	pAntialias->SetColor(0xFF0FFF0F);	// 设置像素字体颜色
-}
-
-
+char g_chUICurDir[256] = {0};
 #pragma   comment(lib,   "ws2_32.lib ")
 using namespace std;
 hgeGUI				*gui;
@@ -111,17 +88,17 @@ bool FrameFunc()  //帧数逻辑
 
 	//逻辑
 	float dt=hge->Timer_GetDelta();
-	//g_UILoginGame->Update(dt);
 	g_UIGround->Update(dt);
 
-#ifdef _DEBUG
-	if( m_pDesktop )
-	{
+//#ifdef _DEBUG
+	//if( m_pDesktop )
+	//{
 		m_pDesktop->OnUpdate( dt );
-		m_pDesktop->OnMouseInput();
-	}
-#endif
-
+	//	m_pDesktop->OnMouseInput();
+	//}
+//#else	
+//#endif
+	g_UILoginGame->Update(dt);
 	float MouseX,MouseY;
 	hge->Input_GetMousePos(&MouseX,&MouseY);
 	if((MouseX>1150 || MouseX<268)) //X轴滚屏
@@ -206,27 +183,7 @@ bool FrameFunc()  //帧数逻辑
 			break;
 		case HGEK_F2:
 			{
-				lua_getglobal(g_pGlobalState,"hideLoginWnd");
-				int nLuaRes = lua_isfunction(g_pGlobalState,-1);
-				if( nLuaRes == 1)
-				{
-					nLuaRes = lua_pcall(g_pGlobalState,0,1,0);
-					int nTop = lua_gettop( g_pGlobalState );
-					if( nLuaRes == 0 )
-					{
-						lua_toboolean( g_pGlobalState, -1 );
-					}
-					else
-					{
-						const char* pChar = lua_tostring(g_pGlobalState, -1 );
-						lua_settop(g_pGlobalState,0);
-					}
-					if( nTop > 0 )
-					{
-						const char* pChar = lua_tostring(g_pGlobalState, -1 );
-						lua_settop(g_pGlobalState,0);
-					}
-				}
+			
 			}
 			break;
 		case HGEK_F3:
@@ -270,8 +227,6 @@ bool FrameFunc()  //帧数逻辑
 			break;
 		case HGEK_LBUTTON: 
 			{
-				//CreatBullet(rotion,(MouseY-y),(MouseX-x));
-				//人物大招数,放屁
 			}
 			break;
 		case HGEK_RBUTTON:  
@@ -281,12 +236,10 @@ bool FrameFunc()  //帧数逻辑
 			break;
 		case HGEK_U:
 			{
-				//MainPlayer->SetRation(MainPlayer->GetBulletRation()+1);
 			}
 			break;
 		case HGEK_I:
 			{
-				//MainPlayer->SetRation(MainPlayer->GetBulletRation()-1);
 			}
 			break;
 		case HGEK_ESCAPE:	
@@ -317,33 +270,19 @@ bool RenderFunc()
 		bgspr5->RenderEx(bgspr2->GetWidth()*i-G_bgLocateX2-G_LogicX,500-G_LogicY,0.0,0.6,0.6);
 		
 	}
-	//g_UILoginGame->Render();
+
+	
+
+	
+//#ifdef _DEBUG
+//	m_pDesktop->OnDraw();
+//#else
+	g_UILoginGame->Render();
+//#endif
 
 	g_UIGround->Render();
-#ifdef _DEBUG
-	m_pDesktop->OnDraw();
-#endif
-
 	gui->Render();
 	CShowMessage::Instance().Render();
-
-
-
-	//const char* lpString = ""
-	//	"演示中文显示新方案，支持平滑(无锯齿)模式\n"
-	//	"\n"
-	//	"不需要依赖任何图片字模，丰富多样的显示方法。\n"
-	//	"\n"
-	//	"使用方法很简单，请参阅 <CN> 目录下的 Readme.txt 文件。\n";
-
-// 	// 使用像素字体输出
-// 	pGfxFont->Print(10,10,lpString);
-// 
- 	//pBlodFont->Print(10,100,0,"中文显示方案 演示“粗体”");		
-// 	pItalicFont->Print(10,150,"中文显示方案 演示“斜体”");
-// 	pNotAntialias->Print(10,200,"中文显示方案 演示“非平滑模式”");
-// 	pAntialias->Print(10,250,"中文显示方案 演示“平滑反锯齿模式”");
-
 	m_pHgeDevice->hge->Gfx_EndScene();
 	hge->Gfx_EndScene();
 
@@ -370,21 +309,16 @@ void initCreateBirdLua()
 };
 void LoadResource()
 {
-	InitFont();
 	initCreateBirdLua();
 	g_CSM.Init(true, true);
-	//bgtex=hge->Texture_Load("res/Pic/Bigbg1.png");
 	bgtex=hge->Texture_Load("res/Pic/bg1.png");
 	tex=hge->Texture_Load("res/Pic/EntityPic.png");
 	HTEXTURE texUI=hge->Texture_Load("res/Pic/UILoginBG.png");
-
 	fnt=new hgeFont("res/FontPsi/fontScore.fnt");
 	fnt->SetScale(0.5);
 	fnt_WinOrLost = new hgeFont("res/FontPsi/fontScore.fnt");
 	EntityFactory::Instance().SetHTEXTURE(tex,texUI);
-
 	g_UIGround = new CUIGround();
-	// 主角是一只猪
 	SprMouse = EntityFactory::Instance().CreateSprite("SprMouse");
 	SprMouse->SetHotSpot(0,0);
 	//声音
@@ -392,7 +326,6 @@ void LoadResource()
 #ifndef _DEBUG
 	SoundSystem::Instance().PlayMusic(1); //formusic
 #endif
-
 	bgspr1=new hgeSprite(bgtex,0,0,4800,1200);
 	bgspr2=EntityFactory::Instance().CreateSprite("BGCloud2");//new hgeSprite(tex,47,0,480,50);
 	bgspr3=EntityFactory::Instance().CreateSprite("BGCloud3");
@@ -404,19 +337,9 @@ void LoadResource()
 	bgSprVec.push_back(bgspr4);
 	bgSprVec.push_back(bgspr5);
 
-	for(int i=0;i<bgSprVec.size();i++)
-	{
-		bgSprVec[i]->SetBlendMode(BLEND_COLORADD | BLEND_ALPHABLEND | BLEND_NOZWRITE);
-		bgSprVec[i]->SetColor(0xFF000000,0); //这种模式下后面这四个一定要有
-		bgSprVec[i]->SetColor(0xFF000000,1);
-		bgSprVec[i]->SetColor(0xFF000040,2);
-		bgSprVec[i]->SetColor(0xFF000040,3);
-	}
-	
-
-	// UI
 	gui=new hgeGUI();
 	gui->SetCursor(SprMouse);
+	g_UILoginGame = new CUILoginGame(550,300,fnt);
 }
 void FreeResource()
 {
@@ -434,6 +357,7 @@ void FreeResource()
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	m_pHgeDevice = new HGEDevice;
+
 	CWndBase::SetDevice( m_pHgeDevice );
 	m_pHgeDevice->hge = hgeCreate(HGE_VERSION);
 	hge = m_pHgeDevice->hge;
@@ -454,35 +378,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//hge->System_SetState(HGE_ZBUFFER,true); 
 	if(hge->System_Initiate())
 	{
-
-
-// 		m_pWnd = new CWndBase;
-// 		m_pWnd->Create(0,0,100,100,0,0);
-
 		LoadResource();
-
 		m_pDesktop = new CWndDesktop;
 		m_pDesktop->Create(0,0,1024,700,0,0);
-		
 		DWORD dw = GetCurrentDirectory(256,g_chUICurDir);
-
 		//////////////////////////////////////////////////////////////////////////
 		lua_newtable(g_pGlobalState); 
 		lua_pushstring(g_pGlobalState, "ptDesk");
 		tolua_pushusertype(g_pGlobalState,m_pDesktop,"CWndBase");
 		lua_settable(g_pGlobalState, -3);
 		lua_setglobal(g_pGlobalState,"g_UIGlobal");
-
 		lua_pushstring(g_pGlobalState,g_chUICurDir);
 		lua_setglobal(g_pGlobalState,"g_UIcurDir");
-		
 		const char* pChar = NULL;
-
 		int nLuaRes = 0;
 		//////////////////////////////////////////////////////////////////////////
-		m_pDesktop->m_pHgeFont = fnt;
-
-		
+		CWndBase::SetFont(fnt);
 		nLuaRes = luaL_dofile( g_pGlobalState,"Res\\UILua\\UIGlobal.lua" );
 		if ( nLuaRes > 0 )
 		{

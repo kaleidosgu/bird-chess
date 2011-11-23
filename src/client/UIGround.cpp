@@ -1,4 +1,5 @@
 #include "../netclient/ClientSocketMgr.h"
+#include <sstream>
 #include "UIGround.h"
 #include "UICloudEntity.h"
 #include "UIBirdEntity.h"
@@ -27,6 +28,7 @@ hgeFont* G_HgeFnt;
 using namespace std;
 
 char CUIGround::m_mainPlayerName[128] = {0};
+int CUIGround::m_nRoomID = 0;
 CUIGround::CUIGround():m_bReady(false)
 {
 	for(int i = 0 ;i < nMaxBirdCount ; ++i)
@@ -43,7 +45,7 @@ CUIGround::CUIGround():m_bReady(false)
 		pEntity->SetLocation(CloudDis*i,nCloudY);
 	}	
 	m_PlayerManager = new UIPlayerManage();
-	G_GfxFnt = new GfxFont("微软雅黑",20,TRUE,FALSE,FALSE);// 宋书，粗体，非斜体，非平滑
+	G_GfxFnt = new GfxFont("黑体",20,true,false,true);// 宋书，粗体，非斜体，非平滑
 	for(int i=0 ;i < nMaxChatTxtShow;i++)
 	{
 		UIChatTxt* m_Chat = new UIChatTxt(1,800,900,100,100,G_GfxFnt);
@@ -51,7 +53,7 @@ CUIGround::CUIGround():m_bReady(false)
 		m_vecChat.push_back(m_Chat);
 	}
 
-	m_Edit = new GfxEdit(600,0xFFFFFF00, "宋体", 20);// 编辑框字体指定 隶书
+	m_Edit = new GfxEdit(600,0xFFFFFF00, "黑体", 20,false,false);// 编辑框字体指定 隶书
 	m_Edit->SetFocus();
 	m_Edit->SetCallback(&CUIGround::OnEnter);
 }
@@ -108,9 +110,9 @@ void CUIGround::Render()
 		deque<UIChatTxt*>::iterator itEndChat = m_vecChat.end();
 		for(int i = 0;itBeginChat!=itEndChat;++itBeginChat,++i)
 		{
-			(*itBeginChat)->Render(900,628+20*i);
+			(*itBeginChat)->Render(900,648+20*i);
 		}
-		m_Edit->Render(900,718);
+		m_Edit->Render(900,738);
 	}
 }
 
@@ -237,6 +239,7 @@ void CUIGround::SendMsg(MSG_BASE& pMsg)
 void CUIGround::SetRoomID(int nRoomID)
 {
 	m_PlayerManager->GetMainPlayer()->SetRoomID(nRoomID);
+	m_nRoomID = nRoomID;
 }
 
 
@@ -306,8 +309,41 @@ void CUIGround::ShowChat(const  std::string& strChat,int nType /*= 0*/ )
 
 void CUIGround::OnEnter( GfxEdit* m_Edit )
 {
-	const char* nSend = m_Edit->GetCookie();
-	CUIGround::SendChat(nSend);
+	const char* cSend = m_Edit->GetCookie();
+	std::string strSend(cSend);
+	std::string str2Send(m_mainPlayerName);
+	CmdProcess(cSend);
+	if (strSend.length() > str2Send.length())
+	{
+		CUIGround::SendChat(cSend);
+	}
+	else
+	{
+		CUIGround::SendChat(m_mainPlayerName);
+	}
+	
 	m_Edit->ClearCookie();
 	m_Edit->InsertCookie(m_mainPlayerName);
+}
+
+void CUIGround::CmdProcess( const std::string& strCmd )
+{
+	//string str2 = str.substr(str2.find('\\'),5);
+	int cmd= strCmd.find("/room");
+	if(cmd != -1)
+	{
+		string str2 = strCmd.substr(cmd+5,strCmd.size());
+
+		stringstream ss;
+		int nRoom(m_nRoomID);
+		ss << str2;// int->string
+		ss>>nRoom;
+		if(nRoom!=m_nRoomID)
+		{
+			MSG_CARDGAME_C2S_EnterRoom room;
+			room.nRoomID = nRoom;
+			SendMsg(room);
+		}
+	}
+	//return false;
 }

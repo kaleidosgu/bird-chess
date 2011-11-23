@@ -52,6 +52,7 @@ public:
 	static void SendChat(const std::string& strChat,int nType = 0);
 	static void SendMsg(MSG_BASE& pMsg);
 	static void OnEnter(GfxEdit* m_Edit);
+	static void CmdProcess(const std::string& strCmd);
 private:
 	typedef  NONOGFXUIText<GfxFont> UIChatTxt ;
 	std::vector<CCloudEntity*> m_vecCloud;
@@ -65,4 +66,5 @@ private:
 	GfxEdit* m_Edit;
 	bool m_bReady;
 	static char m_mainPlayerName[128];
+	static int m_nRoomID;
 };

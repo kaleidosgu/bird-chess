@@ -113,6 +113,7 @@ public:
 	//NONOEditText();
 	//virtual ~NONOEditText();  
 	NONOEditText(int id, float x, float y, float w, float h, hgeFont *fnt);
+	virtual ~NONOEditText();
 	virtual void MouseOver( bool bOver )  
 	{  
 		is_mouse_over_ = bOver;  
@@ -127,15 +128,6 @@ public:
 	}  
 	
 	virtual void	Render();
-
-	//virtual void	Update(float dt) {}
-	//virtual void	Enter() {}
-	//virtual void	Leave() {}
-	//virtual void	Reset() {}
-	//virtual bool	IsDone() { return true; }
-	//virtual void	Focus(bool bFocused) {}
-	//virtual void	MouseOver(bool bOver) {}
-	//virtual bool	MouseMove(float x, float y) { return false; }
 	virtual bool	MouseLButton(bool bDown) { Focus(true);return true; }
 	virtual bool	MouseRButton(bool bDown) { return false; }
 	virtual bool	KeyClick(int key, int chr);
@@ -202,15 +194,7 @@ public:
 	virtual void MouseOver( bool bOver )  
 	{  
 		is_mouse_over_ = bOver;
-		//Focus(true);
-		//gui->SetFocus(id);
 	}  
-	//template<class Obj,typename MemFun>
-	//void SetBackFunc(Obj& obj,MemFun pFun)
-	//{
-	//	//p_backFun = pFun;
-	//	SET_CALLBACK_FUNC(default,make_callback(obj,pFun));
-	//}
 	 void  SetMaxTextLen(int nLen){m_nMaxText = nLen;};
 	 std::string& GetString() { return m_strbuf;};
 protected:
@@ -218,7 +202,7 @@ protected:
 	bool is_mouse_over_;
 	float mx_,my_; 	
 	int m_nMaxText;
-	pBackFun p_backFun;
+	//pBackFun p_backFun;
 };
 
 class NONOhgePassWordGUIText:public NONOhgeGUIText
@@ -262,7 +246,7 @@ public:
 	}
 	void			SetText(const char *_text)
 	{
-		strcpy(text, _text);
+		strcpy_s(text, _text);
 	}
 	const char*		GetText(){return text;}
 	//void			printf(const char *format, ...);

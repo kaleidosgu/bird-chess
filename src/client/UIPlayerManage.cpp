@@ -20,7 +20,7 @@ UIPlayerManage::UIPlayerManage():m_nMasterID(-1)
 			UIPlayer* pPlayer  = new UIPlayer("SomeThingElse");
 			m_VecPlayer.push_back(pPlayer);
 			pPlayer->SetPlayerIndex(i);
-			pPlayer->SetScale(0.7); //其他玩家头像较小
+			pPlayer->SetScale(0.7f); //其他玩家头像较小
 		}		
 	
 	}

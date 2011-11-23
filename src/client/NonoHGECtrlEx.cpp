@@ -76,6 +76,10 @@ bool NONOEditText::KeyClick(int key, int chr)
 	return false;
 }
 
+NONOEditText::~NONOEditText()
+{
+	delete m_Text;//这里由hge自己删除么...
+}
  
 
 NONOhgeGUIText::NONOhgeGUIText(int id, float x, float y, float w, float h, hgeFont *fnt)
@@ -106,7 +110,7 @@ bool NONOhgeGUIText::KeyClick(int key, int chr)
 		SetText(m_strbuf.c_str());
 		break;
 	case HGEK_ENTER:
-		if(p_backFun)
+		//if(p_backFun)
 			//p_backFun(id);
 		break;
 	case HGEK_0:
@@ -145,7 +149,7 @@ bool NONOhgeGUIText::KeyClick(int key, int chr)
 	case HGEK_X:
 	case HGEK_Y:
 	case HGEK_Z:
-		if(m_nMaxText>0 && m_strbuf.size() < m_nMaxText )
+		if(m_nMaxText>0 && int(m_strbuf.size() )< m_nMaxText )
 		{	
 			if(m_strbuf == "|")
 			{
@@ -214,7 +218,7 @@ bool NONOhgePassWordGUIText::KeyClick(int key, int chr)
 	case HGEK_X:
 	case HGEK_Y:
 	case HGEK_Z:
-		if(m_nMaxText>0 && m_strbuf.size() < m_nMaxText )
+		if(m_nMaxText>0 && int(m_strbuf.size()) < m_nMaxText )
 		{	
 			m_strbuf.push_back(char(key));
 			m_strbufShow.push_back('*');
@@ -253,13 +257,13 @@ void NONOUIText::SetMode(int _align)
 
 void NONOUIText::SetText(const char *_text)
 {
-	strcpy(text, _text);
+	strcpy_s(text, _text);
 }
 
 void NONOUIText::printf(const char *format, ...)
 {
 	//sprintf(text, format, (char *)&format+sizeof(format));
-	sprintf(text, format, (char *)&format+sizeof(format));
+	sprintf_s(text, format, (char *)&format+sizeof(format));
 }
 
 void NONOUIText::Render()
