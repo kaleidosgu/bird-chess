@@ -102,7 +102,7 @@ void GfxEdit::InsertCookie(const char* lpCookie)
 const char* GfxEdit::GetCookie()
 {
 	static char sCookieA[COOKIE_SIZE];
-	strcpy(sCookieA,CW2A(m_sCookie));
+	strcpy_s(sCookieA,CW2A(m_sCookie));
 	return sCookieA;
 }
 
@@ -144,7 +144,7 @@ void GfxEdit::Render(float x, float y)
 	{
 		wchar_t sTmp[COOKIE_SIZE];
 		memset(sTmp,0,sizeof(sTmp));
-		wcsncpy(sTmp,m_sCookie,m_nCharPos);
+		wcsncpy_s(sTmp,m_sCookie,m_nCharPos);
 		SIZE szTmp = m_pFont->GetTextSize(sTmp);
 		float tmp_w = static_cast<float>(szTmp.cx);
 

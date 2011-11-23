@@ -64,18 +64,18 @@ void CUILoginGame::Render()
 
 void CUILoginGame::_CreateEdit(int x,int y,hgeFont*fnt)
 {
-	//m_LogUI =new hgeGUI();
-	//m_AccountName = new NONOhgeGUIText(EIDT_ACCOUNTNAME,float(x+20),float(y+180),float(97),float(70),fnt);
-	//m_AccountName->SetMode(HGETEXT_LEFT);
-	////m_AccountName->SetColor(0xFFD4C25A);
-	//m_AccountName->SetMaxTextLen(cMAX_USERNAME_LEN);
-	//m_LogUI->AddCtrl(m_AccountName);
-	//m_Password = new NONOhgePassWordGUIText(EDIT_PASSWORD,x+20+97,y+180,97,70,fnt);
-	//m_Password->SetMode(HGETEXT_LEFT);
-	//m_Password->SetColor(0xFFD4C25A);
-	//m_Password->SetMaxTextLen(cMAX_PASSWORD_LEN);
-	//m_LogUI->AddCtrl(m_Password);
-	//m_AccountName->MouseLButton(true);
+	m_LogUI =new hgeGUI();
+	m_AccountName = new NONOhgeGUIText(EIDT_ACCOUNTNAME,float(x+20),float(y+180),float(97),float(70),fnt);
+	m_AccountName->SetMode(HGETEXT_LEFT);
+	//m_AccountName->SetColor(0xFFD4C25A);
+	m_AccountName->SetMaxTextLen(cMAX_USERNAME_LEN);
+	m_LogUI->AddCtrl(m_AccountName);
+	m_Password = new NONOhgePassWordGUIText(EDIT_PASSWORD,x+20+97,y+180,97,70,fnt);
+	m_Password->SetMode(HGETEXT_LEFT);
+	m_Password->SetColor(0xFFD4C25A);
+	m_Password->SetMaxTextLen(cMAX_PASSWORD_LEN);
+	m_LogUI->AddCtrl(m_Password);
+	m_AccountName->MouseLButton(true);
 }
 
 void CUILoginGame::_CreateBG(int x,int y)
@@ -107,7 +107,7 @@ void CUILoginGame::_OnEnter(int nCtlID)
 	 		else
 	 		{
 				//这里以后去除。先加到服务器上去。
-	 			//SendLog2Server(m_AccountName->GetString(),m_Password->GetString());
+	 			SendLog2Server(m_AccountName->GetString(),m_Password->GetString());
 	 		}
 	 	}
 }
