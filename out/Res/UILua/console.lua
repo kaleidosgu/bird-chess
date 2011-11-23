@@ -1,31 +1,35 @@
 local function OnUpdate(self,e)
 	local kk = ""
-	if self.m_bShowEdit then
-		if self.m_nSpeed < 0 then
-			self.m_nSpeed = self.m_nSpeed * (-1);
+	if self.bUpdate == true then
+		if self.m_bShowEdit then
+			if self.m_nSpeed < 0 then
+				self.m_nSpeed = self.m_nSpeed * (-1);
+			end
+		else
+			if self.m_nSpeed > 0 then
+				self.m_nSpeed = 0 - self.m_nSpeed
+			end
 		end
-	else
-		if self.m_nSpeed > 0 then
-			self.m_nSpeed = 0 - self.m_nSpeed
+		local ptx = self.movewnd:GetClientPos().x
+		local pty = self.movewnd:GetClientPos().y
+		local szy = self.movewnd:GetClientSize().cy
+		local bChanged = false
+		if self.m_bShowEdit then
+			if pty  < 0 then
+				bChanged = true
+			end
+		else
+			if pty >  0 - szy  then
+				bChanged = true;
+			end
 		end
-	end
-	local ptx = self.movewnd:GetClientPos().x
-	local pty = self.movewnd:GetClientPos().y
-	local szy = self.movewnd:GetClientSize().cy
-	local bChanged = false
-	if self.m_bShowEdit then
-		if pty  < 0 then
-			bChanged = true
-		end
-	else
-		if pty >  0 - szy  then
-			bChanged = true;
-		end
-	end
 
-	if bChanged then
-		self.movewnd:MoveWindow( ptx, pty + self.m_nSpeed )
-		kk = "aa"
+		if bChanged then
+			self.movewnd:MoveWindow( ptx, pty + self.m_nSpeed )
+			kk = "aa"
+		else
+			self.bUpdate = false
+		end
 	end
 	return kk
 end
@@ -35,6 +39,7 @@ local function OnKeyDown(self,eKey)
 	local keyres = WND_RESULT_NO
 	if eKey == 112 then
 		self.m_bShowEdit = (not self.m_bShowEdit)
+		self.bUpdate = true
 		keyres = WND_RESULT_YES
 	end
 	return keyres
@@ -122,7 +127,7 @@ gfxFont:Create(0,0,100,28,movewnd,0)
 gfxFont:SetTextFont("ËÎÌו",16,TRUE,TRUE,TRUE)
 
 local stEdit = CWndEdit:new();
-stEdit:CreateNoFont(0,280,100,28,movewnd,35)
+stEdit:CreateNoFont(0,280,100,14,movewnd,35)
 stEdit:SetNotifyParent(true)
 stEdit:SetText("")
 stEdit:ShowBox(true)
@@ -131,5 +136,6 @@ local bseEdit = basewnd.toObject(stEdit,"CWndBase")
 bseEdit:SetFocus(bseEdit)
 regEvent(expwnd)
 g_pConsole = expwnd
+g_pConsole.bUpdate = false
 
 
