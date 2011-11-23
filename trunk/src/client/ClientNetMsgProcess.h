@@ -54,6 +54,36 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 					}
 				}
 
+				lua_getglobal(g_pGlobalState,"getUIPoint");
+				lua_pushstring(g_pGlobalState, "chatbird" );
+				nLuaRes = lua_pcall(g_pGlobalState,1,1,0);
+				if ( nLuaRes > 0 )
+				{
+					const char* pchar = lua_tostring( g_pGlobalState, -1 );
+					pchar = NULL;
+				}
+				else
+				{
+					bool bExist = lua_toboolean( g_pGlobalState, -1 );
+					if( bExist )
+					{
+
+					}
+					else
+					{
+						nLuaRes = luaL_dofile( g_pGlobalState,"Res\\UILua\\chatbird.lua" );
+						if( nLuaRes > 0 )
+						{
+							const char* pchar = lua_tostring( g_pGlobalState, -1 );
+							pchar = NULL;
+						}
+						else
+						{
+
+						}
+					}
+				}
+
 				SoundSystem::Instance().StopMusic(1);
 				G_nGameStat = ENUM_CARDGAME_BEGIN;
 				SoundSystem::Instance().PlayMusic(2);

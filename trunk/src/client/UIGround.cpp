@@ -14,7 +14,7 @@
 #include ".\cn\GfxFont.h"
 #include ".\cn\GfxEdit.h"
 
-
+CUIGround* g_UIGround = NULL;
 const int nMaxBirdCount = 5;
 const int nMaxCloudCount = 10;
 const int nFirstBirdY = 180;

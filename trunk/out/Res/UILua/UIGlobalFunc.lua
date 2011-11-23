@@ -63,20 +63,19 @@ function get_days_in_month(month, year)
 
 	return d
 end
-function isUIExist( str )
-	local substr = g_UIcurDir .."\\res\\uilua\\" .. str .. ".lua"
-	local res = false
-	if g_tUIMap[substr] ~= nil then
-		res  =true
-	end
-	--consoleAddText(tostring(substr))
-	return res
-end
 function getUIPoint( str )
 	local substr = string.format("\/res\/uilua\/%s.lua",str)
 	substr = g_UIcurDir .. substr
 	-- consoleAddText("haha" .. substr)
 	return g_tUIMap[str],substr
+end
+function isUIExist( str )
+	local pWnd = getUIPoint( str )
+	local res = false
+	if pWndLogin ~= nil then
+		res = true
+	end
+	return res
 end
 function hideLoginWnd( )
 	local pWndLogin,substr = getUIPoint( "login" )
