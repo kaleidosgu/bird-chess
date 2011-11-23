@@ -6,24 +6,19 @@ local function OnMessage(self,nUIEvent,nDlgID)
 	local keyres = WND_RESULT_NO
 	if nUIEvent == 0 then
 		if nDlgID == 115 then
-			--consoleAddText("btnClick")
-			--self.fly = (not self.fly)
-			-- local bShow = self.pWndBirdChat:IsVisible()
-			-- if bShow == true then
-				-- self.pWndBirdChat:ShowWindow(false)
-				-- keyres = WND_RESULT_YES
-			-- else
-				-- self.pWndBirdChat:ShowWindow(true)
-				-- keyres = WND_RESULT_YES
+			consoleAddText("btnClick")
+			self.fly = (not self.fly)
+			local bShow = self.pWndBirdChat:IsVisible()
+			if bShow == true then
+				self.pWndBirdChat:ShowWindow(false)
+				keyres = WND_RESULT_YES
+			else
+				self.pWndBirdChat:ShowWindow(true)
+				keyres = WND_RESULT_YES
 				
-				-- local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
-				-- bseEdit:SetFocus(bseEdit)
-			-- end
-			-- self:PlayMusic(3)
-			math.randomseed(os.time())
-			local nRandom = math.random(1,4)
-			nRandom = math.random(1,4)
-			consoleAddText("random is = " .. nRandom)
+				local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
+				bseEdit:SetFocus(bseEdit)
+			end
 		end
 	elseif nUIEvent == WND_ONCHAR then
 		if nDlgID == 333 then
@@ -36,26 +31,12 @@ local function OnMessage(self,nUIEvent,nDlgID)
 end
 --consoleAddText
 local function OnUpdate(self,e)
-	if self.playmusic == false then
-		self.tickTime = self.tickTime + e
-		if self.tickTime > 2 then
-			-- consoleClear()
-			consoleAddText(self.tickCount )
-			local ltime = os.time(os.date("*t"))
-			if ltime >= self.tmpTime then
-				self:PlayMusic(3)
-				self.playmusic = true
-			end
-			self.tickTime = 0
-		end
-	end
 	if self.fly == true then
 		self.tickCount = self.tickCount + e
-		--consoleAddText(tostring(self.tickCount))
-		if self.tickCount > 0.0001 then
+		if self.tickCount > 0.01 then
 			consoleClear()
-			consoleAddText(self.tickCount )
-			self.tickCount = self.tickCount - 0.0001
+			consoleAddText( self.tickCount )
+			self.tickCount = self.tickCount - 0.01
 			local x = self.ptReturnbse:GetClientPos().x
 			local y = 0
 			x = x + 1
@@ -83,9 +64,9 @@ local function regEvent( parent )
 	parent:SetScript( "OnMessage",OnMessage )
 end
 
-function createTmpUI(strFile)
+function createTmpUI(strFile,strSimple)
 	local pMain = basewnd.toObject(g_UIGlobal["ptMainClient"],"CWndBase")
-	local ptReturn = CreateUI(strFile,true,pMain,1,400)
+	local ptReturn = CreateUI(strFile,true,pMain,1,400,strSimple)
 	if ptReturn ~= nil then
 		local ptReturnbse = basewnd.toObject(ptReturn,"CWndBase")
 		local pChatBird = CWndButton:new();
@@ -97,8 +78,6 @@ function createTmpUI(strFile)
 		
 		ptReturn.ptReturnbse = ptReturnbse
 		ptReturn.tickCount = 0
-		ptReturn.tickTime = 0
-		ptReturn.playmusic = false
 		ptReturn.bsey = ptReturnbse:GetClientPos().y
 		regEvent(ptReturn)
 		ptReturn.fly = false
@@ -113,14 +92,9 @@ function createTmpUI(strFile)
 		
 		local stEdit = CWndEdit:new();
 		stEdit:CreateNoFont(0,0,200,28,pWndBirdChat,333)
-		--bseEdit.m_bDrawBox = true
 		ptReturn.stEdit = stEdit
 		stEdit:SetNotifyParent(true)
 		stEdit:SetText("")
-		local tmpt = os.date("*t")
-		-- tmpt.min = tmpt.min + 1
-		ptReturn.tmpTime = os.time(tmpt)
-		ptReturn.tmpTime = ptReturn.tmpTime + 20 * 60
 	end
 	ptReturn.myindex = 1
 end
