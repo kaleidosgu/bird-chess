@@ -2,6 +2,7 @@
 #include "../../netclient/clientsocketMgr.h"
 #include "../ui/UIExportWndBase.h"
 #include "../../cardgame/cardgamemsg.h"
+#include "../UIGround.h"
 extern clinetnet::CClientSocketMgr g_CSM;
 extern string G_IPString;
 extern int G_nPort;
@@ -78,4 +79,10 @@ void Login2Server( const char* pName, const char* pPassword)
 unsigned long GetARGB( int a, int r, int g, int b )
 {
 	return ARGB( a, r, g, b );
+}
+
+void SendChatMsg( lua_State* pState, const char* pChatContent )
+{
+	std::string strContent = pChatContent;
+	g_UIGround->SendChat( strContent );
 }

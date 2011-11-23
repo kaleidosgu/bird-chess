@@ -62,7 +62,6 @@ float G_OrderLogic = 0;
 int G_nGameStat = ENUM_GAME_STOP;
 clinetnet::CClientSocketMgr g_CSM;
 CUILoginGame* g_UILoginGame;
-CUIGround* g_UIGround;
 TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 #include "lua/UILuaState.h"
 /////////////////function////////////////
@@ -91,11 +90,11 @@ bool FrameFunc()  //帧数逻辑
 	g_UIGround->Update(dt);
 
 //#ifdef _DEBUG
-	//if( m_pDesktop )
-	//{
+	if( m_pDesktop )
+	{
 		m_pDesktop->OnUpdate( dt );
-	//	m_pDesktop->OnMouseInput();
-	//}
+		m_pDesktop->OnMouseInput();
+	}
 //#else	
 //#endif
 	g_UILoginGame->Update(dt);
@@ -274,14 +273,19 @@ bool RenderFunc()
 	
 
 	
-//#ifdef _DEBUG
-//	m_pDesktop->OnDraw();
-//#else
-	g_UILoginGame->Render();
-//#endif
 
 	g_UIGround->Render();
+
+
+	//界面高于场景内容,低于鼠标
+	//#ifdef _DEBUG
+	m_pDesktop->OnDraw();
+	//#else
+	//g_UILoginGame->Render();
+	//#endif
+
 	gui->Render();
+
 	CShowMessage::Instance().Render();
 	m_pHgeDevice->hge->Gfx_EndScene();
 	hge->Gfx_EndScene();
@@ -393,7 +397,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		const char* pChar = NULL;
 		int nLuaRes = 0;
 		//////////////////////////////////////////////////////////////////////////
-		CWndBase::SetFont(fnt);
+		CWndBase::m_pHgeFont = fnt;
 		nLuaRes = luaL_dofile( g_pGlobalState,"Res\\UILua\\UIGlobal.lua" );
 		if ( nLuaRes > 0 )
 		{

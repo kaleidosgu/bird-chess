@@ -6,25 +6,30 @@ local function OnMessage(self,nUIEvent,nDlgID)
 	local keyres = WND_RESULT_NO
 	if nUIEvent == 0 then
 		if nDlgID == 115 then
-			consoleAddText("btnClick")
 			self.fly = (not self.fly)
 			local bShow = self.pWndBirdChat:IsVisible()
 			if bShow == true then
 				self.pWndBirdChat:ShowWindow(false)
 				keyres = WND_RESULT_YES
+				self.stEdit:SetFocus(nil)
+				consoleAddText("false")
 			else
 				self.pWndBirdChat:ShowWindow(true)
 				keyres = WND_RESULT_YES
+				consoleAddText("true")
 				
-				local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
-				bseEdit:SetFocus(bseEdit)
+				-- local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
+				self.stEdit:SetFocus(self.stEdit)
+				self.stEdit:SetText("")
 			end
 		end
 	elseif nUIEvent == WND_ONCHAR then
 		if nDlgID == 333 then
-			consoleAddText("btnClick")
+			SendChatMsg(self.stEdit:GetText())
+			self.pWndBirdChat:ShowWindow(false)
 			self.fly = (not self.fly)
 			keyres = WND_RESULT_YES
+			self.stEdit:SetFocus(nil)
 		end
 	end
 	return keyres
@@ -35,9 +40,8 @@ local function OnUpdate(self,e)
 		self.tickCount = self.tickCount + e
 		if self.tickCount > 0.01 then
 			consoleClear()
-			consoleAddText( self.tickCount )
 			self.tickCount = self.tickCount - 0.01
-			local x = self.ptReturnbse:GetClientPos().x
+			local x = self.ptReturn:GetClientPos().x
 			local y = 0
 			x = x + 1
 			local idx = 0
@@ -53,7 +57,7 @@ local function OnUpdate(self,e)
 				idx = x
 			end
 			y = g_SinAngle[idx] * 50
-			self.ptReturnbse:MoveWindow( x ,self.bsey + y)
+			self.ptReturn:MoveWindow( x ,self.bsey + y)
 		end
 	end
 end
@@ -63,38 +67,43 @@ local function regEvent( parent )
 	parent:SetScript( "OnUpdate",OnUpdate )
 	parent:SetScript( "OnMessage",OnMessage )
 end
-
+local function createBird( ptReturn )
+	local pChatBird = CWndButton:new();
+	pChatBird:Create(0,0,0,0,"res/pic/EntityPic.png",ptReturn,115);		
+	pChatBird:AddRes(0,378,33,33)
+	pChatBird:AddRes(0,410,33,33)
+	pChatBird:AddRes(0,505,33,33)
+	pChatBird:AddRes(0,543,33,33)
+	
+	ptReturn.ptReturn = ptReturn
+	ptReturn.tickCount = 0
+	ptReturn.bsey = ptReturn:GetClientPos().y
+	regEvent(ptReturn)
+	ptReturn.fly = true
+	
+	local pWndBirdChat = CWndBase:new()
+	pWndBirdChat:Create(30,0,0,0,ptReturn,0)
+	-- pWndBirdChat:ShowWindow(false)
+	ptReturn.pWndBirdChat = pWndBirdChat
+	
+	for i = 1, 3 do
+		local sbg = CWndLoadPicture:new()
+		sbg:Create( i * 30 - 30, -15, "res/pic/EntityPic.png", pWndBirdChat, 0, true, 868,605,86,73 )
+	end
+	
+	local stEdit = CWndEdit:new();
+	stEdit:CreateNoFont(15,0,200,28,pWndBirdChat,333)
+	ptReturn.stEdit = stEdit
+	pWndBirdChat:ShowWindow(false)
+	stEdit:SetNotifyParent(true)
+	stEdit:SetText("")
+	-- stEdit:ShowBox(true)
+end
 function createTmpUI(strFile,strSimple)
 	local pMain = basewnd.toObject(g_UIGlobal["ptMainClient"],"CWndBase")
 	local ptReturn = CreateUI(strFile,true,pMain,1,400,strSimple)
 	if ptReturn ~= nil then
-		local ptReturnbse = basewnd.toObject(ptReturn,"CWndBase")
-		local pChatBird = CWndButton:new();
-		pChatBird:Create(0,0,0,0,"res/pic/EntityPic.png",ptReturnbse,115);		
-		pChatBird:AddRes(0,378,33,33)
-		pChatBird:AddRes(0,410,33,33)
-		pChatBird:AddRes(0,505,33,33)
-		pChatBird:AddRes(0,543,33,33)
-		
-		ptReturn.ptReturnbse = ptReturnbse
-		ptReturn.tickCount = 0
-		ptReturn.bsey = ptReturnbse:GetClientPos().y
-		regEvent(ptReturn)
-		ptReturn.fly = false
-		
-		local pWndBirdChat = CWndBase:new()
-		pWndBirdChat:Create(30,0,0,0,ptReturnbse,0)
-		pWndBirdChat:ShowWindow(false)
-		ptReturn.pWndBirdChat = pWndBirdChat
-		
-		local sbg = CWndLoadPicture:new()
-		sbg:Create( 0, 0, "res/uilua/chatbird.PNG", pWndBirdChat, 0, false, 0,0,0,0 )
-		
-		local stEdit = CWndEdit:new();
-		stEdit:CreateNoFont(0,0,200,28,pWndBirdChat,333)
-		ptReturn.stEdit = stEdit
-		stEdit:SetNotifyParent(true)
-		stEdit:SetText("")
+		createBird( ptReturn )
 	end
-	ptReturn.myindex = 1
 end
+createTmpUI("res\uilua\chatbird.lua","chatbird")

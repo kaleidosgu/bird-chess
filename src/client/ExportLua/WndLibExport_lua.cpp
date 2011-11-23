@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/23/11 09:45:02.
+** Generated automatically by tolua++-1.0.92 on 11/23/11 17:49:59.
 */
 
 #ifndef __cplusplus
@@ -2647,6 +2647,35 @@ static int tolua_WndLibExport_GetARGB00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* function: SendChatMsg */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_SendChatMsg00
+static int tolua_WndLibExport_SendChatMsg00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isstring(tolua_S,1,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  lua_State* pState =  tolua_S;
+  const char* pChatContent = ((const char*)  tolua_tostring(tolua_S,1,0));
+  {
+   SendChatMsg(pState,pChatContent);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SendChatMsg'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* Open function */
 TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
 {
@@ -2808,6 +2837,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
   tolua_function(tolua_S,"CreateUI",tolua_WndLibExport_CreateUI00);
   tolua_function(tolua_S,"Login2Server",tolua_WndLibExport_Login2Server00);
   tolua_function(tolua_S,"GetARGB",tolua_WndLibExport_GetARGB00);
+  tolua_function(tolua_S,"SendChatMsg",tolua_WndLibExport_SendChatMsg00);
 
   { /* begin embedded lua code */
    int top = lua_gettop(tolua_S);

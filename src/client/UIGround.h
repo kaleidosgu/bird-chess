@@ -68,3 +68,4 @@ private:
 	static char m_mainPlayerName[128];
 	static int m_nRoomID;
 };
+extern CUIGround* g_UIGround;
