@@ -29,6 +29,7 @@ using namespace std;
 
 char CUIGround::m_mainPlayerName[128] = {0};
 int CUIGround::m_nRoomID = 0;
+bool CUIGround::m_bShowChatEdit = false;
 CUIGround::CUIGround():m_bReady(false)
 {
 	for(int i = 0 ;i < nMaxBirdCount ; ++i)
@@ -54,7 +55,6 @@ CUIGround::CUIGround():m_bReady(false)
 	}
 
 	m_Edit = new GfxEdit(600,0xFFFFFF00, "黑体", 20,false,false);// 编辑框字体指定 隶书
-	m_Edit->SetFocus();
 	m_Edit->SetCallback(&CUIGround::OnEnter);
 }
 
@@ -112,7 +112,9 @@ void CUIGround::Render()
 		{
 			(*itBeginChat)->Render(900,648+20*i);
 		}
-		m_Edit->Render(900,738);
+
+		if(m_bShowChatEdit)
+			m_Edit->Render(900,738);
 	}
 }
 
@@ -167,9 +169,16 @@ void CUIGround::Response(int nCardType,int nCardInstruction,int nTargetCardType 
 
 void CUIGround::SetMainPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo)
 {
+	m_Edit->SetFocus();
 	m_PlayerManager->GetMainPlayer()->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);
 	sprintf_s(m_mainPlayerName,"[%s]:",rPlayerInfo.szPlayerName);
 	m_Edit->InsertCookie(m_mainPlayerName);
+	string str = rPlayerInfo.szPlayerName;
+	stringstream ss;
+	ss << "[战绩]"<<str << "("<<rPlayerInfo.nScore<<")"<<rPlayerInfo.nWin <<"/"<< rPlayerInfo.nWin <<"/" << rPlayerInfo.nWin;
+	ShowChat(ss.str());
+	ShowChat("[聊天]");
+
 }
 
 void CUIGround::SetRoomMater(int nID)
@@ -185,14 +194,17 @@ void CUIGround::PlayerLeave(int nID)
 
 void CUIGround::SetPlayerInfo(MSG_CARDGAME_S2C_PlayerInfo& rPlayerInfo)
 {
-		//m_PlayerManager->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);
-		std::vector<UIPlayer*>&  rPlayerVec =  m_PlayerManager->GetPlayerList();
-		if(rPlayerInfo.nPlayerID!= m_PlayerManager->GetMainPlayer()->GetPlayerID())
-		{
-			rPlayerVec[1]->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);		//目前只支持两个人 0 和 1
-		}
-		SendChat("[聊天]");
-
+	//m_PlayerManager->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);
+	std::vector<UIPlayer*>&  rPlayerVec =  m_PlayerManager->GetPlayerList();
+	if(rPlayerInfo.nPlayerID!= m_PlayerManager->GetMainPlayer()->GetPlayerID())
+	{
+		rPlayerVec[1]->SetPlayerInfo(rPlayerInfo.szPlayerName,rPlayerInfo.nPlayerID);		//目前只支持两个人 0 和 1
+		string str = rPlayerInfo.szPlayerName;
+		stringstream ss;
+		int nRoom(m_nRoomID);
+		ss << str << "("<<rPlayerInfo.nScore<<")"<<rPlayerInfo.nWin <<"/"<< rPlayerInfo.nWin <<"/" << rPlayerInfo.nWin <<""<< "进入房间";
+		ShowChat(ss.str());
+	}
 }
 
 void CUIGround::SetPlayerCardInfo(int nPosID,int nType,int nInstruction)
@@ -307,21 +319,24 @@ void CUIGround::ShowChat(const  std::string& strChat,int nType /*= 0*/ )
 	
 }
 
+
 void CUIGround::OnEnter( GfxEdit* m_Edit )
 {
-	const char* cSend = m_Edit->GetCookie();
-	std::string strSend(cSend);
-	std::string str2Send(m_mainPlayerName);
-	CmdProcess(cSend);
-	if (strSend.length() > str2Send.length())
+	if(m_bShowChatEdit)
 	{
-		CUIGround::SendChat(cSend);
+		const char* cSend = m_Edit->GetCookie();
+		std::string strSend(cSend);
+		std::string str2Send(m_mainPlayerName);
+		CmdProcess(cSend);
+		if (strSend.length() > str2Send.length())
+		{
+			CUIGround::SendChat(cSend);
+		}
+		else
+		{
+			CUIGround::SendChat(m_mainPlayerName);
+		}
 	}
-	else
-	{
-		CUIGround::SendChat(m_mainPlayerName);
-	}
-	
 	m_Edit->ClearCookie();
 	m_Edit->InsertCookie(m_mainPlayerName);
 }
@@ -346,4 +361,12 @@ void CUIGround::CmdProcess( const std::string& strCmd )
 		}
 	}
 	//return false;
+}
+
+void CUIGround::BirdChat( const std::string& strChat,int nType /*= 0*/ )
+{
+	std::string str2Send(m_mainPlayerName);
+	str2Send += strChat;
+	CmdProcess(strChat);
+	CUIGround::SendChat(str2Send);
 }

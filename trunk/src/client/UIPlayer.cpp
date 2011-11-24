@@ -238,15 +238,15 @@ void MainUIPlayer::SetMaster(bool bIsMaster)
 }
 void MainUIPlayer::SetGameStart(bool bStart)
 {
-	//if(bStart)
-	//{
-	//	GETCTRL(eBeginGame)->SetVisable(false);
-	//	m_fWinGame = -1.0f;
-	//}
-	//else if(m_bIsMaster)
-	//{
-	//		GETCTRL(eBeginGame)->SetVisable(true);
-	//}
+	if(bStart)
+	{
+		GETCTRL(eBeginGame)->SetVisable(false);
+		m_fWinGame = -1.0f;
+	}
+	else if(m_bIsMaster)
+	{
+			GETCTRL(eBeginGame)->SetVisable(true);
+	}
 }
 
 void MainUIPlayer::SetCurrentPlayer(bool bIsCurrentPlayer)

@@ -84,5 +84,5 @@ unsigned long GetARGB( int a, int r, int g, int b )
 void SendChatMsg( lua_State* pState, const char* pChatContent )
 {
 	std::string strContent = pChatContent;
-	g_UIGround->SendChat( strContent );
+	g_UIGround->BirdChat( strContent );
 }
