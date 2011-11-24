@@ -42,6 +42,25 @@ local function OnKeyDown(self,eKey)
 		self.bUpdate = true
 		keyres = WND_RESULT_YES
 	end
+	if eKey == 38 then --ио
+		if g_CurCmd > 0 and g_CMDList[g_CurCmd] ~= "" then
+				self.myedit:SetText(g_CMDList[g_CurCmd])
+				g_CurCmd = g_CurCmd - 1
+				if g_CurCmd == 0 then
+					if g_CMDList[g_MaxCmd] ~= "" then
+						g_CurCmd = g_MaxCmd
+					else
+						g_CurCmd = 1
+					end
+				end
+		end
+	end
+	if eKey == 40 then --об
+		if g_CMDList[g_CurCmd%g_MaxCmd+1] ~= "" then
+				self.myedit:SetText(g_CMDList[g_CurCmd%g_MaxCmd+1])
+				g_CurCmd = g_CurCmd%g_MaxCmd+1
+		end
+	end
 	return keyres
 end
 
@@ -52,13 +71,16 @@ local function OnMessage(self,nUIEvent,nDlgID)
 			if self.m_bShowEdit == true then
 				local kdString = self.myedit:GetText()
 
+				g_CurCmd = g_CurCmd%g_MaxCmd+1
+				g_CMDList[g_CurCmd] = kdString
+
 				local firstStr = {}
 				local ncount = 1
 				for w in string.gmatch(kdString, "%a+") do
 					firstStr[ncount] = tostring(w)
 					ncount = ncount + 1;
 				end
-				if firstStr[1] == "create" then
+				if firstStr[1] == "c" then
 					local ends = string.find(kdString," ")
 					local substr = string.sub(kdString,ends + 1,string.len(kdString))
 					local strSimple = substr
