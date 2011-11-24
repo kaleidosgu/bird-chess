@@ -66,6 +66,7 @@ TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 #include "lua/UILuaState.h"
 /////////////////function////////////////
 
+#define _LuaLogin
 
 bool FrameFunc()  //帧数逻辑
 {
@@ -89,15 +90,15 @@ bool FrameFunc()  //帧数逻辑
 	float dt=hge->Timer_GetDelta();
 	g_UIGround->Update(dt);
 
-//#ifdef _DEBUG
+#ifdef _LuaLogin
 	if( m_pDesktop )
 	{
 		m_pDesktop->OnUpdate( dt );
 		m_pDesktop->OnMouseInput();
 	}
-//#else	
-//#endif
+#else
 	g_UILoginGame->Update(dt);
+#endif
 	float MouseX,MouseY;
 	hge->Input_GetMousePos(&MouseX,&MouseY);
 	if((MouseX>1150 || MouseX<268)) //X轴滚屏
@@ -182,7 +183,7 @@ bool FrameFunc()  //帧数逻辑
 			break;
 		case HGEK_F2:
 			{
-			
+				CUIGround::m_bShowChatEdit = !CUIGround::m_bShowChatEdit;
 			}
 			break;
 		case HGEK_F3:
@@ -278,11 +279,11 @@ bool RenderFunc()
 
 
 	//界面高于场景内容,低于鼠标
-	//#ifdef _DEBUG
+#ifdef _LuaLogin
 	m_pDesktop->OnDraw();
-	//#else
-	//g_UILoginGame->Render();
-	//#endif
+#else
+	g_UILoginGame->Render();
+#endif
 
 	gui->Render();
 
@@ -370,7 +371,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
 	hge->System_SetState(HGE_RENDERFUNC, RenderFunc);
 	hge->System_SetState(HGE_TITLE, "SuperPigChess");
-	//hge->System_SetState(HGE_FPS, GAME_FPS);
+	hge->System_SetState(HGE_FPS, 50);
 	hge->System_SetState(HGE_USESOUND, true);
 	hge->System_SetState(HGE_WINDOWED, true);
 	//hge->System_SetState(HGE_WINDOWED, false);
