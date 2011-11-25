@@ -117,6 +117,7 @@ public:
 	const char* GetText() const;
 	void SetText( const char* pText );
 	void SetMask( const char* pMask );
+	void SetCaretColor( DWORD color );
 };
 
 class CWndButton : public CWndBase
