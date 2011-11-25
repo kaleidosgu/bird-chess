@@ -2,11 +2,16 @@ local function OnKeyDown(self,eKey)
 	local keyres = WND_RESULT_NO
 	return keyres
 end
+local function focusOnEdit( self )
+	self.pWndBirdChat:ShowWindow(true)
+	self.stEdit:SetFocus(self.stEdit)
+	self.pWndBirdChat:ShowWindow(true)
+end
 local function OnMessage(self,nUIEvent,nDlgID)
 	local keyres = WND_RESULT_NO
-	if nUIEvent == 0 then
+	if nUIEvent == WND_CLICK then
 		if nDlgID == 115 then
-			self.fly = (not self.fly)
+			-- self.fly = (not self.fly)
 			local bShow = self.pWndBirdChat:IsVisible()
 			if bShow == true then
 				self.pWndBirdChat:ShowWindow(false)
@@ -14,14 +19,19 @@ local function OnMessage(self,nUIEvent,nDlgID)
 				self.stEdit:SetFocus(nil)
 				consoleAddText("false")
 			else
-				self.pWndBirdChat:ShowWindow(true)
+				focusOnEdit( self )
 				keyres = WND_RESULT_YES
 				consoleAddText("true")
-
-				-- local bseEdit = basewnd.toObject(self.stEdit,"CWndBase")
-				--self.stEdit:SetFocus(self.stEdit)
-				--self.stEdit:SetText("")
 			end
+		end
+	elseif nUIEvent == WND_MOVEON then
+		if nDlgID == 115 then
+			self.fly = (not self.fly)
+		end
+	elseif nUIEvent == WND_MOVEOUT then
+		if nDlgID == 115 then
+			self.pWndBirdChat:ShowWindow(false)
+			self.fly = (not self.fly)
 		end
 	elseif nUIEvent == WND_ONCHAR then
 		if nDlgID == 333 then
@@ -78,11 +88,12 @@ local function regEvent( parent )
 end
 local function createBird( ptReturn )
 	local pChatBird = CWndButton:new();
-	pChatBird:Create(0,0,0,0,"res/pic/EntityPic.png",ptReturn,115);
+	pChatBird:Create(0,0,60,40,"res/pic/EntityPic.png",ptReturn,115);
 	pChatBird:AddRes(0,378,33,33)
 	pChatBird:AddRes(0,410,33,33)
 	pChatBird:AddRes(0,505,33,33)
 	pChatBird:AddRes(0,543,33,33)
+	pChatBird:ShowBox(true)
 
 	ptReturn.ptReturn = ptReturn
 	ptReturn.tickCount = 0
@@ -107,6 +118,7 @@ local function createBird( ptReturn )
 	pWndBirdChat:ShowWindow(false)
 	stEdit:SetNotifyParent(true)
 	stEdit:SetText("")
+	stEdit:SetCaretColor(0xff000000)
 	-- stEdit:ShowBox(true)
 end
 function createTmpUI(strFile,strSimple)
