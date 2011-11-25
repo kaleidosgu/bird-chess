@@ -5,6 +5,7 @@
 #include "../net/systemmsg.h"
 #include "basedefine.h"
 
+#pragma pack(1)
 enum
 {
     MSGID_CARDGAME_Begin = 0x1000,
@@ -432,4 +433,5 @@ struct MSG_CARDGAME_X2X_ChatContent : public MSG_BASE
     char pData[1];
 };
 
+#pragma pack()
 #endif // __cardgame_cardgamemsg_h_
