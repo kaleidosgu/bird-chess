@@ -349,6 +349,7 @@ void CCardGame::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                             MSG_CARDGAME_S2C_LoginResult loginResultMsg;
                                             loginResultMsg.nResult = MSG_CARDGAME_S2C_LoginResult::Result_Relogin;
                                             SendMsg(loginResultMsg, pSlot->m_nSlotIndex);
+                                            pSlot->m_State = CardSlot::State_Free;
                                             WriteLog(LEVEL_DEBUG, "The player(%d) relogin the game.\n", pLoginDBQuery->m_nDBPlayerID);
                                         }
                                     }
@@ -357,6 +358,7 @@ void CCardGame::ProcessDBQueryResult(DBQueryTask & rDBQueryTask)
                                         MSG_CARDGAME_S2C_LoginResult loginResultMsg;
                                         loginResultMsg.nResult = MSG_CARDGAME_S2C_LoginResult::Result_Failed;
                                         SendMsg(loginResultMsg, pSlot->m_nSlotIndex);
+                                        pSlot->m_State = CardSlot::State_Free;
                                     }
                                 }
                                 else
