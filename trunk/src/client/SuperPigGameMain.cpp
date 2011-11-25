@@ -265,33 +265,22 @@ bool RenderFunc()
 		bgspr4->Render(bgspr2->GetWidth()*i-G_bgLocateX2*.6-G_LogicX*.6,200-G_LogicY*.4);
 		bgspr2->Render(bgspr2->GetWidth()*i-G_bgLocateX2*.8-G_LogicX*.8,400-G_LogicY*.8);
 	}
-	
 	for(int i=0;i<10;i++)
 	{
 		bgspr5->RenderEx(bgspr2->GetWidth()*i-G_bgLocateX2-G_LogicX,500-G_LogicY,0.0,0.6,0.6);
 		
 	}
-
-	
-
-	
-
 	g_UIGround->Render();
-
-
 	//界面高于场景内容,低于鼠标
 #ifdef _LuaLogin
 	m_pDesktop->OnDraw();
 #else
 	g_UILoginGame->Render();
 #endif
-
 	gui->Render();
-
 	CShowMessage::Instance().Render();
 	m_pHgeDevice->hge->Gfx_EndScene();
 	hge->Gfx_EndScene();
-
 	return false;
 }
 

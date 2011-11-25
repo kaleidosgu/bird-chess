@@ -290,6 +290,35 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 
 		}
 		break;
+	case MSGID_CARDGAME_S2C_KickOffPlayer:
+	case MSGID_SYSTEM_Disconnect:
+		{
+			MSG_CARDGAME_S2C_KickOffPlayer& rInfoMsg = (MSG_CARDGAME_S2C_KickOffPlayer&)rMsg;
+			g_UIGround->SetReady(false);
+
+			lua_getglobal(g_pGlobalState,"showLoginWnd");
+			int nLuaRes = lua_isfunction(g_pGlobalState,-1);
+			if( nLuaRes == 1)
+			{
+				nLuaRes = lua_pcall(g_pGlobalState,0,1,0);
+				int nTop = lua_gettop( g_pGlobalState );
+				if( nLuaRes == 0 )
+				{
+					lua_toboolean( g_pGlobalState, -1 );
+				}
+				else
+				{
+					const char* pChar = lua_tostring(g_pGlobalState, -1 );
+					lua_settop(g_pGlobalState,0);
+				}
+				if( nTop > 0 )
+				{
+					const char* pChar = lua_tostring(g_pGlobalState, -1 );
+					lua_settop(g_pGlobalState,0);
+				}
+			}
+			break;
+		}
 	default:
 		break;
 
