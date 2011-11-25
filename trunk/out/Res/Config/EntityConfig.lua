@@ -77,7 +77,7 @@ EnitySize = {
 {name="BulletBomb3",nIndex  =0,x=878,y=0,width=128,height=124},       --169,512, 116, 113
 {name="BulletBomb4",nIndex  =0,x=841,y=441,width=87,height=86},
 
-{name="PlayerFace-1",nIndex =1,x=781,y=616,width=50,height=50},  -- //带鸟面具
+{name="PlayerFace-1",nIndex =1,x=81,y=470,width=54,height=54},  -- //带鸟面具
 {name="PlayerFace0",nIndex = 10,x=851,y=891,width=50,height=47},  -- //红
 {name="PlayerFace1",nIndex = 10,x=831,y=529,width=100,height=75},  -- //绿色
 {name="PlayerFace2",nIndex = 0,x=730,y=800,width=60,height=53},  -- //黄

@@ -165,6 +165,8 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 			{
 				if(rInfoMsg.nResult != MSG_CARDGAME_S2C_EnterRoomResult::Result_RoomNotExist )
 				{
+					MSG_CARDGAME_C2S_CreateRoom rRoomMsg;
+					g_CSM.SendMsg(rRoomMsg);
 				}
 				else
 					UIShowMessage("EnterRoomResult fail!!");
