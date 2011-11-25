@@ -188,6 +188,7 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 			break;
 		case HGEK_F3:
 			{
+				
 			}
 			break;
 		case HGEK_F4:

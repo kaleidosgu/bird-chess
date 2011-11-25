@@ -269,7 +269,7 @@ void CUIGround::Init()
 		m_vecCloud[i]->Init();
 	}	
 	std::vector<UIPlayer*>&  rPlayerVec =  m_PlayerManager->GetPlayerList();
-	rPlayerVec[1]->SetBirdID(0);
+	rPlayerVec[1]->SetBirdID(-1);
 	m_PlayerManager->GetMainPlayer()->SetGameStart(true);
 }
 
