@@ -393,11 +393,13 @@ struct MSG_CARDGAME_S2C_Win : public MSG_BASE
     {
         nMsg = MSGID_CARDGAME_S2C_Win;
         nSize = sizeof(MSG_CARDGAME_S2C_Win);
-		nOtherPlayerCardType = -1;
+		nWinCardType = -1;
+		nLoseCardType = -1;
         nPlayerID = -1;
     }
     int nPlayerID;
-	int nOtherPlayerCardType;
+	int nWinCardType;
+	int nLoseCardType;
 };
 
 struct MSG_CARDGAME_S2C_KickOffPlayer : public MSG_BASE
