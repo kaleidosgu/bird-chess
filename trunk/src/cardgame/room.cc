@@ -396,6 +396,7 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
         map< int, Player * >::iterator it = m_PlayerMap.begin();
         for (; it!=m_PlayerMap.end(); ++it)
         {
+
             Player * pPlayer = it->second;
             if (pPlayer)
             {
@@ -403,6 +404,18 @@ int Room::UseCard(Player & rPlayer, const Card & rCard, CardType eCardType)
                 {
                     MSG_CARDGAME_S2C_Win msg;
                     msg.nPlayerID = pPlayer->GetPlayerID();
+                    map< int, Player * >::iterator itOtherPlay = m_PlayerMap.begin();
+                    for(; itOtherPlay!= m_PlayerMap.end();++itOtherPlay)
+                    {
+                        Player * pOtherPlayer = itOtherPlay->second;
+                        if((itOtherPlay->second)->GetCardType() != eCardType)
+                        {
+                            msg.nWinCardType = eCardType;
+                            msg.nLoseCardType= itOtherPlay->second->GetCardType();
+                            break;
+                        }
+                    }
+
                     BroadCastMsg(msg);
                     WriteLog(LEVEL_DEBUG, "Room(%d)::UseCard. CardType(%d) win. Player(%d) win.\n", m_nRoomID, eCardType, pPlayer->GetPlayerID());
                     bHaveWinner = true;
