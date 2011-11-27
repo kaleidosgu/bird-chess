@@ -6,6 +6,7 @@ $#include "wndedit.h"
 $#include "wndbutton.h"
 $#include "../UI/UIExportWndBase.h"
 $#include "../cn/gfxfontwnd.h"
+$#include "../ui/gfxeditwnd.h"
 $#include "../ExportLua/UIGlobalExport.h"
 $#include "wtypes.h"
 typedef 0 NULL;
@@ -16,6 +17,7 @@ typedef char CHAR;
 typedef int BOOL;
 typedef long LONG;
 typedef unsigned long DWORD;
+typedef unsigned int UINT;
 typedef struct
 {
 INT cx;
@@ -48,13 +50,25 @@ public:
 	void ShowBox( bool bShow );
 };
 
-class CGfxFontWnd
+class CGfxFontWnd : public CWndBase
 {
 public:
 	CGfxFontWnd(void);
 	virtual ~CGfxFontWnd(void);
 	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
 	void SetTextFont( const char* lpsFontName, int nFaceSize, BOOL bBold = FALSE, BOOL bItalic = FALSE, BOOL bAntialias = TRUE );
+	void SetText( const char* pText );
+	void SetFontColor( DWORD drColor );
+	void AddText( const char* pText );
+};
+
+class CGfxEditWnd : public CWndBase
+{
+public:
+	CGfxEditWnd(void);
+	virtual ~CGfxEditWnd(void);
+	virtual bool Create( int x, int y, int cx, int cy, CWndBase* pParent, int nID );
+	void SetTextFont( UINT nEditWidth, DWORD nFontColor, char* lpFontName = "ËÎÌו", UINT nFontSize = 12, BOOL bBold = FALSE, BOOL bItalic = FALSE, BOOL bAntialias = TRUE );
 	void SetText( const char* pText );
 	void SetFontColor( DWORD drColor );
 	void AddText( const char* pText );
