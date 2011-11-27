@@ -5,9 +5,11 @@ function createTmpUI(strFile,simplestr)
 		ptReturn:ResizeWindow(300,300)
 		ptReturn:ShowBox(true)
 		
-		local edit = CGfxEditWnd:new()
-		edit:Create(30,30,100,15,ptReturn,0)
-		edit:SetTextFont( 600, 0xFFFFFF00, "ËÎÌו");
-		edit:ShowBox(true)
+		-- local edit = CGfxEditWnd:new()
+		-- edit:Create(30,30,100,15,ptReturn,0)
+		-- edit:SetTextFont( 600, 0xFFFFFF00, "ËÎÌו");
+		-- edit:ShowBox(true)
+		
+		
 	end
 end
