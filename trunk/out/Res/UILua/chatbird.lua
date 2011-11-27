@@ -5,7 +5,6 @@ end
 local function focusOnEdit( self )
 	self.pWndBirdChat:ShowWindow(true)
 	self.stEdit:SetFocus(self.stEdit)
-	self.pWndBirdChat:ShowWindow(true)
 end
 local function OnMessage(self,nUIEvent,nDlgID)
 	local keyres = WND_RESULT_NO
@@ -57,7 +56,7 @@ local function OnUpdate(self,e)
 			x = x - 3
 			local idx = 0
 			if x < 1 then
-				x = 2000
+				x = 1300
 
 				if self.stEdit:GetText()~= "" then
 					SendChatMsg(self.stEdit:GetText())
@@ -77,6 +76,7 @@ local function OnUpdate(self,e)
 			y = g_SinAngle[idx] *5*nRandy
 			--self.ptReturn:MoveWindow( x ,self.bsey + y)
 			self.ptReturn:MoveWindow( x ,700 + y)
+			-- consoleAddText( " x = " .. x )
 		end
 	end
 end
