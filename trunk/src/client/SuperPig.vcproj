@@ -451,6 +451,22 @@
 			Name="UI"
 			>
 			<File
+				RelativePath=".\UI\GfxEditWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\GfxEditWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CN\GfxFontWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CN\GfxFontWnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\UI\UIExportWndBase.cpp"
 				>
 			</File>
@@ -487,14 +503,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath=".\CN\GfxFontWnd.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\CN\GfxFontWnd.h"
-			>
-		</File>
 		<File
 			RelativePath=".\icon1.ico"
 			>

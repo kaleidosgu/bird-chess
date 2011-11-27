@@ -120,7 +120,7 @@ end
 local pDesk = basewnd.toObject(g_UIGlobal["ptDesk"],"CWndBase")
 local expwnd = CreateLuaWnd(pDesk,0,0)
 expwnd:SetPath("console")
-expwnd.m_bShowEdit = true
+expwnd.m_bShowEdit = false
 expwnd.m_nSpeed = 30
 local bseexp = basewnd.toObject(expwnd,"CWndBase")
 

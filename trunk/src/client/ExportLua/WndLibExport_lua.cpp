@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/27/11 09:42:54.
+** Generated automatically by tolua++-1.0.92 on 11/27/11 10:46:52.
 */
 
 #ifndef __cplusplus
@@ -21,6 +21,7 @@ TOLUA_API int  tolua_WndLibExport_open (lua_State* tolua_S);
 #include "wndbutton.h"
 #include "../UI/UIExportWndBase.h"
 #include "../cn/gfxfontwnd.h"
+#include "../ui/gfxeditwnd.h"
 #include "../ExportLua/UIGlobalExport.h"
 #include "wtypes.h"
 
@@ -69,6 +70,13 @@ static int tolua_collect_CUIExportWndBase (lua_State* tolua_S)
 	return 0;
 }
 
+static int tolua_collect_CGfxEditWnd (lua_State* tolua_S)
+{
+ CGfxEditWnd* self = (CGfxEditWnd*) tolua_tousertype(tolua_S,1,0);
+	Mtolua_delete(self);
+	return 0;
+}
+
 static int tolua_collect_CWndButton (lua_State* tolua_S)
 {
  CWndButton* self = (CWndButton*) tolua_tousertype(tolua_S,1,0);
@@ -108,6 +116,7 @@ static void tolua_reg_types (lua_State* tolua_S)
  tolua_usertype(tolua_S,"CWndLoadPicture");
  tolua_usertype(tolua_S,"CGfxFontWnd");
  tolua_usertype(tolua_S,"CUIExportWndBase");
+ tolua_usertype(tolua_S,"CGfxEditWnd");
  tolua_usertype(tolua_S,"CWndButton");
  tolua_usertype(tolua_S,"POINT");
  tolua_usertype(tolua_S,"CWndEdit");
@@ -1036,6 +1045,280 @@ static int tolua_WndLibExport_CGfxFontWnd_AddText00(lua_State* tolua_S)
 #endif
  {
   CGfxFontWnd* self = (CGfxFontWnd*)  tolua_tousertype(tolua_S,1,0);
+  const char* pText = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'AddText'", NULL);
+#endif
+  {
+   self->AddText(pText);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'AddText'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: new of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_new00
+static int tolua_WndLibExport_CGfxEditWnd_new00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  {
+   CGfxEditWnd* tolua_ret = (CGfxEditWnd*)  Mtolua_new((CGfxEditWnd)());
+    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CGfxEditWnd");
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: new_local of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_new00_local
+static int tolua_WndLibExport_CGfxEditWnd_new00_local(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertable(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  {
+   CGfxEditWnd* tolua_ret = (CGfxEditWnd*)  Mtolua_new((CGfxEditWnd)());
+    tolua_pushusertype(tolua_S,(void*)tolua_ret,"CGfxEditWnd");
+    tolua_register_gc(tolua_S,lua_gettop(tolua_S));
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'new'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: delete of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_delete00
+static int tolua_WndLibExport_CGfxEditWnd_delete00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxEditWnd* self = (CGfxEditWnd*)  tolua_tousertype(tolua_S,1,0);
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'delete'", NULL);
+#endif
+  Mtolua_delete(self);
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'delete'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: Create of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_Create00
+static int tolua_WndLibExport_CGfxEditWnd_Create00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,4,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,0,&tolua_err) ||
+     !tolua_isusertype(tolua_S,6,"CWndBase",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,7,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,8,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxEditWnd* self = (CGfxEditWnd*)  tolua_tousertype(tolua_S,1,0);
+  int x = ((int)  tolua_tonumber(tolua_S,2,0));
+  int y = ((int)  tolua_tonumber(tolua_S,3,0));
+  int cx = ((int)  tolua_tonumber(tolua_S,4,0));
+  int cy = ((int)  tolua_tonumber(tolua_S,5,0));
+  CWndBase* pParent = ((CWndBase*)  tolua_tousertype(tolua_S,6,0));
+  int nID = ((int)  tolua_tonumber(tolua_S,7,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'Create'", NULL);
+#endif
+  {
+   bool tolua_ret = (bool)  self->Create(x,y,cx,cy,pParent,nID);
+   tolua_pushboolean(tolua_S,(bool)tolua_ret);
+  }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'Create'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetTextFont of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_SetTextFont00
+static int tolua_WndLibExport_CGfxEditWnd_SetTextFont00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isstring(tolua_S,4,1,&tolua_err) ||
+     !tolua_isnumber(tolua_S,5,1,&tolua_err) ||
+     !tolua_isnumber(tolua_S,6,1,&tolua_err) ||
+     !tolua_isnumber(tolua_S,7,1,&tolua_err) ||
+     !tolua_isnumber(tolua_S,8,1,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,9,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxEditWnd* self = (CGfxEditWnd*)  tolua_tousertype(tolua_S,1,0);
+  unsigned int nEditWidth = (( unsigned int)  tolua_tonumber(tolua_S,2,0));
+  unsigned long nFontColor = (( unsigned long)  tolua_tonumber(tolua_S,3,0));
+  char* lpFontName = ((char*)  tolua_tostring(tolua_S,4,"ËÎÌו"));
+  unsigned int nFontSize = (( unsigned int)  tolua_tonumber(tolua_S,5,12));
+   int bBold = ((  int)  tolua_tonumber(tolua_S,6,FALSE));
+   int bItalic = ((  int)  tolua_tonumber(tolua_S,7,FALSE));
+   int bAntialias = ((  int)  tolua_tonumber(tolua_S,8,TRUE));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetTextFont'", NULL);
+#endif
+  {
+   self->SetTextFont(nEditWidth,nFontColor,lpFontName,nFontSize,bBold,bItalic,bAntialias);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetTextFont'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetText of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_SetText00
+static int tolua_WndLibExport_CGfxEditWnd_SetText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxEditWnd* self = (CGfxEditWnd*)  tolua_tousertype(tolua_S,1,0);
+  const char* pText = ((const char*)  tolua_tostring(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetText'", NULL);
+#endif
+  {
+   self->SetText(pText);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetText'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: SetFontColor of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_SetFontColor00
+static int tolua_WndLibExport_CGfxEditWnd_SetFontColor00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxEditWnd* self = (CGfxEditWnd*)  tolua_tousertype(tolua_S,1,0);
+  unsigned long drColor = (( unsigned long)  tolua_tonumber(tolua_S,2,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetFontColor'", NULL);
+#endif
+  {
+   self->SetFontColor(drColor);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetFontColor'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
+/* method: AddText of class  CGfxEditWnd */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CGfxEditWnd_AddText00
+static int tolua_WndLibExport_CGfxEditWnd_AddText00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CGfxEditWnd",0,&tolua_err) ||
+     !tolua_isstring(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CGfxEditWnd* self = (CGfxEditWnd*)  tolua_tousertype(tolua_S,1,0);
   const char* pText = ((const char*)  tolua_tostring(tolua_S,2,0));
 #ifndef TOLUA_RELEASE
   if (!self) tolua_error(tolua_S,"invalid 'self' in function 'AddText'", NULL);
@@ -2759,9 +3042,9 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"ShowBox",tolua_WndLibExport_CWndBase_ShowBox00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
-  tolua_cclass(tolua_S,"CGfxFontWnd","CGfxFontWnd","",tolua_collect_CGfxFontWnd);
+  tolua_cclass(tolua_S,"CGfxFontWnd","CGfxFontWnd","CWndBase",tolua_collect_CGfxFontWnd);
   #else
-  tolua_cclass(tolua_S,"CGfxFontWnd","CGfxFontWnd","",NULL);
+  tolua_cclass(tolua_S,"CGfxFontWnd","CGfxFontWnd","CWndBase",NULL);
   #endif
   tolua_beginmodule(tolua_S,"CGfxFontWnd");
    tolua_function(tolua_S,"new",tolua_WndLibExport_CGfxFontWnd_new00);
@@ -2773,6 +3056,22 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetText",tolua_WndLibExport_CGfxFontWnd_SetText00);
    tolua_function(tolua_S,"SetFontColor",tolua_WndLibExport_CGfxFontWnd_SetFontColor00);
    tolua_function(tolua_S,"AddText",tolua_WndLibExport_CGfxFontWnd_AddText00);
+  tolua_endmodule(tolua_S);
+  #ifdef __cplusplus
+  tolua_cclass(tolua_S,"CGfxEditWnd","CGfxEditWnd","CWndBase",tolua_collect_CGfxEditWnd);
+  #else
+  tolua_cclass(tolua_S,"CGfxEditWnd","CGfxEditWnd","CWndBase",NULL);
+  #endif
+  tolua_beginmodule(tolua_S,"CGfxEditWnd");
+   tolua_function(tolua_S,"new",tolua_WndLibExport_CGfxEditWnd_new00);
+   tolua_function(tolua_S,"new_local",tolua_WndLibExport_CGfxEditWnd_new00_local);
+   tolua_function(tolua_S,".call",tolua_WndLibExport_CGfxEditWnd_new00_local);
+   tolua_function(tolua_S,"delete",tolua_WndLibExport_CGfxEditWnd_delete00);
+   tolua_function(tolua_S,"Create",tolua_WndLibExport_CGfxEditWnd_Create00);
+   tolua_function(tolua_S,"SetTextFont",tolua_WndLibExport_CGfxEditWnd_SetTextFont00);
+   tolua_function(tolua_S,"SetText",tolua_WndLibExport_CGfxEditWnd_SetText00);
+   tolua_function(tolua_S,"SetFontColor",tolua_WndLibExport_CGfxEditWnd_SetFontColor00);
+   tolua_function(tolua_S,"AddText",tolua_WndLibExport_CGfxEditWnd_AddText00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndDesktop","CWndDesktop","CWndBase",tolua_collect_CWndDesktop);
