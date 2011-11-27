@@ -21,6 +21,7 @@ public:
 	//void SetName(const std::string& sName);
 	void SetPlayerIndex(int nIndex);
 	void SetBirdID(int nBirdID);
+	int GetBirdID(){return m_nPlayerBirdID;};
 	void SetPlayerInfo(const std::string& sName,int nPlayerID);
 	int GetPlayerID(){return m_nPlayerID;};
 	virtual void SetCurrentPlayer(bool bIsCurrentPlayer);

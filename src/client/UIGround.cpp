@@ -280,17 +280,32 @@ void CUIGround::SetGameState(bool SetGameState)
 
 };
 
-void CUIGround::SetWinner(int nPlayerID)
+void CUIGround::SetWinner(int nPlayerID,int nLoseType,int nWinType)
 {
 	if(m_PlayerManager->GetMainPlayer()->GetPlayerID() == nPlayerID)
 	{
 		CShowMessage::Instance().SetShowMesage("You Win Princess's Kiss",10);
+		g_UIGround->ShowChat("[系统]恭喜你获得胜利");
+	}
+	else if(nPlayerID == -1)
+	{
+		g_UIGround->ShowChat("[系统]平局");
 	}
 	else
 	{
 		string sName = 	m_PlayerManager->GetPlayerList()[1]->GetName();
 		sName = sName + " Win Princess's Kiss";
 		CShowMessage::Instance().SetShowMesage(sName,10);
+		g_UIGround->ShowChat("[系统]大侠您输了");
+	}
+	
+	if(m_PlayerManager->GetMainPlayer()->GetBirdID() != nLoseType)
+	{
+		g_UIGround->SetPlayerBirdID(nLoseType,false);
+	}
+	else
+	{
+		g_UIGround->SetPlayerBirdID(nWinType,false);
 	}
 	m_PlayerManager->GetMainPlayer()->SetWinGame()	;
 

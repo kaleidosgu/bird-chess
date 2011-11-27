@@ -188,12 +188,15 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 			break;
 		case HGEK_F3:
 			{
-				
+				SoundSystem::Instance().SetEnable(!SoundSystem::Instance().GetEnable());
 			}
 			break;
 		case HGEK_F4:
 			{
-				//g_UIGround->Response(4);
+				g_CSM.Disconnect();	
+				MSG_BASE rMSG;
+				rMSG.nMsg = MSGID_SYSTEM_Disconnect;
+				_ProcessMsg(rMSG);
 			}
 			break;
 		case HGEK_F5:

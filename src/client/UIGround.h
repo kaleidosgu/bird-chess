@@ -46,7 +46,7 @@ public:
 	void SetGameState(bool bGameState);
 	void SetRoomID(int nRoomID);
 	void Init();
-	void SetWinner(int nPlayerID);
+	void SetWinner(int nPlayerID,int nLoseType,int nWinType);
 	void ShowChat(const std::string& strChat,int nType = 0);
 	void BirdChat(const std::string& strChat,int nType = 0);
 	//UIPlayerManage* GetPlayerManager(){return m_PlayerManager;}; //为了个提示这么改不好,有时间改掉.让提示是随处可用的
