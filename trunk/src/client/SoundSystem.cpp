@@ -1,7 +1,7 @@
 #include "SoundSystem.h"
 
 HGE* SoundSystem::m_pHge=0;
-SoundSystem::SoundSystem(void):m_pBg(NULL)
+SoundSystem::SoundSystem(void):m_pBg(NULL),m_bEnableSound(true)
 {
 	m_mapSound[0] = m_pHge->Effect_Load("Res/GameSound/bird 01 flying.wav");
 	m_mapSound[1] = m_pHge->Effect_Load("Res/GameSound/bird 02 flying.wav");
@@ -54,9 +54,13 @@ SoundSystem::~SoundSystem(void)
 
 void SoundSystem::PlaySound(int nID,int nPer)
 {
-	map<int,HEFFECT>::iterator it = m_mapSound.find(nID);
-	if(it!= m_mapSound.end())
-		m_pHge->Effect_PlayEx(m_mapSound[nID],nPer);
+	if(m_bEnableSound)
+	{
+		map<int,HEFFECT>::iterator it = m_mapSound.find(nID);
+		if(it!= m_mapSound.end())
+			m_pHge->Effect_PlayEx(m_mapSound[nID],nPer);
+	}
+	
 }
 void SoundSystem::PlayMusic(int nID)
 {
@@ -66,10 +70,12 @@ void SoundSystem::PlayMusic(int nID)
 	//	{
 	//		m_pHge->Channel_Stop(m_pBg);
 	//	}
-	map<int,HEFFECT>::iterator it = m_mapMusic.find(nID);
-	if(it!= m_mapMusic.end())
-		m_pBg =m_pHge->Effect_PlayEx(m_mapMusic[nID],70);
-	//}
+	if(m_bEnableSound)
+	{
+		map<int,HEFFECT>::iterator it = m_mapMusic.find(nID);
+		if(it!= m_mapMusic.end())
+			m_pBg =m_pHge->Effect_PlayEx(m_mapMusic[nID],70);
+	}
 }
 void SoundSystem::init(HGE* pHge)
 {
@@ -88,5 +94,11 @@ void SoundSystem::StopMusic(int nID)
 	//if(it!= m_mapMusic.end())
 	//	m_pHge->Channel_Stop(m_mapMusic[nID]);
 	m_pHge->Channel_Stop(m_pBg);
+}
+
+void SoundSystem::SetEnable(bool bEnableSound)
+{
+	StopMusic(-1);
+	m_bEnableSound = bEnableSound;
 }
 

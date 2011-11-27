@@ -64,7 +64,7 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 				}
 				else
 				{
-					bool bExist = lua_toboolean( g_pGlobalState, -1 );
+					int bExist = lua_toboolean( g_pGlobalState, -1 );
 					if( bExist )
 					{
 
@@ -210,6 +210,7 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 		{
 			MSG_CARDGAME_S2C_StartGameFailed& rInfoMsg  =  (MSG_CARDGAME_S2C_StartGameFailed&)rMsg;
 			UIShowMessage("StartGameFail fail!!");
+			g_UIGround->ShowChat("[注意]需要另一个玩家");
 			//开始失败
 		}
 		break;
@@ -264,19 +265,7 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 		{
 
 			MSG_CARDGAME_S2C_Win& rInfoMsg  =  (MSG_CARDGAME_S2C_Win&)rMsg;
-			if( rInfoMsg.nPlayerID != -1)
-			{
-				//char temp[222];
-				g_UIGround->SetWinner( rInfoMsg.nPlayerID );
-				//sprintf_s(temp,"Player %d Win",rInfoMsg.nPlayerID );
-				//UIShowMessage(temp);
-			}	
-			else
-			{
-				UIShowMessage("Nobody Win!!");
-			}
-			//编译不过。
-			g_UIGround->SetPlayerBirdID(rInfoMsg.nOtherPlayerCardType,false);
+			g_UIGround->SetWinner( rInfoMsg.nPlayerID,rInfoMsg.nLoseCardType,rInfoMsg.nWinCardType );
 			g_UIGround->SetGameState(false);
 			//showmesage
 		}
@@ -293,7 +282,6 @@ void _ProcessMsg(MSG_BASE& rMsg) //
 	case MSGID_CARDGAME_S2C_KickOffPlayer:
 	case MSGID_SYSTEM_Disconnect:
 		{
-			MSG_CARDGAME_S2C_KickOffPlayer& rInfoMsg = (MSG_CARDGAME_S2C_KickOffPlayer&)rMsg;
 			g_UIGround->SetReady(false);
 
 			lua_getglobal(g_pGlobalState,"showLoginWnd");
