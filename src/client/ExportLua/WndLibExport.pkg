@@ -103,6 +103,7 @@ public:
 	void SetFlip(bool bX,bool bY,bool bHotSpot);
 	void SetColor( DWORD col, int i= -1 );
 	void SetBlendMode(int blend);
+	void SetZoom( float hScale, float vScale );
 };
 
 
