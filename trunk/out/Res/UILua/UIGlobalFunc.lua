@@ -1,3 +1,4 @@
+T = consoleAddText
 function CreateLuaWnd(parent,ptx,pty)
 	local pWndBse = CUIExportWndBase:new()
 	pWndBse:Create(ptx,pty,0,0,parent,0);
@@ -81,6 +82,15 @@ function hideLoginWnd( )
 	local pWndLogin,substr = getUIPoint( "login" )
 	if pWndLogin ~= nil then
 		pWndLogin:ShowWindow(false)
+	else
+		return substr
+	end
+end
+
+function showLoginWnd( )
+	local pWndLogin,substr = getUIPoint( "login" )
+	if pWndLogin ~= nil then
+		pWndLogin:ShowWindow(true)
 	else
 		return substr
 	end

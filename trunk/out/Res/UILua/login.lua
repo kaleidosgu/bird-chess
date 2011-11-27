@@ -4,8 +4,8 @@ local function OnKeyDown(self,eKey)
 	local strPassword 	= self.stEditPassword:GetText()
 	local nName 		= string.len(strName)
 	local nPassword 	= string.len(strPassword)
-	if nName > 0 and nPassword > 0 then
-		consoleAddText("something")
+	if nName > 0 and nPassword > 0 and eKey == 13 then
+		--consoleAddText("something")
 		Login2Server(strName, strPassword)
 		keyres = WND_RESULT_YES
 	end
@@ -44,6 +44,6 @@ function createTmpUI(strFile,strSimple)
 
 		ptEdit1Bse:SetTabWnd(ptEdit2Bse)
 		ptEdit2Bse:SetTabWnd(ptEdit1Bse)
-		--ptEdit1Bse:SetFocus(ptEdit1Bse);
+		ptEdit1Bse:SetFocus(ptEdit1Bse);
 	end
 end
