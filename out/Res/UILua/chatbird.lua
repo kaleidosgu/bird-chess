@@ -25,12 +25,14 @@ local function OnMessage(self,nUIEvent,nDlgID)
 		end
 	elseif nUIEvent == WND_MOVEON then
 		if nDlgID == 115 then
-			self.fly = (not self.fly)
+			--consoleAddText("MoveOn")
+			self.fly = false
 		end
 	elseif nUIEvent == WND_MOVEOUT then
 		if nDlgID == 115 then
+			--consoleAddText("MoveOut")
 			self.pWndBirdChat:ShowWindow(false)
-			self.fly = (not self.fly)
+			self.fly = true
 		end
 	elseif nUIEvent == WND_ONCHAR then
 		if nDlgID == 333 then
