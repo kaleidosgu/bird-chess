@@ -12,6 +12,5 @@ package game.control
 		{
 			dispatcher=GameDispatcher.getInstance();
 		}
-		
 	}
 }
