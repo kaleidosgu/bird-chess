@@ -2,27 +2,31 @@ package game.view
 {
 	import com.raoway.utils.Reflection;
 	
+	import common.net.msg.login.Msg_Login_LoginResult;
+	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
-	import flash.events.KeyboardEvent;
-	import flash.ui.Keyboard;
 	
 	import game.events.EventName;
 	import game.events.ParamEvent;
-	import common.net.msg.MsgBase;
-	import common.net.msg.login.Msg_Login_LoginResult;
+	import game.model.LoginModel;
 	
 	public class LoginView extends Sprite
 	{
-		private var bgMc:MovieClip = null;
-		private var loginMc:MovieClip = null;
 		private var params:Object=new Object();
-		public function LoginView()
+		private var loginModel:LoginModel;
+		
+		public var bgMc:MovieClip = null;
+		public var loginMc:MovieClip = null;
+		
+		public function LoginView(loginModel:LoginModel)
 		{
 			super();
-			initLoginView();
+			this.loginModel = loginModel;
+			this.initLoginView();
+			this.addModelEventListener();
 		}
-		public function initLoginView():void
+		private function initLoginView():void
 		{
 			bgMc = Reflection.createInstance("bgMc");
 			addChild(bgMc);
@@ -31,44 +35,29 @@ package game.view
 			loginMc.y = 150;
 			loginMc.usernameinput.text = "lijian";
 			loginMc.passwordinput.text = "1111";
-			loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginEnter);
 			addChild(loginMc);
 		}
-		private function onLoginEnter(e:KeyboardEvent):void
+		private function addModelEventListener():void
 		{
-			if (e.keyCode == Keyboard.ENTER)
-			{
-				loginMc.removeEventListener(KeyboardEvent.KEY_DOWN, onLoginEnter);
-				trace(loginMc.usernameinput.text);
-				trace(loginMc.passwordinput.text);
-				
-				params.username=loginMc.usernameinput.text;
-				params.password=loginMc.passwordinput.text;
-				
-				this.dispatchEvent(new ParamEvent(EventName.REQUEST_JOIN_GAME, params));
-			}
+			this.loginModel.addEventListener(EventName.SHOWLOGINRESULT, onShowLoginResult);
 		}
-		public function onLoginResult(msg:MsgBase):void
+		private function onShowLoginResult(e:ParamEvent):void
 		{
-			var ri:Msg_Login_LoginResult = msg as Msg_Login_LoginResult;
-			if (ri.nResult == Msg_Login_LoginResult.cResult_Success)
+			if (e.param == Msg_Login_LoginResult.cResult_Success)
 			{
-				this.removeChild(loginMc);
+				this.visible = false;
 			}
-			else if (ri.nResult == Msg_Login_LoginResult.cResult_Relogin)
+			else if (e.param == Msg_Login_LoginResult.cResult_Relogin)
 			{
-				loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginEnter);
-				loginMc.usernameinput.text += " relogin";
+				this.loginMc.usernameinput.text = "cResult_Relogin";
 			}
-			else if (ri.nResult == Msg_Login_LoginResult.cResult_Failed)
+			else if (e.param == Msg_Login_LoginResult.cResult_Failed)
 			{
-				loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginEnter);
-				loginMc.usernameinput.text = " login failed";
+				this.loginMc.usernameinput.text = "cResult_Failed";
 			}
 			else
 			{
-				loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginEnter);
-				loginMc.usernameinput.text = "Unkown error";
+				this.loginMc.usernameinput.text = "Unknown";
 			}
 		}
 	}

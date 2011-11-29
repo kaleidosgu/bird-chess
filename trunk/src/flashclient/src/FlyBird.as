@@ -19,14 +19,15 @@ package
 	import flash.utils.ByteArray;
 	
 	import game.control.LoginController;
+	import game.manager.LayerManager;
+	import game.model.LoginModel;
 	import game.view.LoginView;
+	import game.view.MainView;
 	
 	[SWF(width="800", height="600", frameRate="24", backgroundColor="0x000000")]
 	public class FlyBird extends Sprite
 	{
 		private static var _instance:FlyBird;
-		
-		private var csm:ClientSocketMgr;
 		
 		public function FlyBird()
 		{
@@ -38,8 +39,8 @@ package
 		{
 			this.removeEventListener(Event.ADDED_TO_STAGE,adderHandler);
 			
-//			var game:GameView=new GameView();
-//			addChild(game);
+			var mainView:MainView=new MainView();
+			addChild(mainView);
 //			
 //			stage.stageFocusRect=false;
 //			StageProxy.registed(this.stage);
@@ -92,7 +93,7 @@ package
 		{
 			var loader:Loader=new Loader();
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,onLoadResourceComplete);
-			loader.load(new URLRequest("main.swf"),new LoaderContext(true,ApplicationDomain.currentDomain,null));
+			loader.load(new URLRequest("assets/ui/main.swf"),new LoaderContext(true,ApplicationDomain.currentDomain,null));
 			
 //			loader=new ResLoader();
 //			
@@ -179,9 +180,10 @@ package
 		
 		private function applicationStart():void
 		{
-			var loginView:LoginView=new LoginView();
-			this.addChild(loginView);
-			LoginController.getInstance(loginView);
+			var loginModel:LoginModel = new LoginModel();
+			var loginView:LoginView=new LoginView(loginModel);
+			LayerManager.loginLayer.addChild(loginView);
+			LoginController.getInstance(loginModel, loginView);
 			
 			
 //			var loginView:LoginView=new LoginView();
