@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xml>
+	<version>v20100101</version>
+	<socket>
+		<ip>172.18.39.116</ip>
+		<port>8888</port>
+		
+	</socket>
+	<file root="">
+		<swf title="游戏资源">
+			<item title="登陆素材" isLogin="1">assets/ui/create.swf</item>
+			<item title="主场景">assets/ui/mainUISkin.swf</item>
+			<item title="宠物皮肤">assets/ui/pet.swf</item>
+			<item title="组件皮肤">assets/ui/componentSkin.swf</item>
+			<item title="弹出窗皮肤">assets/ui/popContainerSkin.swf</item>
+			<item title="弹出窗元件">assets/ui/popComponent.swf</item>
+			<item title="信件皮肤">assets/ui/mail.swf</item>
+			<item title="地图元素">assets/mapAssets/common.swf</item>
+			<item title="窗口皮肤">assets/ui/popSkin.swf</item>
+			<item title="好友皮肤">assets/ui/friend.swf</item>
+			<item title="聊天素材">assets/ui/chat.swf</item>
+			<item title="组件皮肤">assets/ui/skins.swf</item>
+			<item title="task皮肤">assets/ui/task.swf</item>
+			<item title="商场图片">assets/ui/mall.swf</item>
+			<item title="帮派皮肤">assets/ui/guild.swf</item>
+			<item title="帮派皮肤">assets/ui/skill.swf</item>
+			<item title="对话框">assets/ui/dialog.swf</item>
+		</swf>
+		<xml title="游戏数据">
+			<item title="技能配置">assets/config/data_skill.xml</item>
+			<item title="物品配置">assets/config/goods.xml</item>
+		</xml>
+	</file>
+</xml>

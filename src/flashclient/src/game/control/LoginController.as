@@ -1,66 +1,91 @@
 package game.control
 {
 	import common.net.ClientSocketMgr;
+	import common.net.msg.MsgBase;
 	import common.net.msg.MsgID;
 	import common.net.msg.login.Msg_Login_LoginRequest;
+	import common.net.msg.login.Msg_Login_LoginResult;
+	import common.net.msg.login.Msg_Login_RoomInfo;
 	
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
 	
 	import game.events.EventName;
 	import game.events.ParamEvent;
+	import game.manager.LayerManager;
+	import game.model.LoginModel;
 	import game.view.LoginView;
-	import common.net.msg.login.Msg_Login_LoginResult;
-	import common.net.msg.MsgBase;
-	import common.net.msg.login.Msg_Login_RoomInfo;
 
 	public class LoginController extends Controller
 	{
 		private static var _instance:LoginController=null;
 		private var m_csm:ClientSocketMgr;
+		private var loginModel:LoginModel=null;
 		private var loginView:LoginView=null;
 		
-		public function LoginController(loginView:LoginView)
+		public function LoginController(loginModel:LoginModel, loginView:LoginView)
 		{
 			super();
-			m_csm = ClientSocketMgr.getInstance();
-			
-			
+			this.loginModel=loginModel;
+			this.loginView=loginView;
 			//socket
 			m_csm = ClientSocketMgr.getInstance();
-			//csm.start("114.80.196.52", 7753);
-			//csm.start("172.18.39.117", 8888);
 			m_csm.start("172.18.39.116", 8888);
 			
-			
-			
-			this.addSocketEvent();
-			
-			this.loginView=loginView;
-			this.addEvent();
+			this.addViewEventListener();
+			this.addSocketEventListener();
 		}
-		private function addEvent():void
+		private function addViewEventListener():void
 		{
-			this.loginView.addEventListener(EventName.REQUEST_JOIN_GAME, sendRequestJoinGame);
-			
-			
+			this.loginView.loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginMCKeyDown);
 		}
-		private function addSocketEvent():void
+		private function addSocketEventListener():void
 		{
 			m_csm.addMsgListener(MsgID.MsgID_004098_Login_LoginResult, onLoginResult);
 			m_csm.addMsgListener(MsgID.MsgID_004100_Login_S2C_RoomInfo, onRoomListResult);
 		}
 		
-		public function sendRequestJoinGame(e:ParamEvent):void
+		private function onLoginMCKeyDown(e:KeyboardEvent):void
 		{
-			var lrMsg:Msg_Login_LoginRequest = new Msg_Login_LoginRequest();
-			lrMsg.username.value = e.param.username;
-			lrMsg.password.value = e.param.password;
-			m_csm.sendMsg(lrMsg);
-			lrMsg = null;
+			if (e.keyCode == Keyboard.ENTER)
+			{
+				this.loginView.loginMc.removeEventListener(KeyboardEvent.KEY_DOWN, onLoginMCKeyDown);
+
+				var lrMsg:Msg_Login_LoginRequest = new Msg_Login_LoginRequest();
+				lrMsg.username.value = this.loginView.loginMc.usernameinput.text;
+				lrMsg.password.value = this.loginView.loginMc.passwordinput.text;
+				m_csm.sendMsg(lrMsg);
+				lrMsg = null;
+			}
 		}
 		private function onLoginResult(msg:MsgBase):void
 		{
-			this.loginView.onLoginResult(msg);
+			var ri:Msg_Login_LoginResult = msg as Msg_Login_LoginResult;
+			if (ri.nResult == Msg_Login_LoginResult.cResult_Success)
+			{
+				//this.removeChild(loginMc);
+			}
+			else
+			{
+				this.loginView.loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginMCKeyDown);
+			}
+			this.loginModel.setLoginResult(ri.nResult);
+//			else if (ri.nResult == Msg_Login_LoginResult.cResult_Relogin)
+//			{
+//				this.loginView.loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginMCKeyDown);
+//				loginMc.usernameinput.text += " relogin";
+//			}
+//			else if (ri.nResult == Msg_Login_LoginResult.cResult_Failed)
+//			{
+//				this.loginView.loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginMCKeyDown);
+//				loginMc.usernameinput.text = " login failed";
+//			}
+//			else
+//			{
+//				this.loginView.loginMc.addEventListener(KeyboardEvent.KEY_DOWN, onLoginMCKeyDown);
+//				loginMc.usernameinput.text = "Unkown error";
+//			}
 		}
 		private function onRoomListResult(msg:MsgBase):void
 		{
@@ -73,10 +98,10 @@ package game.control
 			{
 			}
 		}
-		public static function getInstance(loginView:LoginView=null):LoginController
+		public static function getInstance(loginModel:LoginModel, loginView:LoginView):LoginController
 		{
 			if (_instance == null)
-				_instance=new LoginController(loginView);
+				_instance=new LoginController(loginModel, loginView);
 			return _instance;
 		}
 	}
