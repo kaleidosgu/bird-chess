@@ -2,6 +2,8 @@ package
 {
 	import com.raoway.utils.Reflection;
 	
+	import common.loader.LoaderItem;
+	import common.loader.ResLoader;
 	import common.net.ClientSocketMgr;
 	import common.net.msg.MsgBase;
 	import common.net.msg.MsgID;
@@ -19,15 +21,18 @@ package
 	import flash.utils.ByteArray;
 	
 	import game.control.LoginController;
+	import game.manager.ConfigManager;
 	import game.manager.LayerManager;
 	import game.model.LoginModel;
 	import game.view.LoginView;
 	import game.view.MainView;
+	import game.events.ParamEvent;
 	
 	[SWF(width="800", height="600", frameRate="24", backgroundColor="0x000000")]
 	public class FlyBird extends Sprite
 	{
 		private static var _instance:FlyBird;
+		private var loader:ResLoader;
 		
 		public function FlyBird()
 		{
@@ -79,7 +84,7 @@ package
 		{
 			//trace(e.target.data);
 			e.target.removeEventListener(Event.COMPLETE, completeConfigHandler);
-//			ConfigManager.setConfigData(new XML(e.target.data));
+			ConfigManager.setConfigData(new XML(e.target.data));
 			loadResource();
 			//			var mainController:MainController=MainController.getInstance();
 			//			mainController.startSocket();
@@ -91,82 +96,56 @@ package
 		 */
 		public function loadResource():void
 		{
-			var loader:Loader=new Loader();
-			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,onLoadResourceComplete);
-			loader.load(new URLRequest("assets/ui/main.swf"),new LoaderContext(true,ApplicationDomain.currentDomain,null));
+			loader=new ResLoader();
 			
-//			loader=new ResLoader();
-//			
-//			var a:XML=ConfigManager.configData;
-//			var swfList:XMLList=ConfigManager.configData.file.swf.children();
-//			var xmlList:XMLList=ConfigManager.configData.file.xml.children();
-//			var i:int;
-//			var info:Object;
-//			//trace(swfList.length(),xmlList.length())
-//			var root:String=ConfigManager.configData.file.@root.toString();
-//			for (i=0; i < swfList.length(); i++)
-//			{
-//				info=new Object();
-//				info.type="swf";
-//				info.name=swfList[i].@name;
-//				info.title=swfList[i].@title;
-//				info.url=root+swfList[i].toString();
-//				try
-//				{
-//					info.isLogin=swfList[i].@isLogin;
-//				}
-//				catch(e:Error){}
-//				if(info.isLogin!=1 || GameManager.getInstance().firstLogin==true)
-//				{
-//					loader.addItem(new LoaderItem(info.url, info));
-//				}
-//				
-//			}
-//			for (i=0; i < xmlList.length(); i++)
-//			{
-//				info=new Object();
-//				info.type="xml";
-//				info.name=xmlList[i].@name;
-//				info.title=xmlList[i].@title;
-//				info.url=root+xmlList[i].toString();
-//				loader.addItem(new LoaderItem(info.url, info));
-//			}
-//			loader.addEventListener(ResLoader.COMPLETE, queueCompleteHandler);
-//			loader.addEventListener(ResLoader.ITEM_COMPLETE, itemCompleteHandler);
-//			loader.addEventListener(ResLoader.ITEM_START, itemStartHandler);
-//			loader.load();
+			var swfList:XMLList=ConfigManager.configData.file.swf.children();
+			var xmlList:XMLList=ConfigManager.configData.file.xml.children();
+			var i:int;
+			var root:String=ConfigManager.configData.file.@root.toString();
+			for (i=0; i < swfList.length(); i++)
+			{
+				loader.addItem(new LoaderItem(swfList[i].@name, LoaderItem.FILETYPE_SWF, root+swfList[i].toString()));
+			}
+			for (i=0; i < xmlList.length(); i++)
+			{
+				loader.addItem(new LoaderItem(swfList[i].@name, LoaderItem.FILETYPE_XML, root+xmlList[i].toString()));
+			}
+			loader.addEventListener(ResLoader.COMPLETE, onLoadResourceComplete);
+			loader.addEventListener(ResLoader.ITEM_COMPLETE, onLoadItemComplete);
+			loader.addEventListener(ResLoader.ITEM_START, onLoadItemStart);
+			loader.load();
 		}
 		/**
 		 * 完成加载素材 
 		 * @param e
 		 * 
-		 */	
-//		private function queueCompleteHandler(e:ParamEvent):void
-//		{
+		 */
+		private function onLoadResourceComplete(e:ParamEvent):void
+		{
 //			PopUpManager.removePopUp(loading);
-//			e.target.removeEventListener(ResLoader.COMPLETE, queueCompleteHandler);
-//			e.target.removeEventListener(ResLoader.ITEM_COMPLETE, itemCompleteHandler);
-//			e.target.removeEventListener(ResLoader.ITEM_START, itemStartHandler);
+			e.target.removeEventListener(ResLoader.COMPLETE, onLoadResourceComplete);
+			e.target.removeEventListener(ResLoader.ITEM_COMPLETE, onLoadItemComplete);
+			e.target.removeEventListener(ResLoader.ITEM_START, onLoadItemStart);
 //			//e.target.dispose();
 //			
-//			applicationStart();
-//		}
-//		/**
-//		 * 開始加载一个队列的素材 
-//		 * @param e
-//		 * 
-//		 */	
-//		private function itemStartHandler(e:ParamEvent):void
-//		{
+			applicationStart();
+		}
+		/**
+		 * 開始加载一个队列的素材 
+		 * @param e
+		 * 
+		 */	
+		private function onLoadItemStart(e:ParamEvent):void
+		{
 //			loading.setText("正在加载" + e.param.info.title);
-//		}
-//		/**
-//		 * 完成加载一个队列的素材  
-//		 * @param e
-//		 * 
-//		 */	
-//		private function itemCompleteHandler(e:ParamEvent):void
-//		{
+		}
+		/**
+		 * 完成加载一个队列的素材  
+		 * @param e
+		 * 
+		 */	
+		private function onLoadItemComplete(e:ParamEvent):void
+		{
 //			if (e.param.info == null)return;
 //			if(e.param.info.title=="技能配置")
 //			{
@@ -176,7 +155,7 @@ package
 //			{
 //				GoodsListManage.getInstance().createGoodsXML(XML(e.param.content).children());
 //			}
-//		}
+		}
 		
 		private function applicationStart():void
 		{
@@ -237,12 +216,6 @@ package
 		}
 		
 		
-		
-		private function onLoadResourceComplete(e:Event):void
-		{
-			e.target.removeEventListener(Event.COMPLETE, onLoadResourceComplete);
-			applicationStart();
-		}
 //		private function onLoginBTNClick(e:MouseEvent):void
 //		{
 //			trace(loginMc.usernameinput.text);
