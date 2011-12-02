@@ -16,7 +16,7 @@ package game.view
 		private var params:Object=new Object();
 		private var loginModel:LoginModel;
 		
-		public var bgMc:MovieClip = null;
+//		public var bgMc:MovieClip = null;
 		public var loginMc:MovieClip = null;
 		
 		public function LoginView(loginModel:LoginModel)
@@ -28,10 +28,10 @@ package game.view
 		}
 		private function initLoginView():void
 		{
-			bgMc = Reflection.createInstance("bgMc");
-			addChild(bgMc);
-			loginMc = Reflection.createInstance("loginMc");
-			loginMc.x = 300;
+//			bgMc = Reflection.createInstance("bgMC");
+//			addChild(bgMc);
+			loginMc = Reflection.createInstance("loginMC");
+			loginMc.x = 280;
 			loginMc.y = 150;
 			loginMc.usernameinput.text = "lijian";
 			loginMc.passwordinput.text = "1111";
