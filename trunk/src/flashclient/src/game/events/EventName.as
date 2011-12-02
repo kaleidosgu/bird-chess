@@ -4,6 +4,10 @@ package game.events
 	public class EventName
 	{
 		public static const SHOWLOGINRESULT:String="showLoginResult";
+		public static const SETMAINPLAYERINFO:String="setMainPlayerInfo";
+		
+		
+		
 		public static const SHOWLOGINPANEL:String="showLoginPanel";
 		public static const INTOSCENE:String="intoScene";
 		public static const REQUEST_CREATE:String="create";

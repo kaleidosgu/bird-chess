@@ -1,4 +1,4 @@
-package common.net.msg.login
+package common.net.msg.cardgame
 {
 	import common.net.msg.MsgBase;
 	import common.net.msg.MsgID;

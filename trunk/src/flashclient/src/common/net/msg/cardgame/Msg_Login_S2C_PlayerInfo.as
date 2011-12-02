@@ -1,4 +1,4 @@
-package common.net.msg.login
+package common.net.msg.cardgame
 {
 	import common.baseData.CustomByteArray;
 	import common.baseData.Int16;

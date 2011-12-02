@@ -21,12 +21,14 @@ package
 	import flash.utils.ByteArray;
 	
 	import game.control.LoginController;
+	import game.control.MainController;
+	import game.events.ParamEvent;
 	import game.manager.ConfigManager;
 	import game.manager.LayerManager;
 	import game.model.LoginModel;
+	import game.view.BackGroundView;
 	import game.view.LoginView;
 	import game.view.MainView;
-	import game.events.ParamEvent;
 	
 	[SWF(width="800", height="600", frameRate="24", backgroundColor="0x000000")]
 	public class FlyBird extends Sprite
@@ -159,6 +161,9 @@ package
 		
 		private function applicationStart():void
 		{
+			var backgroundView:BackGroundView = new BackGroundView();
+			LayerManager.sceneLayer.addChild(backgroundView);
+			
 			var loginModel:LoginModel = new LoginModel();
 			var loginView:LoginView=new LoginView(loginModel);
 			LayerManager.loginLayer.addChild(loginView);
@@ -213,6 +218,9 @@ package
 //			this.stage.addChild(MouseCursor.getInstance());
 //			
 //			MainController.getInstance().sendLineListRequest();
+			
+			
+			MainController.getInstance().init();
 		}
 		
 		
