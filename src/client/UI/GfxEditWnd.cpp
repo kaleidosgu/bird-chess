@@ -1,6 +1,7 @@
 #include "GfxEditWnd.h"
 #include "../../third/wndlib/src/wnddatadefine.h"
 #include "../cn/GfxEdit.h"
+#include <HGEDevice.h>
 #include <string>
 CGfxEditWnd::CGfxEditWnd(void)
 :m_pGfxEdit(NULL),m_strText("")
@@ -74,7 +75,7 @@ void CGfxEditWnd::DrawCaret()
 {
 	if ( m_pWndFocus == this )
 	{		
-		if( m_pDevice )
+		if( g_pDevice )
 		{
 			//SColor rc(255,0,0,0);
 // 			m_pDevice->hge->Gfx_RenderLine((float)(m_nCaretPos + m_rcAbsWnd.left),(float)(m_rcAbsWnd.top + 5),(float)(m_nCaretPos + m_rcAbsWnd.left) ,(float)(m_rcAbsWnd.top + 18),m_crCaret);
