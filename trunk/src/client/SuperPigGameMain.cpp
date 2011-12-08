@@ -48,7 +48,6 @@ vector<hgeSprite*> bgSprVec;
 HGE* hge= 0;
 CWndBase* m_pWnd = 0;
 CWndDesktop* m_pDesktop = 0;
-HGEDevice* m_pHgeDevice = 0;
 hgeFont				*fnt;  //×ÖÌå
 hgeFont				*fnt_WinOrLost;
 
@@ -282,7 +281,7 @@ bool RenderFunc()
 #endif
 	gui->Render();
 	CShowMessage::Instance().Render();
-	m_pHgeDevice->hge->Gfx_EndScene();
+	g_pDevice->Gfx_EndScene();
 	hge->Gfx_EndScene();
 	return false;
 }
@@ -354,11 +353,10 @@ void FreeResource()
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-	m_pHgeDevice = new HGEDevice;
+	g_pDevice = new HGEDevice;
 
-	CWndBase::SetDevice( m_pHgeDevice );
-	m_pHgeDevice->hge = hgeCreate(HGE_VERSION);
-	hge = m_pHgeDevice->hge;
+	g_pDevice->m_pHge = hgeCreate(HGE_VERSION);
+	hge = g_pDevice->m_pHge;
 	// Set desired system states and initialize HGE
 	hge->System_SetState(HGE_LOGFILE, "SuperPig.log");
 	hge->System_SetState(HGE_FRAMEFUNC, FrameFunc);
@@ -448,7 +446,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	}
 
 	// Clean up and shutdown
-	m_pHgeDevice->hge = NULL;
+	//m_pHgeDevice->hge = NULL;
 	hge->System_Shutdown();
 	hge->Release();
 	return 0;

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(SolutionDir)..\third\otherlib\hgeInclude\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_WNDLIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;_WNDLIB;_HGE_NO_MODIFY"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -170,10 +170,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third\wndlib\src\ResMgr.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third\WndLib\src\WndBase.cpp"
 				>
 			</File>
@@ -213,10 +209,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third\WndLib\src\HGEDevice.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third\wndlib\src\ResMgr.h"
 				>
 			</File>
 			<File

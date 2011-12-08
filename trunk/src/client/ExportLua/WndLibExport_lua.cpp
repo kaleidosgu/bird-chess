@@ -1,6 +1,6 @@
 /*
 ** Lua binding: WndLibExport
-** Generated automatically by tolua++-1.0.92 on 11/27/11 23:38:15.
+** Generated automatically by tolua++-1.0.92 on 11/28/11 09:41:58.
 */
 
 #ifndef __cplusplus
@@ -2009,6 +2009,41 @@ static int tolua_WndLibExport_CWndLoadPicture_SetZoom00(lua_State* tolua_S)
 }
 #endif //#ifndef TOLUA_DISABLE
 
+/* method: SetHotSpot of class  CWndLoadPicture */
+#ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndLoadPicture_SetHotSpot00
+static int tolua_WndLibExport_CWndLoadPicture_SetHotSpot00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+     !tolua_isusertype(tolua_S,1,"CWndLoadPicture",0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,2,0,&tolua_err) ||
+     !tolua_isnumber(tolua_S,3,0,&tolua_err) ||
+     !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+  goto tolua_lerror;
+ else
+#endif
+ {
+  CWndLoadPicture* self = (CWndLoadPicture*)  tolua_tousertype(tolua_S,1,0);
+  float x = ((float)  tolua_tonumber(tolua_S,2,0));
+  float y = ((float)  tolua_tonumber(tolua_S,3,0));
+#ifndef TOLUA_RELEASE
+  if (!self) tolua_error(tolua_S,"invalid 'self' in function 'SetHotSpot'", NULL);
+#endif
+  {
+   self->SetHotSpot(x,y);
+  }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'SetHotSpot'.",&tolua_err);
+ return 0;
+#endif
+}
+#endif //#ifndef TOLUA_DISABLE
+
 /* method: new of class  CWndStatic */
 #ifndef TOLUA_DISABLE_tolua_WndLibExport_CWndStatic_new00
 static int tolua_WndLibExport_CWndStatic_new00(lua_State* tolua_S)
@@ -3151,6 +3186,7 @@ TOLUA_API int tolua_WndLibExport_open (lua_State* tolua_S)
    tolua_function(tolua_S,"SetColor",tolua_WndLibExport_CWndLoadPicture_SetColor00);
    tolua_function(tolua_S,"SetBlendMode",tolua_WndLibExport_CWndLoadPicture_SetBlendMode00);
    tolua_function(tolua_S,"SetZoom",tolua_WndLibExport_CWndLoadPicture_SetZoom00);
+   tolua_function(tolua_S,"SetHotSpot",tolua_WndLibExport_CWndLoadPicture_SetHotSpot00);
   tolua_endmodule(tolua_S);
   #ifdef __cplusplus
   tolua_cclass(tolua_S,"CWndStatic","CWndStatic","CWndBase",tolua_collect_CWndStatic);
