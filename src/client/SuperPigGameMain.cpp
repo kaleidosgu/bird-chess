@@ -93,6 +93,11 @@ bool FrameFunc()  //Ö¡ÊýÂß¼­
 	if( m_pDesktop )
 	{
 		m_pDesktop->OnUpdate( dt );
+		float fx = 0;
+		float fy = 0;
+		g_pDevice->m_pHge->Input_GetMousePos(&fx,&fy);
+		CWndBase::m_ptMouse.x = (LONG)fx;
+		CWndBase::m_ptMouse.y = (LONG)fy;
 		m_pDesktop->OnMouseInput();
 	}
 #else
