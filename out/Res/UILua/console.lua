@@ -41,6 +41,11 @@ local function OnKeyDown(self,eKey)
 		self.m_bShowEdit = (not self.m_bShowEdit)
 		self.bUpdate = true
 		keyres = WND_RESULT_YES
+		if self.m_bShowEdit == false then
+			self:SetFocus(nil)
+		else
+			self:SetFocus(self.bseEdit)
+		end
 	end
 	if eKey == 38 then --ио
 		if g_CurCmd > 0 and g_CMDList[g_CurCmd] ~= "" then
@@ -159,5 +164,6 @@ bseEdit:SetFocus(bseEdit)
 regEvent(expwnd)
 g_pConsole = expwnd
 g_pConsole.bUpdate = false
+g_pConsole.bseEdit = bseEdit
 
 
